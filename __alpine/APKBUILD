@@ -1,0 +1,29 @@
+# Maintainer: J.F.Gratton <jean-francois@famillegratton.net>
+# Packager: Package builder <builder@famillegratton.net>
+pkgname=dtools2
+pkgver=1.00.00
+pkgrel=0
+pkgdir=/data/packages
+builddir="$startdir/src/BUILD"
+pkgdesc="docker/podman client"
+url="https://git.famillegratton.net:3000/devops/dtools2.git"
+arch=x86_64
+license=GPL2
+#depends="gcompat"
+install="$pkgname.pre-install $pkgname.post-install $pkgname.pre-upgrade $pkgname.post-upgrade $pkgname.pre-deinstall $pkgname.post-deinstall"
+#source="$pkgname-$pkgver-$pkgrel.tar.bz2::http://localhost/$pkgname-$pkgver-$pkgrel.tar.bz2"
+binaryname=dtools2
+
+build() {
+	pwd
+	mkdir -p "$builddir" && cd "$builddir"/.. && rm -rf BUILD && cp -R "$startdir"/../src . && mv src BUILD
+    cd "$builddir"
+    make -f "$startdir"/Makefile prepare
+    CGO_ENABLED=0 go build -o "$binaryname".exe .
+}
+
+package() {
+        make -f "$startdir"/Makefile BUILDDIR="$builddir" PREFIX=/opt PKGNM="$binaryname" DESTDIR="$pkgdir" install
+}
+
+

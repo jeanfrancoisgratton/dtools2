@@ -1,0 +1,18 @@
+#!/usr/bin/env ash
+
+group_name="devops"
+desired_gid=2500
+
+# Check if the group exists
+if grep -q "^devops:" /etc/group; then
+    exit 0
+else
+    # Group doesn't exist, check if desired GID is available
+    if grep -q ":2500:" /etc/group; then
+        addgroup devops
+        exit 0
+    else
+        addgroup -g 2500 devops
+    fi
+fi
+exit 0

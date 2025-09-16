@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+if getent group devops > /dev/null; then
+  exit 0
+else
+  if getent group 2500; then
+    groupadd devops
+  else
+    groupadd -g 2500 devops
+  fi
+fi
