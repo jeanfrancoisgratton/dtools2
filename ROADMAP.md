@@ -5,18 +5,13 @@
 | [x] http(s) thin client     | 0.10.00    | 0.10.00        | `auth` not integrated yet |
 | [x] tab completion          | 0.10.00    | 0.10.00        |                           |
 | [ ] image list              | 0.10.00    |                |                           |
-| [ ] image pull              |            |                |                           |
-| [ ] image push              |            |                |                           |
-| [ ] container list          |            |                |                           |
+| [ ] image pull / push       |            |                |                           |
+| [ ] container list          | 0.10.00    |                |                           |
 | [ ] container rm            |            |                |                           |
 | [ ] image rm                |            |                |                           |
-| network ls                  |            |                |                           |
-| network create              |            |                |                           |
-| network rm                  |            |                |                           |
-| network attach              |            |                |                           |
-| network detach              |            |                |                           |
-| volume ls                   |            |                |                           |
-| volume create               |            |                |                           |
-| volume rm                   |            |                |                           |
-| exec (shell)                |            |                |                           |
-| system info                 |            |                |                           |
+| [ ] network create / rm     |            |                |                           |
+| [ ] network attach / detach |            |                |                           |
+| [ ] network / volume ls     | 0.10.00    |                |                           |
+| [ ] volume create / rm      |            |                |                           |
+| [ ] exec (shell)            |            |                |                           |
+| [ ] system info             |            |                |                           |

@@ -21,10 +21,11 @@ Also, the idea behind this tool is to make the TUI more attractive, verbose, inf
 - volume list, creation, removal
 - execution (shell in the container)
 - system information
-- maybe more ? :-)
 - multi-registry auth facilities
 - remote daemon connectivity
 - http/https aware
+- maybe more ? :-)
+
 
 ## Features not include
 - 

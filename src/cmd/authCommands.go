@@ -2,10 +2,6 @@
 // src/cmd/authCommands.go
 // CLI glue for registry authentication (wires to auth subpackage)
 
-// dtools2
-// src/cmd/authCommands.go
-// CLI glue for registry authentication (wires to src/auth)
-
 package cmd
 
 import (
