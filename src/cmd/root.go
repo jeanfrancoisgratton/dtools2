@@ -5,17 +5,17 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
-// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:     "dtools2",
-	Short:   "Add a short description here",
+	Short:   "Docker / Podman client",
 	Version: "1.00.00-0 (2025.09.16)",
-	Long: `This tools allows you to a software directory structure.
-This follows my template and allows you with minimal effort to package your software once built`,
+	Long: `This software is intended to be a full drop-in replacemenat to the current docker and podman clients.
+It relies on the REST APIs of both platforms as the SDK tend to change too much, and to frequently to ensure stability.`,
 }
 
 // Shows changelog
@@ -39,7 +39,7 @@ func init() {
 	rootCmd.DisableAutoGenTag = true
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 
-	rootCmd.AddCommand(clCmd)
+	rootCmd.AddCommand(clCmd, authCmd, completionCmd)
 }
 
 func changeLog() {
@@ -48,11 +48,10 @@ func changeLog() {
 
 	fmt.Println("CHANGELOG")
 	fmt.Println("=========")
-	fmt.Println()
 
 	fmt.Print(`
 VERSION			DATE			COMMENT
 -------			----			-------
-1.00.00		2025.09.16		Initial release
+0.10.00			2025.09.16		Initial release
 `)
 }
