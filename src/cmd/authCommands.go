@@ -6,13 +6,11 @@ package cmd
 
 import (
 	"context"
-	"crypto/tls"
 	"fmt"
-	"net/http"
-	"strings"
 	"time"
 
 	"dtools2/auth"
+
 	"github.com/spf13/cobra"
 )
 
@@ -34,10 +32,6 @@ var (
 var authCmd = &cobra.Command{
 	Use:   "auth",
 	Short: "Authentication helpers (login, logout, whoami)",
-	// Avoid running anything when called without a subcommand.
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return cmd.Help()
-	},
 }
 
 // --- auth login ---
@@ -50,38 +44,22 @@ var authLoginCmd = &cobra.Command{
   dtools2 auth login -r myreg:3281 -u bob -p q1w2e3 --allow-http   # no scheme -> choose HTTP
   dtools2 auth login -r myreg:3281 -u bob -p q1w2e3 --tls-skip-verify`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if loginRegistry == "" {
-			return fmt.Errorf("--registry/-r is required")
-		}
-		if loginUsername == "" {
-			return fmt.Errorf("--username/-u is required")
-		}
-
-		// Decide scheme:
-		reg := loginRegistry
-		if !strings.Contains(reg, "://") {
-			if loginAllowHTTP {
-				reg = "http://" + reg
-			} else {
-				reg = "https://" + reg
-			}
-		}
-
-		// HTTP client: timeout + optional TLS skip verify
-		transport := &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: loginTLSSkipVerify}, //nolint:gosec // intentionally user-controlled
-		}
-		client := &http.Client{
-			Timeout:   15 * time.Second,
-			Transport: transport,
-		}
-
 		ctx := context.Background()
-		if err := auth.LoginAndStoreSmartWithClient(ctx, client, reg, loginUsername, loginPassword); err != nil {
+		mode, key, err := auth.CentralizedLogin(ctx, auth.LoginOptions{
+			Registry:           loginRegistry, // accept host[:port] or full URL
+			Username:           loginUsername,
+			Password:           loginPassword,
+			AllowHTTP:          loginAllowHTTP,
+			CAFile:             "", // wire your flags if/when you add them
+			ClientCertFile:     "",
+			ClientKeyFile:      "",
+			InsecureSkipVerify: loginTLSSkipVerify,
+			Timeout:            15 * time.Second,
+		})
+		if err != nil {
 			return err
 		}
-
-		fmt.Printf("Login successful. Credentials stored for %s\n", auth.NormalizeRegistry(reg))
+		fmt.Printf("Login successful (%s). Credentials stored for %s\n", mode, key)
 		return nil
 	},
 }
@@ -97,7 +75,7 @@ var authLogoutCmd = &cobra.Command{
 		if logoutRegistry == "" {
 			return fmt.Errorf("--registry/-r is required")
 		}
-		ok, err := auth.RemoveDockerConfigAuth(logoutRegistry)
+		ok, err := auth.Logout(logoutRegistry)
 		if err != nil {
 			return err
 		}
@@ -151,10 +129,10 @@ func init() {
 	// auth login
 	authCmd.AddCommand(authLoginCmd)
 	authLoginCmd.Flags().StringVarP(&loginRegistry, "registry", "r", "", "Registry hostname[:port] or full URL (e.g., myreg:3281 or https://myreg:3281)")
-	authLoginCmd.Flags().StringVarP(&loginUsername, "username", "u", "", "Registry username")
+	authLoginCmd.Flags().StringVarP(&loginUsername, "username", "", "", "Registry username")
 	authLoginCmd.Flags().StringVarP(&loginPassword, "password", "p", "", "Registry password / PAT (can be empty)")
-	authLoginCmd.Flags().BoolVar(&loginAllowHTTP, "allow-http", false, "Allow HTTP when no scheme specified (dangerous on untrusted networks)")
-	authLoginCmd.Flags().BoolVar(&loginTLSSkipVerify, "tls-skip-verify", false, "Skip TLS certificate verification (dangerous; for lab/self-signed)")
+	authLoginCmd.Flags().BoolVarP(&loginAllowHTTP, "allow-http", "u", false, "Allow HTTP when no scheme specified (dangerous on untrusted networks)")
+	authLoginCmd.Flags().BoolVarP(&loginTLSSkipVerify, "tls-skip-verify", "s", false, "Skip TLS certificate verification (dangerous; for lab/self-signed)")
 
 	// auth logout
 	authCmd.AddCommand(authLogoutCmd)

@@ -27,5 +27,5 @@ Also, the idea behind this tool is to make the TUI more attractive, verbose, inf
 - maybe more ? :-)
 
 
-## Features not include
+## Features not included
 - 
