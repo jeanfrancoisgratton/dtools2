@@ -28,7 +28,7 @@ func tryBasic(ctx context.Context, client *http.Client, pingURL, user, pass stri
 	if res.StatusCode == http.StatusOK {
 		return nil
 	}
-	return &ce.CustomError{Code: 302, Title: "Basic Auth failed", Message: fmt.Sprintf("Status Code: %d", res.Status)}
+	return &ce.CustomError{Code: 302, Title: "Basic Auth failed", Message: fmt.Sprintf("Status Code: %s", res.Status)}
 }
 
 // parseAuthChallenge parses WWW-Authenticate headers like:

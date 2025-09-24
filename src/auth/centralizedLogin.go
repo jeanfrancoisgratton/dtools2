@@ -104,7 +104,7 @@ func CentralizedLogin(ctx context.Context, opts LoginOptions) (Mode, string, *ce
 				return ModeBasic, regKey, nil
 			}
 		}
-		return "", "", &ce.CustomError{Code: 907, Title: "Bearer token fetch failed", Message: fmt.Sprintf("Error:  %w", terr)}
+		return "", "", &ce.CustomError{Code: 907, Title: "Bearer token fetch failed", Message: terr.Error()}
 
 	default:
 		return "", "", &ce.CustomError{Code: 908, Title: "Error fetching auth scheme", Message: fmt.Sprintf("Scheme %s is not supported", scheme)}

@@ -7,10 +7,11 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"dtools2/auth"
-
+	hf "github.com/jeanfrancoisgratton/helperFunctions/v2"
 	"github.com/spf13/cobra"
 )
 
@@ -43,7 +44,7 @@ var authLoginCmd = &cobra.Command{
   dtools2 auth login -r http://myreg:3281 -u bob -p q1w2e3         # force HTTP explicitly
   dtools2 auth login -r myreg:3281 -u bob -p q1w2e3 --allow-http   # no scheme -> choose HTTP
   dtools2 auth login -r myreg:3281 -u bob -p q1w2e3 --tls-skip-verify`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
 		mode, key, err := auth.CentralizedLogin(ctx, auth.LoginOptions{
 			Registry:           loginRegistry, // accept host[:port] or full URL
@@ -57,10 +58,9 @@ var authLoginCmd = &cobra.Command{
 			Timeout:            15 * time.Second,
 		})
 		if err != nil {
-			return err
+			fmt.Println(err.Error())
 		}
-		fmt.Printf("Login successful (%s). Credentials stored for %s\n", mode, key)
-		return nil
+		fmt.Printf("%s (%s). Credentials stored in %s.\n", hf.Green("Login successful"), mode, key)
 	},
 }
 
@@ -71,20 +71,20 @@ var authLogoutCmd = &cobra.Command{
 	Short: "Remove stored credentials for a registry from config.json",
 	Example: `  dtools2 auth logout -r myreg:3281
   dtools2 auth logout -r https://index.docker.io/v1/`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		if logoutRegistry == "" {
-			return fmt.Errorf("--registry/-r is required")
+			fmt.Println("--registry/-r is required")
+			os.Exit(1)
 		}
 		ok, err := auth.Logout(logoutRegistry)
 		if err != nil {
-			return err
+			fmt.Println(err.Error())
 		}
 		if ok {
 			fmt.Printf("Removed credentials for %s\n", auth.NormalizeRegistry(logoutRegistry))
 		} else {
 			fmt.Printf("No credentials found for %s\n", auth.NormalizeRegistry(logoutRegistry))
 		}
-		return nil
 	},
 }
 
@@ -95,13 +95,14 @@ var authWhoAmICmd = &cobra.Command{
 	Short: "Show how you are authenticated to a registry (basic/token/helper/missing)",
 	Example: `  dtools2 auth whoami -r myreg:3281
   dtools2 auth whoami -r docker.io`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		if whoamiRegistry == "" {
-			return fmt.Errorf("--registry/-r is required")
+			fmt.Println("--registry/-r is required")
+			os.Exit(1)
 		}
 		info, err := auth.WhoAmI(whoamiRegistry)
 		if err != nil {
-			return err
+			fmt.Println(err.Error())
 		}
 
 		switch info.Mode {
@@ -118,7 +119,6 @@ var authWhoAmICmd = &cobra.Command{
 		default:
 			fmt.Printf("[%s] mode=unknown\n", info.Registry)
 		}
-		return nil
 	},
 }
 

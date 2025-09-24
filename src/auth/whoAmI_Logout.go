@@ -29,7 +29,7 @@ func WhoAmI(registry string) (*WhoAmIResult, *ce.CustomError) {
 	root := map[string]json.RawMessage{}
 	b, err := os.ReadFile(cfgPath)
 	if err != nil {
-		return nil, &ce.CustomError{Code: 501, Title: "Error reading registry config", Message: fmt.Sprintf("read %s: %w", cfgPath, err)}
+		return nil, &ce.CustomError{Code: 501, Title: "Error reading registry config", Message: fmt.Sprintf("read %s: %s", cfgPath, err.Error())}
 	}
 	if len(b) == 0 {
 		return &WhoAmIResult{Registry: registry, Mode: "missing"}, nil
@@ -98,7 +98,7 @@ func Logout(registry string) (bool, *ce.CustomError) {
 	root := map[string]json.RawMessage{}
 	b, err := os.ReadFile(cfgPath)
 	if err != nil {
-		return false, &ce.CustomError{Code: 701, Title: "Error reading registry config", Message: fmt.Sprintf("read %s: %w", cfgPath, err.Error())}
+		return false, &ce.CustomError{Code: 701, Title: "Error reading registry config", Message: fmt.Sprintf("read %s: %s", cfgPath, err.Error())}
 	}
 	if len(b) > 0 {
 		if err := json.Unmarshal(b, &root); err != nil {

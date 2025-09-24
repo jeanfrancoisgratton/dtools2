@@ -63,7 +63,7 @@ func writeDockerConfigEntry(registry string, entry AuthEntry) *ce.CustomError {
 			}
 		}
 	} else if !os.IsNotExist(err) {
-		return &ce.CustomError{Code: 503, Title: "Error reading the config file", Message: fmt.Sprintf("read %s: %w", cfgPath, err)}
+		return &ce.CustomError{Code: 503, Title: "Error reading the config file", Message: fmt.Sprintf("read %s: %s", cfgPath, err.Error())}
 	}
 
 	// Tolerant extraction of "auths"
