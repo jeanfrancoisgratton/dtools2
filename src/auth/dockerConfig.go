@@ -7,17 +7,13 @@ package auth
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
-)
 
-// AuthEntry matches {"auth":"base64(user:pass)"}
-type AuthEntry struct {
-	Auth string `json:"auth"`
-}
+	ce "github.com/jeanfrancoisgratton/customError/v2"
+)
 
 // NormalizeRegistry maps common aliases to Docker's canonical keys.
 func NormalizeRegistry(reg string) string {
@@ -34,9 +30,9 @@ func NormalizeRegistry(reg string) string {
 }
 
 // WriteDockerConfigAuth writes/overwrites auth for registry with username:password.
-func WriteDockerConfigAuth(registry, username, password string) error {
+func WriteDockerConfigAuth(registry, username, password string) *ce.CustomError {
 	if registry == "" {
-		return errors.New("registry must not be empty")
+		return &ce.CustomError{Code: 501, Title: "Error handling registry config", Message: "registry name is empty"}
 	}
 	registry = NormalizeRegistry(registry)
 	return writeDockerConfigEntry(registry, AuthEntry{Auth: EncodeAuth(username, password)})
@@ -44,30 +40,30 @@ func WriteDockerConfigAuth(registry, username, password string) error {
 
 // WriteDockerConfigToken writes/overwrites auth for registry with token-based secret
 // using Docker's common "token:<value>" convention (base64-encoded).
-func WriteDockerConfigToken(registry, token string) error {
+func WriteDockerConfigToken(registry, token string) *ce.CustomError {
 	if registry == "" {
-		return errors.New("registry must not be empty")
+		return &ce.CustomError{Code: 501, Title: "Error handling registry config", Message: "registry name is empty"}
 	}
 	registry = NormalizeRegistry(registry)
 	entry := AuthEntry{Auth: EncodeAuth("token", token)}
 	return writeDockerConfigEntry(registry, entry)
 }
 
-func writeDockerConfigEntry(registry string, entry AuthEntry) error {
+func writeDockerConfigEntry(registry string, entry AuthEntry) *ce.CustomError {
 	cfgDir, cfgPath := dockerConfigPath()
 	if err := os.MkdirAll(cfgDir, 0o700); err != nil {
-		return fmt.Errorf("mkdir %s: %w", cfgDir, err)
+		return &ce.CustomError{Code: 502, Title: "Error creating the config directory/file", Message: err.Error()}
 	}
 
 	root := map[string]json.RawMessage{}
 	if b, err := os.ReadFile(cfgPath); err == nil {
 		if len(b) > 0 {
 			if err := json.Unmarshal(b, &root); err != nil {
-				return fmt.Errorf("parse existing config.json: %w", err)
+				return &ce.CustomError{Code: 503, Title: "Error parsing the config file", Message: err.Error()}
 			}
 		}
 	} else if !os.IsNotExist(err) {
-		return fmt.Errorf("read %s: %w", cfgPath, err)
+		return &ce.CustomError{Code: 503, Title: "Error reading the config file", Message: fmt.Sprintf("read %s: %w", cfgPath, err)}
 	}
 
 	// Tolerant extraction of "auths"
@@ -91,22 +87,22 @@ func writeDockerConfigEntry(registry string, entry AuthEntry) error {
 
 	authsRaw, err := json.Marshal(auths)
 	if err != nil {
-		return fmt.Errorf("marshal auths: %w", err)
+		return &ce.CustomError{Code: 504, Title: "Error marshaling auths", Message: err.Error()}
 	}
 	root["auths"] = authsRaw
 
 	out, err := json.MarshalIndent(root, "", "  ")
 	if err != nil {
-		return fmt.Errorf("marshal config.json: %w", err)
+		return &ce.CustomError{Code: 504, Title: "Error marshaling config file", Message: err.Error()}
 	}
 
 	// Atomic-ish write
 	tmpPath := cfgPath + ".tmp"
 	if err := os.WriteFile(tmpPath, out, 0o600); err != nil {
-		return fmt.Errorf("write temp config: %w", err)
+		return &ce.CustomError{Code: 505, Title: "Error writing the temp file", Message: err.Error()}
 	}
 	if err := os.Rename(tmpPath, cfgPath); err != nil {
-		return fmt.Errorf("rename temp config: %w", err)
+		return &ce.CustomError{Code: 505, Title: "Error renaming the temp file", Message: err.Error()}
 	}
 	return nil
 }

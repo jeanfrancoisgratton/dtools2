@@ -7,16 +7,17 @@ package auth
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
+
+	ce "github.com/jeanfrancoisgratton/customError/v2"
 )
 
 // WhoAmI inspects the stored credentials for a registry.
 // It does not reveal secrets. For token mode, it shows a short non-sensitive prefix.
-func WhoAmI(registry string) (*WhoAmIResult, error) {
+func WhoAmI(registry string) (*WhoAmIResult, *ce.CustomError) {
 	if registry == "" {
-		return nil, errors.New("registry must not be empty")
+		return nil, &ce.CustomError{Code: 501, Title: "Error handling registry config", Message: "registry name is empty"}
 	}
 	registry = NormalizeRegistry(registry)
 
@@ -28,13 +29,13 @@ func WhoAmI(registry string) (*WhoAmIResult, error) {
 	root := map[string]json.RawMessage{}
 	b, err := os.ReadFile(cfgPath)
 	if err != nil {
-		return nil, fmt.Errorf("read %s: %w", cfgPath, err)
+		return nil, &ce.CustomError{Code: 501, Title: "Error reading registry config", Message: fmt.Sprintf("read %s: %w", cfgPath, err)}
 	}
 	if len(b) == 0 {
 		return &WhoAmIResult{Registry: registry, Mode: "missing"}, nil
 	}
 	if err := json.Unmarshal(b, &root); err != nil {
-		return nil, fmt.Errorf("parse config.json: %w", err)
+		return nil, &ce.CustomError{Code: 601, Title: "Error parsing registry config", Message: err.Error()}
 	}
 
 	// Check for an explicit auth entry.
@@ -82,9 +83,9 @@ func WhoAmI(registry string) (*WhoAmIResult, error) {
 
 // Logout deletes the auth entry for the given registry from config.json.
 // Returns (true, nil) if an entry existed and was removed, (false, nil) if nothing to remove.
-func Logout(registry string) (bool, error) {
+func Logout(registry string) (bool, *ce.CustomError) {
 	if registry == "" {
-		return false, errors.New("registry must not be empty")
+		return false, &ce.CustomError{Code: 501, Title: "Error handling registry config", Message: "registry name is empty"}
 	}
 	registry = NormalizeRegistry(registry)
 
@@ -97,11 +98,11 @@ func Logout(registry string) (bool, error) {
 	root := map[string]json.RawMessage{}
 	b, err := os.ReadFile(cfgPath)
 	if err != nil {
-		return false, fmt.Errorf("read %s: %w", cfgPath, err)
+		return false, &ce.CustomError{Code: 701, Title: "Error reading registry config", Message: fmt.Sprintf("read %s: %w", cfgPath, err.Error())}
 	}
 	if len(b) > 0 {
 		if err := json.Unmarshal(b, &root); err != nil {
-			return false, fmt.Errorf("parse existing config.json: %w", err)
+			return false, &ce.CustomError{Code: 601, Title: "Error parsing registry config", Message: err.Error()}
 		}
 	}
 
@@ -124,21 +125,21 @@ func Logout(registry string) (bool, error) {
 	// Re-write "auths"
 	authsRaw, err := json.Marshal(auths)
 	if err != nil {
-		return false, fmt.Errorf("marshal auths: %w", err)
+		return false, &ce.CustomError{Code: 601, Title: "Error marshaling auths", Message: err.Error()}
 	}
 	root["auths"] = authsRaw
 
 	out, err := json.MarshalIndent(root, "", "  ")
 	if err != nil {
-		return false, fmt.Errorf("marshal config.json: %w", err)
+		return false, &ce.CustomError{Code: 601, Title: "Error marshaling config file", Message: err.Error()}
 	}
 
 	tmpPath := cfgPath + ".tmp"
 	if err := os.WriteFile(tmpPath, out, 0o600); err != nil {
-		return false, fmt.Errorf("write temp config: %w", err)
+		return false, &ce.CustomError{Code: 602, Title: "Error writing the temp config file", Message: err.Error()}
 	}
 	if err := os.Rename(tmpPath, cfgPath); err != nil {
-		return false, fmt.Errorf("rename temp config: %w", err)
+		return false, &ce.CustomError{Code: 602, Title: "Error renaming the temp config file", Message: err.Error()}
 	}
 	_ = os.MkdirAll(cfgDir, 0o700) // ensure perms exist; ignore error (path should already exist)
 

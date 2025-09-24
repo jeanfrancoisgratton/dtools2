@@ -14,20 +14,22 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	ce "github.com/jeanfrancoisgratton/customError/v2"
 )
 
 // LoginAndStoreSmartWithClient authenticates against the registry using the provided HTTP client.
 // It prefers Bearer token flows (if advertised), else falls back to Basic.
 // On success, it stores the chosen auth under ~/.docker/config.json (or $DOCKER_CONFIG/config.json).
-func LoginAndStoreSmartWithClient(ctx context.Context, client *http.Client, registry, username, password string) error {
+func LoginAndStoreSmartWithClient(ctx context.Context, client *http.Client, registry, username, password string) *ce.CustomError {
 	if client == nil {
 		client = &http.Client{Timeout: 15 * time.Second}
 	}
 	if registry == "" {
-		return errors.New("registry must not be empty")
+		return &ce.CustomError{Code: 701, Title: "Error connecting to the daemon", Message: "registry name is empty"}
 	}
 	if username == "" {
-		return errors.New("username must not be empty")
+		return &ce.CustomError{Code: 701, Title: "Error connecting to the daemon", Message: "registry name is empty"}
 	}
 
 	// Respect caller's scheme if present; otherwise default to HTTPS.
@@ -35,23 +37,23 @@ func LoginAndStoreSmartWithClient(ctx context.Context, client *http.Client, regi
 
 	scheme, params, err := ProbeAuthScheme(ctx, client, registryURL)
 	if err != nil {
-		return fmt.Errorf("probe auth scheme: %w", err)
+		return &ce.CustomError{Code: 702, Title: "Error fetching supported connection scheme", Message: err.Error()}
 	}
 
 	switch strings.ToLower(scheme) {
 	case "none":
 		// Open registry; store user:pass if provided
 		if err := WriteDockerConfigAuth(registry, username, password); err != nil {
-			return fmt.Errorf("write docker config: %w", err)
+			return err
 		}
 		return nil
 
 	case "basic":
 		if err := tryBasic(ctx, client, strings.TrimRight(registryURL, "/")+"/v2/", username, password); err != nil {
-			return fmt.Errorf("basic auth failed: %w", err)
+			return err
 		}
 		if err := WriteDockerConfigAuth(registry, username, password); err != nil {
-			return fmt.Errorf("write docker config: %w", err)
+			return err
 		}
 		return nil
 
@@ -61,24 +63,24 @@ func LoginAndStoreSmartWithClient(ctx context.Context, client *http.Client, regi
 			// Some registries advertise bearer but accept basic; try basic as a fallback.
 			if be := tryBasic(ctx, client, strings.TrimRight(registryURL, "/")+"/v2/", username, password); be == nil {
 				if err := WriteDockerConfigAuth(registry, username, password); err != nil {
-					return fmt.Errorf("write docker config: %w", err)
+					return err
 				}
 				return nil
 			}
-			return fmt.Errorf("bearer token fetch failed: %w", err)
+			return &ce.CustomError{Code: 703, Title: "Error fetching bearer token", Message: err.Error()}
 		}
 		if err := WriteDockerConfigToken(registry, token); err != nil {
-			return fmt.Errorf("write docker config token: %w", err)
+			return err
 		}
 		return nil
 
 	default:
-		return fmt.Errorf("unsupported auth scheme: %s", scheme)
+		return &ce.CustomError{Code: 704, Title: "Unable to fetch authentication scheme", Message: fmt.Sprintf("Unsupported scheme %s", scheme)}
 	}
 }
 
 // LoginAndStoreSmart is a convenience wrapper using a default client.
-func LoginAndStoreSmart(ctx context.Context, registry, username, password string) error {
+func LoginAndStoreSmart(ctx context.Context, registry, username, password string) *ce.CustomError {
 	client := &http.Client{Timeout: 15 * time.Second}
 	return LoginAndStoreSmartWithClient(ctx, client, registry, username, password)
 }
@@ -184,5 +186,3 @@ func FetchBearerToken(ctx context.Context, client *http.Client, params map[strin
 	}
 	return tok, tr.ExpiresIn, tr.IssuedAt, nil
 }
-
-// --- helpers ---

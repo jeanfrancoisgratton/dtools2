@@ -12,21 +12,23 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	ce "github.com/jeanfrancoisgratton/customError/v2"
 )
 
-func tryBasic(ctx context.Context, client *http.Client, pingURL, user, pass string) error {
+func tryBasic(ctx context.Context, client *http.Client, pingURL, user, pass string) *ce.CustomError {
 	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, pingURL, nil)
 	req.SetBasicAuth(user, pass)
 	res, err := client.Do(req)
 	if err != nil {
-		return err
+		return &ce.CustomError{Code: 301, Title: "Error Setting Basic Auth header", Message: err.Error()}
 	}
 	defer res.Body.Close()
 	io.Copy(io.Discard, res.Body)
 	if res.StatusCode == http.StatusOK {
 		return nil
 	}
-	return fmt.Errorf("basic auth failed: %s", res.Status)
+	return &ce.CustomError{Code: 302, Title: "Basic Auth failed", Message: fmt.Sprintf("Status Code: %d", res.Status)}
 }
 
 // parseAuthChallenge parses WWW-Authenticate headers like:

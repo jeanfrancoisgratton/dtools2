@@ -15,6 +15,8 @@ import (
 	"net/url"
 	"path"
 	"strings"
+
+	ce "github.com/jeanfrancoisgratton/customError/v2"
 )
 
 // buildURL joins base + apiPrefix + p and applies query parameters.
@@ -32,22 +34,27 @@ func (c *Client) buildURL(p string, q url.Values) string {
 }
 
 // GetJSON GETs and decodes JSON into out.
-func (c *Client) GetJSON(ctx context.Context, p string, q url.Values, out any) error {
+func (c *Client) GetJSON(ctx context.Context, p string, q url.Values, out any) *ce.CustomError {
 	resp, err := c.Do(ctx, http.MethodGet, p, q, nil, nil)
 	if err != nil {
-		return err
+		return &ce.CustomError{Code: 201, Title: "Error fetching JSON payload", Message: err.Error()}
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		b, _ := io.ReadAll(io.LimitReader(resp.Body, 8<<10))
-		return fmt.Errorf("GET %s: %s: %s", p, resp.Status, strings.TrimSpace(string(b)))
+		//return fmt.Errorf("GET %s: %s: %s", p, resp.Status, strings.TrimSpace(string(b)))
+		return &ce.CustomError{Code: 201, Title: "Error fetching JSON payload",
+			Message: fmt.Sprintf("GET %s: %s: %s", p, resp.Status, strings.TrimSpace(string(b)))}
 	}
 	if out == nil {
 		// drain and return
 		_, _ = io.Copy(io.Discard, resp.Body)
 		return nil
 	}
-	return json.NewDecoder(resp.Body).Decode(out)
+	if err := json.NewDecoder(resp.Body).Decode(out); err != nil {
+		return &ce.CustomError{Code: 202, Title: "Error decoding JSON payload", Message: err.Error()}
+	}
+	return nil
 }
 
 // PostJSON POSTs a JSON body (if in != nil) and decodes response JSON into out.

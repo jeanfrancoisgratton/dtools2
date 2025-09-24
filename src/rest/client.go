@@ -8,8 +8,7 @@ package rest
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"errors"
-	"fmt"
+	ce "github.com/jeanfrancoisgratton/customError/v2"
 	"net/http"
 	"net/url"
 	"os"
@@ -18,15 +17,15 @@ import (
 )
 
 // NewClient builds an HTTP(S) client from Config.
-func NewClient(cfg Config) (*Client, error) {
+func NewClient(cfg Config) (*Client, *ce.CustomError) {
 	if cfg.Host == "" {
-		return nil, errors.New("Host is required")
+		return nil, &ce.CustomError{Code: 101, Title: "Unable to set client Host"}
 	}
 	scheme := strings.ToLower(strings.TrimSpace(cfg.Scheme))
 	if scheme == "" {
 		scheme = "https"
 	}
-	base := &url.URL{Scheme: scheme, Host: cfg.Host}
+	//base := &url.URL{Scheme: scheme, Host: cfg.Host}
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: cfg.InsecureSkipVerify}, //nolint:gosec
@@ -37,14 +36,14 @@ func NewClient(cfg Config) (*Client, error) {
 		if cfg.CAFile != "" {
 			caPEM, err := os.ReadFile(cfg.CAFile)
 			if err != nil {
-				return nil, fmt.Errorf("read CA file: %w", err)
+				return nil, &ce.CustomError{Code: 102, Title: "Error reading the CA file", Message: err.Error()}
 			}
 			pool, err := x509.SystemCertPool()
 			if err != nil || pool == nil {
 				pool = x509.NewCertPool()
 			}
 			if ok := pool.AppendCertsFromPEM(caPEM); !ok {
-				return nil, errors.New("failed to append CA file")
+				return nil, &ce.CustomError{Code: 103, Title: "Failed to append CA file"}
 			}
 			tr.TLSClientConfig.RootCAs = pool
 		}
@@ -52,7 +51,7 @@ func NewClient(cfg Config) (*Client, error) {
 		if cfg.ClientCertFile != "" && cfg.ClientKeyFile != "" {
 			cert, err := tls.LoadX509KeyPair(cfg.ClientCertFile, cfg.ClientKeyFile)
 			if err != nil {
-				return nil, fmt.Errorf("load client cert/key: %w", err)
+				return nil, &ce.CustomError{Code: 104, Title: "Error loading client cert/key", Message: err.Error()}
 			}
 			tr.TLSClientConfig.Certificates = []tls.Certificate{cert}
 		}
@@ -72,16 +71,16 @@ func NewClient(cfg Config) (*Client, error) {
 			Timeout:   to,
 			Transport: tr,
 		},
-		BaseURL:   base,
+		//BaseURL:   base,
 		APIprefix: apiPrefix,
 	}, nil
 }
 
 // NewClientFromURL builds a REST client from a parsed URL and API version.
 // Example: u := &url.URL{Scheme: "https", Host: "myreg:3281"}; rest.NewClientFromURL(u, "", 15*time.Second, tlsOpts)
-func NewClientFromURL(u *url.URL, apiVersion string, timeout time.Duration, tlsOpts TLSOptions) (*Client, error) {
+func NewClientFromURL(u *url.URL, apiVersion string, timeout time.Duration, tlsOpts TLSOptions) (*Client, *ce.CustomError) {
 	if u == nil {
-		return nil, fmt.Errorf("nil URL")
+		return nil, &ce.CustomError{Code: 104, Title: "Error creating the client", Message: "nil URL"}
 	}
 	cfg := Config{
 		Host:               u.Host,
@@ -98,7 +97,7 @@ func NewClientFromURL(u *url.URL, apiVersion string, timeout time.Duration, tlsO
 
 // NewHTTPClient builds a plain *http.Client that applies the same TLS behavior as Config.
 // Useful for hitting Bearer token realms that may live on a different host than your base client.
-func NewHTTPClient(tlsOpts TLSOptions, timeout time.Duration) (*http.Client, error) {
+func NewHTTPClient(tlsOpts TLSOptions, timeout time.Duration) (*http.Client, *ce.CustomError) {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: tlsOpts.InsecureSkipVerify}, //nolint:gosec
 	}
@@ -107,14 +106,14 @@ func NewHTTPClient(tlsOpts TLSOptions, timeout time.Duration) (*http.Client, err
 	if tlsOpts.CAFile != "" {
 		caPEM, err := os.ReadFile(tlsOpts.CAFile)
 		if err != nil {
-			return nil, fmt.Errorf("read CA file: %w", err)
+			return nil, &ce.CustomError{Code: 101, Title: "Error reading CA file", Message: err.Error()}
 		}
 		pool, err := x509.SystemCertPool()
 		if err != nil || pool == nil {
 			pool = x509.NewCertPool()
 		}
 		if ok := pool.AppendCertsFromPEM(caPEM); !ok {
-			return nil, fmt.Errorf("failed to append CA file")
+			return nil, &ce.CustomError{Code: 106, Title: "Failed to append CA file"}
 		}
 		if tr.TLSClientConfig == nil {
 			tr.TLSClientConfig = &tls.Config{}
@@ -126,7 +125,7 @@ func NewHTTPClient(tlsOpts TLSOptions, timeout time.Duration) (*http.Client, err
 	if tlsOpts.ClientCertFile != "" && tlsOpts.ClientKeyFile != "" {
 		cert, err := tls.LoadX509KeyPair(tlsOpts.ClientCertFile, tlsOpts.ClientKeyFile)
 		if err != nil {
-			return nil, fmt.Errorf("load client cert/key: %w", err)
+			return nil, &ce.CustomError{Code: 106, Title: "Error loading cert/key file", Message: err.Error()}
 		}
 		if tr.TLSClientConfig == nil {
 			tr.TLSClientConfig = &tls.Config{}
@@ -144,10 +143,10 @@ func NewHTTPClient(tlsOpts TLSOptions, timeout time.Duration) (*http.Client, err
 }
 
 // Helper: parse a string URL and pass to NewClientFromURL.
-func NewClientFromURLString(rawURL, apiVersion string, timeout time.Duration, tlsOpts TLSOptions) (*Client, error) {
+func NewClientFromURLString(rawURL, apiVersion string, timeout time.Duration, tlsOpts TLSOptions) (*Client, *ce.CustomError) {
 	u, err := url.Parse(rawURL)
 	if err != nil {
-		return nil, err
+		return nil, &ce.CustomError{Code: 106, Title: "Error parsing URL", Message: err.Error()}
 	}
 	return NewClientFromURL(u, apiVersion, timeout, tlsOpts)
 }

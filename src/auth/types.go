@@ -52,3 +52,8 @@ type LoginOptions struct {
 	// If true, do NOT attempt Basic fallback when Bearer fetch fails.
 	DisableBasicFallback bool
 }
+
+// AuthEntry matches {"auth":"base64(user:pass)"}
+type AuthEntry struct {
+	Auth string `json:"auth"`
+}

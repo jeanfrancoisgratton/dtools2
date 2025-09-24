@@ -11,16 +11,18 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	ce "github.com/jeanfrancoisgratton/customError/v2"
 )
 
 // CentralizedLogin does the whole dance and stores the winning credential in
 // ~/.docker/config.json. It returns (mode, normalizedRegistryKey, error).
-func CentralizedLogin(ctx context.Context, opts LoginOptions) (Mode, string, error) {
+func CentralizedLogin(ctx context.Context, opts LoginOptions) (Mode, string, *ce.CustomError) {
 	if opts.Timeout <= 0 {
 		opts.Timeout = 15 * time.Second
 	}
 	if strings.TrimSpace(opts.Registry) == "" {
-		return "", "", fmt.Errorf("registry is required")
+		return "", "", &ce.CustomError{Code: 901, Title: "Error logging in", Message: "Registry is required"}
 	}
 
 	// Decide scheme if none provided.
@@ -43,13 +45,13 @@ func CentralizedLogin(ctx context.Context, opts LoginOptions) (Mode, string, err
 		InsecureSkipVerify: opts.InsecureSkipVerify,
 	}, opts.Timeout)
 	if err != nil {
-		return "", "", fmt.Errorf("registry http client: %w", err)
+		return "", "", &ce.CustomError{Code: 902, Title: "Error connecting to the registry", Message: err.Error()}
 	}
 
 	// 1) Probe /v2/ to learn auth scheme.
 	scheme, params, perr := ProbeAuthScheme(ctx, regHTTP, regURL)
 	if perr != nil {
-		return "", "", fmt.Errorf("probe /v2/: %w", perr)
+		return "", "", &ce.CustomError{Code: 903, Title: "Error fetching probe information", Message: perr.Error()}
 	}
 
 	switch strings.ToLower(scheme) {
@@ -57,7 +59,7 @@ func CentralizedLogin(ctx context.Context, opts LoginOptions) (Mode, string, err
 		// Open registry — store user:pass only if provided; otherwise do nothing.
 		if opts.Username != "" {
 			if err := WriteDockerConfigAuth(regKey, opts.Username, opts.Password); err != nil {
-				return "", "", fmt.Errorf("write config (none/basic-store): %w", err)
+				return "", "", err
 			}
 		}
 		return ModeNone, regKey, nil
@@ -65,10 +67,10 @@ func CentralizedLogin(ctx context.Context, opts LoginOptions) (Mode, string, err
 	case "basic":
 		// Re-ping /v2/ with Basic
 		if err := tryBasic(ctx, regHTTP, regURL, opts.Username, opts.Password); err != nil {
-			return "", "", fmt.Errorf("basic auth failed: %w", err)
+			return "", "", &ce.CustomError{Code: 904, Title: "Error attempting basic auth method", Message: err.Error()}
 		}
 		if err := WriteDockerConfigAuth(regKey, opts.Username, opts.Password); err != nil {
-			return "", "", fmt.Errorf("write config (basic): %w", err)
+			return "", "", &ce.CustomError{Code: 904, Title: "Error writing the config file", Message: err.Error()}
 		}
 		return ModeBasic, regKey, nil
 
@@ -81,14 +83,14 @@ func CentralizedLogin(ctx context.Context, opts LoginOptions) (Mode, string, err
 			InsecureSkipVerify: opts.InsecureSkipVerify,
 		}, opts.Timeout)
 		if err != nil {
-			return "", "", fmt.Errorf("realm http client: %w", err)
+			return "", "", &ce.CustomError{Code: 905, Title: "Error building the http client", Message: err.Error()}
 		}
 
 		// Try to fetch a token from the realm.
 		token, _, _, terr := FetchBearerToken(ctx, tokenHTTP, params, opts.Username, opts.Password)
 		if terr == nil && token != "" {
 			if err := WriteDockerConfigToken(regKey, token); err != nil {
-				return "", "", fmt.Errorf("write config (token): %w", err)
+				return "", "", &ce.CustomError{Code: 906, Title: "Error writing the token in the config file", Message: err.Error()}
 			}
 			return ModeBearer, regKey, nil
 		}
@@ -97,18 +99,19 @@ func CentralizedLogin(ctx context.Context, opts LoginOptions) (Mode, string, err
 		if !opts.DisableBasicFallback {
 			if be := tryBasic(ctx, regHTTP, regURL, opts.Username, opts.Password); be == nil {
 				if err := WriteDockerConfigAuth(regKey, opts.Username, opts.Password); err != nil {
-					return "", "", fmt.Errorf("write config (basic-fallback): %w", err)
+					return "", "", &ce.CustomError{Code: 906, Title: "Error writing the token in the config file", Message: err.Error()}
 				}
 				return ModeBasic, regKey, nil
 			}
 		}
-		return "", "", fmt.Errorf("bearer token fetch failed: %w", terr)
+		return "", "", &ce.CustomError{Code: 907, Title: "Bearer token fetch failed", Message: fmt.Sprintf("Error:  %w", terr)}
 
 	default:
-		return "", "", fmt.Errorf("unsupported auth scheme: %s", scheme)
+		return "", "", &ce.CustomError{Code: 908, Title: "Error fetching auth scheme", Message: fmt.Sprintf("Scheme %s is not supported", scheme)}
 	}
 }
 
+// NOT USED YET
 // Optional: tiny helper for callers that only need skip-verify quickly.
 func CentralizedLoginInsecure(ctx context.Context, reg, user, pass string) (Mode, string, error) {
 	return CentralizedLogin(ctx, LoginOptions{
@@ -120,6 +123,7 @@ func CentralizedLoginInsecure(ctx context.Context, reg, user, pass string) (Mode
 	})
 }
 
+// NOT USED YET
 // Optional: when you want to force HTTP explicitly (lab only).
 func CentralizedLoginHTTP(ctx context.Context, reg, user, pass string) (Mode, string, error) {
 	// If caller passes a full URL with http:// it will be honored anyway.
