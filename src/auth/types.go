@@ -7,6 +7,10 @@ package auth
 
 import "time"
 
+// Package-scope variables
+
+var ConnectURI = ""
+
 // WhoAmIResult describes the stored auth for a registry.
 type WhoAmIResult struct {
 	Registry     string // normalized registry key used in config.json

@@ -4,11 +4,14 @@
 package cmd
 
 import (
+	"dtools2/auth"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 )
+
+var Debug = false
 
 var rootCmd = &cobra.Command{
 	Use:     "dtools2",
@@ -40,6 +43,8 @@ func init() {
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 
 	rootCmd.AddCommand(clCmd, authCmd, completionCmd)
+	rootCmd.PersistentFlags().StringVarP(&auth.ConnectURI, "host", "H", "unix:///var/run/docker.sock", "Remote host:port to connect to")
+	rootCmd.PersistentFlags().BoolVarP(&Debug, "debug", "d", false, "Debug mode")
 }
 
 func changeLog() {

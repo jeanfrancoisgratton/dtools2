@@ -2,9 +2,8 @@ module dtools2
 
 go 1.25.1
 
-require github.com/spf13/cobra v1.10.1
-
 require (
+	github.com/spf13/cobra v1.10.1
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jeanfrancoisgratton/customError/v2 v2.3.3 // indirect
 	github.com/jeanfrancoisgratton/helperFunctions/v2 v2.4.2 // indirect

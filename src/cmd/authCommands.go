@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"dtools2/auth"
+
 	hf "github.com/jeanfrancoisgratton/helperFunctions/v2"
 	"github.com/spf13/cobra"
 )
@@ -38,29 +39,59 @@ var authCmd = &cobra.Command{
 // --- auth login ---
 
 var authLoginCmd = &cobra.Command{
-	Use:   "login",
+	Use:   "login [REGISTRY] [USERNAME] [PASSWORD]",
 	Short: "Authenticate to a Docker/OCI registry and store credentials in config.json",
-	Example: `  dtools2 auth login -r myreg:3281 -u bob -p q1w2e3
-  dtools2 auth login -r http://myreg:3281 -u bob -p q1w2e3         # force HTTP explicitly
-  dtools2 auth login -r myreg:3281 -u bob -p q1w2e3 --allow-http   # no scheme -> choose HTTP
-  dtools2 auth login -r myreg:3281 -u bob -p q1w2e3 --tls-skip-verify`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Args:  cobra.RangeArgs(2, 3), // require REGISTRY and USERNAME; PASSWORD optional
+	Example: `  dtools2 auth login myreg:3281 bob q1w2e3
+  dtools2 auth login http://myreg:3281 bob q1w2e3         # force HTTP explicitly
+  dtools2 auth login myreg:3281 bob --allow-http          # no scheme -> choose HTTP; prompt for password
+  dtools2 auth login myreg:3281 bob --tls-skip-verify     # prompt for password`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		// Positional args take precedence; fall back to flags if provided
+		reg := loginRegistry
+		user := loginUsername
+		pass := loginPassword
+
+		if len(args) >= 1 {
+			reg = args[0]
+		}
+		if len(args) >= 2 {
+			user = args[1]
+		}
+		if len(args) >= 3 {
+			pass = args[2]
+		}
+
+		if reg == "" {
+			return fmt.Errorf("REGISTRY is required (positional arg 1)")
+		}
+		if user == "" {
+			return fmt.Errorf("USERNAME is required (positional arg 2)")
+		}
+
+		// If password still empty, prompt (plain text as requested)
+		if pass == "" {
+			pass = hf.GetPassword("Please enter the password", Debug)
+			if pass == "" {
+				return fmt.Errorf("password is required")
+			}
+		}
+
+		// Note: CentralizedLogin handles allow-http + tls-skip-verify via options.
 		ctx := context.Background()
 		mode, key, err := auth.CentralizedLogin(ctx, auth.LoginOptions{
-			Registry:           loginRegistry, // accept host[:port] or full URL
-			Username:           loginUsername,
-			Password:           loginPassword,
+			Registry:           reg,
+			Username:           user,
+			Password:           pass,
 			AllowHTTP:          loginAllowHTTP,
-			CAFile:             "", // wire your flags if/when you add them
-			ClientCertFile:     "",
-			ClientKeyFile:      "",
 			InsecureSkipVerify: loginTLSSkipVerify,
 			Timeout:            15 * time.Second,
 		})
 		if err != nil {
-			fmt.Println(err.Error())
+			return err
 		}
-		fmt.Printf("%s (%s). Credentials stored in %s.\n", hf.Green("Login successful"), mode, key)
+		fmt.Fprintf(cmd.OutOrStdout(), "Login successful (%s). Credentials stored for %s\n", mode, key)
+		return nil
 	},
 }
 
@@ -128,11 +159,14 @@ func init() {
 
 	// auth login
 	authCmd.AddCommand(authLoginCmd)
-	authLoginCmd.Flags().StringVarP(&loginRegistry, "registry", "r", "", "Registry hostname[:port] or full URL (e.g., myreg:3281 or https://myreg:3281)")
-	authLoginCmd.Flags().StringVarP(&loginUsername, "username", "", "", "Registry username")
-	authLoginCmd.Flags().StringVarP(&loginPassword, "password", "p", "", "Registry password / PAT (can be empty)")
-	authLoginCmd.Flags().BoolVarP(&loginAllowHTTP, "allow-http", "u", false, "Allow HTTP when no scheme specified (dangerous on untrusted networks)")
-	authLoginCmd.Flags().BoolVarP(&loginTLSSkipVerify, "tls-skip-verify", "s", false, "Skip TLS certificate verification (dangerous; for lab/self-signed)")
+	authLoginCmd.Flags().StringVarP(&loginRegistry, "registry", "r", "", "Registry hostname[:port] or full URL (deprecated; use positional REGISTRY)")
+	authLoginCmd.Flags().StringVarP(&loginUsername, "username", "u", "", "Registry username (deprecated; use positional USERNAME)")
+	authLoginCmd.Flags().StringVarP(&loginPassword, "password", "p", "", "Registry password / PAT (optional; will prompt if omitted)")
+	authLoginCmd.Flags().BoolVar(&loginAllowHTTP, "allow-http", false, "Allow HTTP when no scheme specified")
+	authLoginCmd.Flags().BoolVar(&loginTLSSkipVerify, "tls-skip-verify", false, "Skip TLS certificate verification")
+
+	_ = authLoginCmd.Flags().MarkDeprecated("registry", "use positional REGISTRY instead")
+	_ = authLoginCmd.Flags().MarkDeprecated("username", "use positional USERNAME instead")
 
 	// auth logout
 	authCmd.AddCommand(authLogoutCmd)
