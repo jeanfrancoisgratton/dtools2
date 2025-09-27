@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	ce "github.com/jeanfrancoisgratton/customError/v2"
+	ce "github.com/jeanfrancoisgratton/customError/v3"
 )
 
 // CentralizedLogin does the whole dance and stores the winning credential in

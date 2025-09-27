@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	ce "github.com/jeanfrancoisgratton/customError/v2"
+	ce "github.com/jeanfrancoisgratton/customError/v3"
 )
 
 // LoginAndStoreSmartWithClient authenticates against the registry using the provided HTTP client.

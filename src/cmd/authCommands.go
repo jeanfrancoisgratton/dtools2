@@ -12,7 +12,9 @@ import (
 
 	"dtools2/auth"
 
-	hf "github.com/jeanfrancoisgratton/helperFunctions/v2"
+	hf "github.com/jeanfrancoisgratton/helperFunctions/v3"
+	hft "github.com/jeanfrancoisgratton/helperFunctions/v3/terminalfx"
+
 	"github.com/spf13/cobra"
 )
 
@@ -46,7 +48,7 @@ var authLoginCmd = &cobra.Command{
   dtools2 auth login http://myreg:3281 bob q1w2e3         # force HTTP explicitly
   dtools2 auth login myreg:3281 bob --allow-http          # no scheme -> choose HTTP; prompt for password
   dtools2 auth login myreg:3281 bob --tls-skip-verify     # prompt for password`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		// Positional args take precedence; fall back to flags if provided
 		reg := loginRegistry
 		user := loginUsername
@@ -63,17 +65,20 @@ var authLoginCmd = &cobra.Command{
 		}
 
 		if reg == "" {
-			return fmt.Errorf("REGISTRY is required (positional arg 1)")
+			fmt.Println("REGISTRY is required (positional arg 1)")
+			os.Exit(1)
 		}
 		if user == "" {
-			return fmt.Errorf("USERNAME is required (positional arg 2)")
+			fmt.Println("USERNAME is required (positional arg 2)")
+			os.Exit(1)
 		}
 
 		// If password still empty, prompt (plain text as requested)
 		if pass == "" {
-			pass = hf.GetPassword("Please enter the password", Debug)
+			pass = hf.GetPassword("Please enter the password: ", Debug)
 			if pass == "" {
-				return fmt.Errorf("password is required")
+				fmt.Println("Password is required")
+				os.Exit(1)
 			}
 		}
 
@@ -88,10 +93,12 @@ var authLoginCmd = &cobra.Command{
 			Timeout:            15 * time.Second,
 		})
 		if err != nil {
-			return err
+			fmt.Println(err)
+			os.Exit(1)
 		}
-		fmt.Fprintf(cmd.OutOrStdout(), "Login successful (%s). Credentials stored for %s\n", mode, key)
-		return nil
+		fmt.Fprintf(cmd.OutOrStdout(), "%s (%s). %s %s\n", hft.Green("Login successful"), mode,
+			hft.Green("Credentials stored for"), key)
+		os.Exit(0)
 	},
 }
 
@@ -154,9 +161,6 @@ var authWhoAmICmd = &cobra.Command{
 }
 
 func init() {
-	// Attach `auth` under root.
-	rootCmd.AddCommand(authCmd)
-
 	// auth login
 	authCmd.AddCommand(authLoginCmd)
 	authLoginCmd.Flags().StringVarP(&loginRegistry, "registry", "r", "", "Registry hostname[:port] or full URL (deprecated; use positional REGISTRY)")

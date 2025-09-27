@@ -8,12 +8,13 @@ package rest
 import (
 	"crypto/tls"
 	"crypto/x509"
-	ce "github.com/jeanfrancoisgratton/customError/v2"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
 	"time"
+
+	ce "github.com/jeanfrancoisgratton/customError/v3"
 )
 
 // NewClient builds an HTTP(S) client from Config.

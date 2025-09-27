@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"os"
 
-	ce "github.com/jeanfrancoisgratton/customError/v2"
+	ce "github.com/jeanfrancoisgratton/customError/v3"
 )
 
 // WhoAmI inspects the stored credentials for a registry.

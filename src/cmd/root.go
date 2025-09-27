@@ -44,7 +44,7 @@ func init() {
 
 	rootCmd.AddCommand(clCmd, authCmd, completionCmd)
 	rootCmd.PersistentFlags().StringVarP(&auth.ConnectURI, "host", "H", "unix:///var/run/docker.sock", "Remote host:port to connect to")
-	rootCmd.PersistentFlags().BoolVarP(&Debug, "debug", "d", false, "Debug mode")
+	rootCmd.PersistentFlags().BoolVarP(&Debug, "debug", "D", false, "Debug mode")
 }
 
 func changeLog() {

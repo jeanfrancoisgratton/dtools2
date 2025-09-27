@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	ce "github.com/jeanfrancoisgratton/customError/v2"
+	ce "github.com/jeanfrancoisgratton/customError/v3"
 )
 
 // NormalizeRegistry maps common aliases to Docker's canonical keys.

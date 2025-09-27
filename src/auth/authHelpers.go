@@ -13,7 +13,7 @@ import (
 	"net/http"
 	"strings"
 
-	ce "github.com/jeanfrancoisgratton/customError/v2"
+	ce "github.com/jeanfrancoisgratton/customError/v3"
 )
 
 func tryBasic(ctx context.Context, client *http.Client, pingURL, user, pass string) *ce.CustomError {

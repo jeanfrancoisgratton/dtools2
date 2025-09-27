@@ -16,7 +16,7 @@ import (
 	"path"
 	"strings"
 
-	ce "github.com/jeanfrancoisgratton/customError/v2"
+	ce "github.com/jeanfrancoisgratton/customError/v3"
 )
 
 // buildURL joins base + apiPrefix + p and applies query parameters.
