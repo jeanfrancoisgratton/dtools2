@@ -11,10 +11,12 @@ import (
 	"time"
 )
 
+// Client is a thin Docker Engine REST client.
 type Client struct {
-	baseURL     *url.URL
-	httpClient  *http.Client
-	apiVersion  string
+	baseURL     *url.URL     // always http://unix or http[s]://host
+	unixSock    string       // /var/run/docker.sock when using unix
+	httpClient  *http.Client // transport set for unix/http/https
+	apiVersion  string       // e.g. v1.45; empty => unversioned
 	forced      bool
 	dialTimeout time.Duration
 }

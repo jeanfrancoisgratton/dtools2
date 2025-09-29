@@ -7,6 +7,7 @@ package rest
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 	"path"
@@ -21,29 +22,41 @@ import (
 //	-H http://host:2375
 //	-H https://host:2376
 func New(rawHost string, forcedAPIVersion string) (*Client, error) {
-	if rawHost == "" {
+	if strings.TrimSpace(rawHost) == "" {
 		rawHost = "unix:///var/run/docker.sock"
 	}
-	u, err := parseDockerHost(rawHost)
+	u, unixSock, err := parseDockerHost(rawHost)
 	if err != nil {
 		return nil, err
 	}
-	tr, err := makeTransport(u)
+
+	tr, err := makeTransport(u.Scheme, u.Hostname(), unixSock)
 	if err != nil {
 		return nil, err
 	}
-	return &Client{
-		baseURL:     u,
+
+	c := &Client{
+		baseURL:     u, // guaranteed non-nil
+		unixSock:    unixSock,
 		httpClient:  &http.Client{Transport: tr, Timeout: 60 * time.Second},
 		apiVersion:  normalizeVersion(forcedAPIVersion),
 		forced:      forcedAPIVersion != "",
 		dialTimeout: 5 * time.Second,
-	}, nil
+	}
+	return c, nil
 }
 
-// Do performs an HTTP request to the Engine.
-// Example: Do(ctx, "GET", []string{"containers", "json"}, nil, nil)
+// Do performs a request without query string.
 func (c *Client) Do(ctx context.Context, method string, pathParts []string, body io.Reader, headers map[string]string) (*http.Response, error) {
+	return c.DoQ(ctx, method, pathParts, "", body, headers)
+}
+
+// DoQ performs a request with a raw query string like "fromImage=alpine&tag=latest".
+func (c *Client) DoQ(ctx context.Context, method string, pathParts []string, rawQuery string, body io.Reader, headers map[string]string) (*http.Response, error) {
+	if c.baseURL == nil {
+		return nil, errors.New("client not initialized: baseURL is nil")
+	}
+
 	// Negotiate version before versioned paths if not forced
 	if !c.forced && c.apiVersion == "" && len(pathParts) > 0 && pathParts[0] != "_ping" && pathParts[0] != "version" {
 		if err := c.NegotiateAPIversion(ctx); err != nil {
@@ -51,12 +64,14 @@ func (c *Client) Do(ctx context.Context, method string, pathParts []string, body
 		}
 	}
 
+	// Build request URL from a copy of baseURL.
 	reqURL := *c.baseURL
 	p := "/" + strings.Trim(strings.Join(pathParts, "/"), "/")
 	if c.apiVersion != "" && (len(pathParts) == 0 || (pathParts[0] != "_ping" && pathParts[0] != "version")) {
 		p = "/" + c.apiVersion + p
 	}
 	reqURL.Path = path.Clean(reqURL.Path + p)
+	reqURL.RawQuery = rawQuery
 
 	req, err := http.NewRequestWithContext(ctx, method, reqURL.String(), body)
 	if err != nil {

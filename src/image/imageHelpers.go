@@ -17,7 +17,7 @@ import (
 
 func renderProgress(ctx context.Context, r io.Reader) error {
 	dec := json.NewDecoder(r)
-	dec.UseNumber() // do NOT DisallowUnknownFields
+	dec.UseNumber()
 
 	for {
 		select {
@@ -33,8 +33,6 @@ func renderProgress(ctx context.Context, r io.Reader) error {
 			}
 			return err
 		}
-
-		// daemon error lines
 		if e, ok := obj["error"].(string); ok && e != "" {
 			return fmt.Errorf("daemon: %s", e)
 		}
@@ -46,12 +44,14 @@ func renderProgress(ctx context.Context, r io.Reader) error {
 
 		id, _ := obj["id"].(string)
 		status, _ := obj["status"].(string)
-		if id == "" && status != "" {
-			fmt.Println(status)
+
+		if id == "" {
+			if status != "" {
+				fmt.Println(status)
+			}
 			continue
 		}
 
-		// progress
 		if pd, ok := obj["progressDetail"].(map[string]any); ok {
 			cur := numToI64(pd["current"])
 			tot := numToI64(pd["total"])

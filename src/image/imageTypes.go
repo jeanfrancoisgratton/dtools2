@@ -15,3 +15,8 @@ type pullMsg struct {
 		Message string `json:"message"`
 	} `json:"errorDetail"`
 }
+
+type progressDetail struct {
+	Current int64 `json:"current"`
+	Total   int64 `json:"total"`
+}

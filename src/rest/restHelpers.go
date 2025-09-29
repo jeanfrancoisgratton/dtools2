@@ -16,64 +16,55 @@ import (
 	"time"
 )
 
-// parseDockerHost normalizes docker-style host strings into a URL.
-func parseDockerHost(h string) (*url.URL, error) {
+// parseDockerHost normalizes docker-style host strings into a URL and optional unix socket path.
+// For unix sockets we normalize baseURL to http://unix and return unixSock for dialing.
+func parseDockerHost(h string) (*url.URL, string, error) {
 	if strings.HasPrefix(h, "unix://") {
-		p := strings.TrimPrefix(h, "unix://")
-		if p == "" {
-			return nil, errors.New("empty unix socket path")
+		sock := strings.TrimPrefix(h, "unix://")
+		if sock == "" {
+			return nil, "", errors.New("empty unix socket path")
 		}
-		// Stash the socket path in Path; makeTransport will rewrite URL.
-		return &url.URL{Scheme: "http+unix", Host: "unix", Path: p}, nil
+		// Base URL used to build requests. Dialer will use unixSock.
+		return &url.URL{Scheme: "http", Host: "unix"}, sock, nil
 	}
 	if strings.HasPrefix(h, "tcp://") {
-		// Docker's tcp:// implies plain HTTP unless user wrote https:// explicitly.
-		return &url.URL{Scheme: "http", Host: strings.TrimPrefix(h, "tcp://")}, nil
+		return &url.URL{Scheme: "http", Host: strings.TrimPrefix(h, "tcp://")}, "", nil
 	}
 	u, err := url.Parse(h)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	if u.Scheme == "" {
 		u.Scheme = "http"
 	}
-	return u, nil
+	return u, "", nil
 }
 
 // makeTransport builds a transport for unix/http/https.
-// HTTPS uses system roots by default, optional mTLS/CA from tlsConfig.go.
-func makeTransport(u *url.URL) (http.RoundTripper, error) {
-	// Unix socket: rewrite to http://unix and dial the saved socket path.
-	if u.Scheme == "http+unix" {
-		sock := u.Path
-		u.Scheme = "http"
-		u.Host = "unix"
-		u.Path = ""
-
+// HTTPS uses system roots by default and augments with ~/.docker/{ca.pem,cert.pem,key.pem} if present.
+func makeTransport(scheme, host, unixSock string) (http.RoundTripper, error) {
+	if unixSock != "" {
 		return &http.Transport{
 			DisableCompression: true,
 			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
 				var d net.Dialer
-				return d.DialContext(ctx, "unix", sock)
+				return d.DialContext(ctx, "unix", unixSock)
 			},
 		}, nil
 	}
 
-	// TCP HTTP/HTTPS
 	tr := &http.Transport{
 		Proxy:               http.ProxyFromEnvironment,
 		DisableCompression:  true,
 		TLSHandshakeTimeout: 10 * time.Second,
 	}
-
-	if u.Scheme == "https" {
-		// Uses system roots by default; augments with ~/.docker/{ca.pem,cert.pem,key.pem} if present.
-		tcfg, err := LoadTLSconfig(u.Hostname())
+	if scheme == "https" {
+		tcfg, err := LoadTLSconfig(host)
 		if err != nil {
 			return nil, err
 		}
 		if tcfg.ServerName == "" {
-			tcfg.ServerName = u.Hostname()
+			tcfg.ServerName = host
 		}
 		tr.TLSClientConfig = tcfg
 	}

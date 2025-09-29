@@ -16,22 +16,17 @@ import (
 	"strings"
 )
 
-type progressDetail struct {
-	Current int64 `json:"current"`
-	Total   int64 `json:"total"`
-}
-
 // Pull pulls an image via Engine API: POST /images/create?fromImage=&tag=
 // It streams JSON progress and renders simple per-layer progress lines.
 func Pull(ctx context.Context, c *rest.Client, images []string) error {
-	for _, image := range images {
-		reg := inferRegistry(image) // for auth lookup only
+	for _, reference := range images {
+		reg := inferRegistry(reference)
 		xra, err := auth.BuildXRegistryAuth(reg)
 		if err != nil {
 			return err
 		}
 
-		refNoRegistry := stripRegistry(image)
+		refNoRegistry := stripRegistry(reference)
 		name, tag := splitNameTag(refNoRegistry)
 
 		q := url.Values{}
@@ -42,10 +37,9 @@ func Pull(ctx context.Context, c *rest.Client, images []string) error {
 
 		headers := map[string]string{
 			"X-Registry-Auth": xra,
-			"Content-Type":    "application/json",
 		}
-		// Body may be empty for pull
-		resp, err := c.Do(ctx, http.MethodPost, []string{"images", "create" + "?" + q.Encode()}, nil, headers)
+
+		resp, err := c.DoQ(ctx, http.MethodPost, []string{"images", "create"}, q.Encode(), nil, headers)
 		if err != nil {
 			return err
 		}
