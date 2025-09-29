@@ -23,7 +23,7 @@ Bash:
   $ pgtools completion bash | sudo tee /etc/bash_completion.d/pgtools > /dev/null
 
 Zsh:
-  $ pgtools completion zsh > ~/.zsh/_pgtools
+  $ pgtools completion zsh > ~/.zsh[.completion.d]/_pgtools
   $ echo 'fpath=($HOME/.zsh $fpath)' >> ~/.zshrc
   $ echo 'autoload -Uz compinit && compinit' >> ~/.zshrc
   # Or, for current session:
