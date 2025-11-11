@@ -95,3 +95,58 @@ func trimPort(host string) string {
 	}
 	return host
 }
+
+// resolveReference parses an image reference and returns:
+//
+//	registryHost ("" for docker hub), repoPath, tag, isDigest
+func resolveReference(ref string) (string, string, string, bool) {
+	ref = strings.TrimSpace(ref)
+
+	// digest?
+	if i := strings.Index(ref, "@"); i >= 0 {
+		host, repo := splitRegistry(ref[:i])
+		repo = normalizeRepoForHub(host, repo)
+		return host, repo, "", true
+	}
+
+	// tag?
+	lastSlash := strings.LastIndex(ref, "/")
+	lastColon := strings.LastIndex(ref, ":")
+	var host, repo, tag string
+	if lastColon > lastSlash {
+		host, repo = splitRegistry(ref[:lastColon])
+		tag = ref[lastColon+1:]
+	} else {
+		host, repo = splitRegistry(ref)
+	}
+
+	repo = normalizeRepoForHub(host, repo)
+	if tag == "" {
+		tag = "latest"
+	}
+	return host, repo, tag, false
+}
+
+// splitRegistry decides if the first path component is a registry host.
+func splitRegistry(s string) (host, remainder string) {
+	parts := strings.Split(s, "/")
+	if len(parts) == 1 {
+		return "", parts[0]
+	}
+	first := parts[0]
+	if first == "localhost" || strings.Contains(first, ".") || strings.Contains(first, ":") {
+		return first, strings.Join(parts[1:], "/")
+	}
+	return "", s
+}
+
+// normalizeRepoForHub prepends library/ for single-component repos on Docker Hub.
+func normalizeRepoForHub(host, repo string) string {
+	if host != "" {
+		return repo
+	}
+	if !strings.Contains(repo, "/") {
+		return "library/" + repo
+	}
+	return repo
+}
