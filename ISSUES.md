@@ -1,2 +1,1 @@
-- [ ] auth subcommand parsing ignoring params on CLI
-- [ ] reconcile actual error codes with what's in `ERRORCODES.md`
+- [ ] 

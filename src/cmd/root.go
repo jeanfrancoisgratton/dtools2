@@ -4,11 +4,9 @@
 package cmd
 
 import (
-	"context"
 	"dtools2/rest"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -27,36 +25,8 @@ var rootCmd = &cobra.Command{
 	SilenceUsage: true,
 	Short:        "Docker / Podman client",
 	Version:      "1.00.00-0 (2025.09.16)",
-	Long: `This software is intended to be a full drop-in replacemenat to the current docker and podman clients.
-It relies on the REST APIs of both platforms as the SDK tend to change too much, and to frequently to ensure stability.`,
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		// Initialize REST client once
-		if client != nil {
-			return nil
-		}
-		c, err := rest.New(hostFlag, forceAPIVer)
-		if err != nil {
-			return err
-		}
-		// Negotiate early by ping to provide fast fail
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		if err := c.Ping(ctx); err != nil {
-			return err
-		}
-		client = c
-		return nil
-	},
-}
-
-// Shows changelog
-var clCmd = &cobra.Command{
-	Use:     "changelog",
-	Aliases: []string{"cl"},
-	Short:   "Shows the Changelog",
-	Run: func(cmd *cobra.Command, args []string) {
-		changeLog()
-	},
+	Long: `This software is intended to be a full drop-in replacement to the current docker and podman clients.
+It relies on the REST APIs of both platforms as the SDKs tend to change too much, and too frequently to ensure stability.`,
 }
 
 func Execute() {
@@ -70,13 +40,10 @@ func init() {
 	rootCmd.DisableAutoGenTag = true
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 
-	rootCmd.AddCommand(clCmd, completionCmd)
-	rootCmd.AddCommand(authPingCmd)
-	rootCmd.AddCommand(authVersionCmd)
-	rootCmd.AddCommand(authCmd)
+	rootCmd.AddCommand(completionCmd)
 	rootCmd.PersistentFlags().StringVarP(&ConnectURI, "host", "H", "unix:///var/run/docker.sock", "Remote host:port to connect to")
 	rootCmd.PersistentFlags().BoolVarP(&Debug, "debug", "D", false, "Debug mode")
-	rootCmd.PersistentFlags().StringVarP(&forceAPIVer, "force-api", "F", "", "Force Docker API version, e.g. v1.45 or 1.45 (disables negotiation)")
+	rootCmd.PersistentFlags().StringVarP(&forceAPIVer, "apiver", "a", "", "Pin the API version, e.g. v1.45 or 1.45 (disables negotiation)")
 
 }
 
