@@ -6,6 +6,7 @@ BRANCH=`git rev-parse --abbrev-ref HEAD`
 BRANCH=$(echo "$BRANCH" | tr '/' '_')
 BINARY=dtools2
 OUTPUT=/opt/bin
+COMPLETION=false
 
 # Parse arguments
 while [ "$#" -gt 0 ]; do
@@ -29,3 +30,7 @@ fi
 
 echo "Building ${OUTPUT}/${FULLNAME}"
 CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -buildid=" -o ${OUTPUT}/${FULLNAME} .
+
+
+# Enable tab completion
+

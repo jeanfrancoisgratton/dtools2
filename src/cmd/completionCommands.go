@@ -1,7 +1,7 @@
-// pgtools
+// dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2025/09/15 08:35
-// Original filename: src/cmd/completion.go
+// Original filename: src/cmd/completionCommands.go
 // Bash/Zsh completion scripts via Cobra.
 
 package cmd
@@ -18,16 +18,16 @@ var completionCmd = &cobra.Command{
 	Long: `Generate completion scripts for your shell.
 
 Bash:
-  $ source <(pgtools completion bash)
+  $ source <(dtools2 completion bash)
   # To persist:
-  $ pgtools completion bash | sudo tee /etc/bash_completion.d/pgtools > /dev/null
+  $ dtools2 completion bash | sudo tee /etc/bash_completion.d/dtools2 > /dev/null
 
 Zsh:
-  $ pgtools completion zsh > ~/.zsh[.completion.d]/_pgtools
+  $ dtools2 completion zsh > ~/.zsh[.completion.d]/_dtools2
   $ echo 'fpath=($HOME/.zsh $fpath)' >> ~/.zshrc
   $ echo 'autoload -Uz compinit && compinit' >> ~/.zshrc
   # Or, for current session:
-  $ source <(pgtools completion zsh)
+  $ source <(dtools2 completion zsh)
 `,
 }
 
