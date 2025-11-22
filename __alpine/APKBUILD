@@ -11,6 +11,8 @@ arch=x86_64
 license=GPL2
 #depends="gcompat"
 install=""
+makedepends="go"
+options="!check"
 #source="$pkgname-$pkgver-$pkgrel.tar.bz2::http://localhost/$pkgname-$pkgver-$pkgrel.tar.bz2"
 binaryname=dtools2
 
