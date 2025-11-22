@@ -4,30 +4,54 @@
 package cmd
 
 import (
-	"dtools2/auth"
+	"dtools2/rest"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
-var Debug = false
-
 var rootCmd = &cobra.Command{
-	Use:     "dtools2",
-	Short:   "Docker / Podman client",
-	Version: "1.00.00-0 (2025.09.16)",
-	Long: `This software is intended to be a full drop-in replacemenat to the current docker and podman clients.
-It relies on the REST APIs of both platforms as the SDK tend to change too much, and to frequently to ensure stability.`,
-}
+	Use:          "dtools2",
+	SilenceUsage: true,
+	Short:        "Docker / Podman client",
+	Version:      "0.10.00 (2025.09.16)",
+	Long: `dtools2 is a lightweight Docker/Podman client that talks directly
+to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		if restClient != nil {
+			return nil
+		}
 
-// Shows changelog
-var clCmd = &cobra.Command{
-	Use:     "changelog",
-	Aliases: []string{"cl"},
-	Short:   "Shows the Changelog",
-	Run: func(cmd *cobra.Command, args []string) {
-		changeLog()
+		cfg := rest.Config{
+			Host:               ConnectURI,
+			APIVersion:         APIVersion,
+			UseTLS:             UseTLS,
+			CACertPath:         TLSCACert,
+			CertPath:           TLSCert,
+			KeyPath:            TLSKey,
+			InsecureSkipVerify: TLSSkipVerify,
+		}
+
+		client, err := rest.NewClient(cfg)
+		if err != nil {
+			return fmt.Errorf("failed to initialize REST client: %w", err)
+		}
+
+		// If user did not force an API version, negotiate it with /version.
+		if APIVersion == "" {
+			v, err := rest.NegotiateAPIVersion(cmd.Context(), client)
+			if err != nil {
+				return fmt.Errorf("failed to negotiate API version: %w", err)
+			}
+			client.SetAPIVersion(v)
+			if Debug {
+				fmt.Fprintf(os.Stderr, "Negotiated API version: %s\n", v)
+			}
+		}
+
+		restClient = client
+		return nil
 	},
 }
 
@@ -42,21 +66,11 @@ func init() {
 	rootCmd.DisableAutoGenTag = true
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 
-	rootCmd.AddCommand(clCmd, authCmd, completionCmd)
-	rootCmd.PersistentFlags().StringVarP(&auth.ConnectURI, "host", "H", "unix:///var/run/docker.sock", "Remote host:port to connect to")
-	rootCmd.PersistentFlags().BoolVarP(&Debug, "debug", "D", false, "Debug mode")
-}
+	rootCmd.AddCommand(completionCmd)
 
-func changeLog() {
-	//fmt.Printf("\x1b[2J")
-	fmt.Printf("\x1bc")
-
-	fmt.Println("CHANGELOG")
-	fmt.Println("=========")
-
-	fmt.Print(`
-VERSION			DATE			COMMENT
--------			----			-------
-0.10.00			2025.09.16		Initial release
-`)
+	// Global flags.
+	rootCmd.PersistentFlags().BoolVarP(&Debug, "debug", "D", false, "Enable debug output on stderr")
+	rootCmd.PersistentFlags().StringVarP(&ConnectURI, "host", "H", "", "Docker daemon host (e.g. unix:///var/run/docker.sock, tcp://host:2376)")
+	rootCmd.PersistentFlags().StringVarP(&APIVersion, "api-version", "a", "", "Docker API version (e.g. 1.43); if empty, auto-negotiate with the daemon")
+	rootCmd.PersistentFlags().BoolVarP(&UseTLS, "tls", "t", false, "Use TLS when connecting to the Docker daemon (for tcp:// hosts)")
 }

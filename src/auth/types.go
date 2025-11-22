@@ -1,63 +1,47 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
-// Original timestamp: 2025/09/19 22:52
+// Original timestamp: 2025/11/14 12:55
 // Original filename: src/auth/types.go
 
 package auth
 
 import "time"
 
-// Package-scope variables
-
-var ConnectURI = ""
-
-// WhoAmIResult describes the stored auth for a registry.
-type WhoAmIResult struct {
-	Registry     string // normalized registry key used in config.json
-	Mode         string // "basic", "token", "missing", "helper", "unknown"
-	Username     string // for Mode == "basic"
-	TokenPreview string // for Mode == "token" (non-sensitive short prefix)
+// DockerConfig represents ~/.docker/config.json (simplified).
+type DockerConfig struct {
+	Auths map[string]RegistryAuth `json:"auths,omitempty"`
 }
 
-// No explicit auths entry: see if a helper is configured
-// (we can't query the helper here; just surface that one is likely in use).
-type helperCfg struct {
-	CredsStore  string            `json:"credsStore"`
-	CredHelpers map[string]string `json:"credHelpers"`
+// RegistryAuth is a single registry auth entry.
+type RegistryAuth struct {
+	Auth          string `json:"auth,omitempty"` // base64("username:password")
+	Username      string `json:"username,omitempty"`
+	Password      string `json:"password,omitempty"`
+	Email         string `json:"email,omitempty"`
+	IdentityToken string `json:"identitytoken,omitempty"`
 }
 
-// Mode is the authentication mode that succeeded.
-type Mode string
-
-const (
-	ModeNone   Mode = "none"   // /v2/ returned 200 OK (no auth required)
-	ModeBasic  Mode = "basic"  // Basic user:pass succeeded
-	ModeBearer Mode = "bearer" // Bearer token flow succeeded
-)
-
-// LoginOptions controls how CentralizedLogin behaves.
+// LoginOptions describes how to log in to a registry.
 type LoginOptions struct {
-	Registry string // host[:port] or full URL (e.g., "myreg:3281" or "https://myreg:3281")
-	Username string // may be empty if you expect an anonymous Bearer flow (rare)
-	Password string // password or PAT; can be empty with some setups
+	// Registry can be:
+	//   - "registry-1.docker.io"
+	//   - "my-registry.example.com:5000"
+	//   - "https://my-registry.example.com"
+	//   - "http://insecure-registry.example.com:5000"
+	//
+	// If no scheme is present, HTTPS is assumed for the HTTP request.
+	Registry string
+	Username string
+	Password string
 
-	// If Registry has no scheme, default to HTTPS unless AllowHTTP is true.
-	AllowHTTP bool
+	// Insecure, if true, disables TLS verification when using HTTPS.
+	// Does NOT affect plain HTTP registries.
+	Insecure bool
 
-	// TLS knobs (applied to both registry and token realm HTTP clients)
-	CAFile             string
-	ClientCertFile     string
-	ClientKeyFile      string
-	InsecureSkipVerify bool
+	// CACertPath, if non-empty, is used to build a custom Root CA pool
+	// for the registry connection.
+	CACertPath string
 
-	// Network timeouts
+	// Timeout for the login HTTP request. If zero, a sane default is used.
 	Timeout time.Duration
-
-	// If true, do NOT attempt Basic fallback when Bearer fetch fails.
-	DisableBasicFallback bool
-}
-
-// AuthEntry matches {"auth":"base64(user:pass)"}
-type AuthEntry struct {
-	Auth string `json:"auth"`
 }

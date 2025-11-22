@@ -40,8 +40,7 @@ docker/podman client
 
 %build
 cd %{_sourcedir}/%{_name}-%{_version}/src
-PATH=$PATH:/opt/go/bin CGO_ENABLED=0 go build -o %{_sourcedir}/%{_binaryname} .
-strip %{_sourcedir}/%{_binaryname}
+PATH=$PATH:/opt/go/bin CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -buildid=" -o %{_sourcedir}/%{_binaryname} .
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -64,3 +63,4 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+

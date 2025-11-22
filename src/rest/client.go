@@ -1,153 +1,264 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
-// Original timestamp: 2025/09/18 06:37
+// Original timestamp: 2025/11/14 08:11
 // Original filename: src/rest/client.go
 
 package rest
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
+	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
-
-	ce "github.com/jeanfrancoisgratton/customError/v3"
 )
 
-// NewClient builds an HTTP(S) client from Config.
-func NewClient(cfg Config) (*Client, *ce.CustomError) {
-	if cfg.Host == "" {
-		return nil, &ce.CustomError{Code: 101, Title: "Unable to set client Host"}
-	}
-	scheme := strings.ToLower(strings.TrimSpace(cfg.Scheme))
-	if scheme == "" {
-		scheme = "https"
-	}
-	//base := &url.URL{Scheme: scheme, Host: cfg.Host}
-
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: cfg.InsecureSkipVerify}, //nolint:gosec
-	}
-	// If HTTPS, wire CA and/or client cert
-	if scheme == "https" {
-		// Custom CA
-		if cfg.CAFile != "" {
-			caPEM, err := os.ReadFile(cfg.CAFile)
-			if err != nil {
-				return nil, &ce.CustomError{Code: 102, Title: "Error reading the CA file", Message: err.Error()}
-			}
-			pool, err := x509.SystemCertPool()
-			if err != nil || pool == nil {
-				pool = x509.NewCertPool()
-			}
-			if ok := pool.AppendCertsFromPEM(caPEM); !ok {
-				return nil, &ce.CustomError{Code: 103, Title: "Failed to append CA file"}
-			}
-			tr.TLSClientConfig.RootCAs = pool
-		}
-		// mTLS
-		if cfg.ClientCertFile != "" && cfg.ClientKeyFile != "" {
-			cert, err := tls.LoadX509KeyPair(cfg.ClientCertFile, cfg.ClientKeyFile)
-			if err != nil {
-				return nil, &ce.CustomError{Code: 104, Title: "Error loading client cert/key", Message: err.Error()}
-			}
-			tr.TLSClientConfig.Certificates = []tls.Certificate{cert}
+// NewClient builds a Client from Config.
+// If Host is empty, DOCKER_HOST or the standard Docker default is used.
+func NewClient(cfg Config) (*Client, error) {
+	host := cfg.Host
+	if host == "" {
+		host = os.Getenv("DOCKER_HOST")
+		if host == "" {
+			// Standard default for local Docker.
+			host = "unix:///var/run/docker.sock"
 		}
 	}
 
-	to := cfg.Timeout
-	if to <= 0 {
-		to = 20 * time.Second
+	isUnix := strings.HasPrefix(host, "unix://")
+
+	// Allow bare host[:port] (e.g. "vps:2475") and treat it as tcp://.
+	if !isUnix && !strings.Contains(host, "://") {
+		host = "tcp://" + host
 	}
-	apiPrefix := ""
-	if v := strings.TrimSpace(cfg.APIVersion); v != "" {
-		apiPrefix = "/" + strings.TrimLeft(v, "/")
+
+	var (
+		transport *http.Transport
+		baseURL   *url.URL
+		unixPath  string
+	)
+
+	if isUnix {
+		// Strip unix:// prefix and keep the socket path.
+		unixPath = strings.TrimPrefix(host, "unix://")
+		if unixPath == "" {
+			return nil, fmt.Errorf("unix host %q has empty socket path", host)
+		}
+
+		transport = &http.Transport{
+			Proxy: nil,
+			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+				// Keep the same 30s dial timeout as before.
+				return net.DialTimeout("unix", unixPath, 30*time.Second)
+			},
+		}
+
+		// Fake URL; only the path is used when we build requests.
+		baseURL, _ = url.Parse("http://d")
+	} else {
+		u, err := url.Parse(host)
+		if err != nil {
+			return nil, fmt.Errorf("invalid host %q: %w", host, err)
+		}
+		if u.Host == "" {
+			return nil, fmt.Errorf("host %q is missing hostname", host)
+		}
+
+		scheme := u.Scheme
+		switch scheme {
+		case "tcp":
+			if cfg.UseTLS {
+				scheme = "https"
+			} else {
+				scheme = "http"
+			}
+		case "http", "https":
+			// Respect explicit scheme, UseTLS only controls TLS config.
+		default:
+			return nil, fmt.Errorf("unsupported scheme %q in host %q", scheme, host)
+		}
+		u.Scheme = scheme
+
+		tlsConfig, err := buildTLSConfig(cfg)
+		if err != nil {
+			return nil, fmt.Errorf("failed to build TLS config: %w", err)
+		}
+
+		transport = &http.Transport{
+			Proxy:               http.ProxyFromEnvironment,
+			TLSClientConfig:     tlsConfig,
+			MaxIdleConns:        100,
+			IdleConnTimeout:     90 * time.Second,
+			TLSHandshakeTimeout: 10 * time.Second,
+		}
+
+		baseURL = u
+	}
+
+	timeout := cfg.Timeout
+	if timeout == 0 {
+		timeout = 60 * time.Second
+	}
+
+	httpClient := &http.Client{
+		Transport: transport,
+		Timeout:   timeout,
 	}
 
 	return &Client{
-		Http: &http.Client{
-			Timeout:   to,
-			Transport: tr,
-		},
-		//BaseURL:   base,
-		APIprefix: apiPrefix,
+		httpClient: httpClient,
+		baseURL:    baseURL,
+		apiVersion: strings.TrimSpace(cfg.APIVersion),
+		isUnix:     isUnix,
+		unixPath:   unixPath,
 	}, nil
 }
 
-// NewClientFromURL builds a REST client from a parsed URL and API version.
-// Example: u := &url.URL{Scheme: "https", Host: "myreg:3281"}; rest.NewClientFromURL(u, "", 15*time.Second, tlsOpts)
-func NewClientFromURL(u *url.URL, apiVersion string, timeout time.Duration, tlsOpts TLSOptions) (*Client, *ce.CustomError) {
-	if u == nil {
-		return nil, &ce.CustomError{Code: 104, Title: "Error creating the client", Message: "nil URL"}
+// buildTLSConfig constructs a *tls.Config from the given settings.
+// For Unix sockets, this is ignored by NewClient.
+func buildTLSConfig(cfg Config) (*tls.Config, error) {
+	if !cfg.UseTLS {
+		return nil, nil
 	}
-	cfg := Config{
-		Host:               u.Host,
-		Scheme:             u.Scheme,
-		APIVersion:         apiVersion,
-		Timeout:            timeout,
-		CAFile:             tlsOpts.CAFile,
-		ClientCertFile:     tlsOpts.ClientCertFile,
-		ClientKeyFile:      tlsOpts.ClientKeyFile,
-		InsecureSkipVerify: tlsOpts.InsecureSkipVerify,
+
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: cfg.InsecureSkipVerify,
+		MinVersion:         tls.VersionTLS12,
 	}
-	return NewClient(cfg)
+
+	// Root CAs
+	if cfg.CACertPath != "" {
+		caPEM, err := os.ReadFile(cfg.CACertPath)
+		if err != nil {
+			return nil, fmt.Errorf("unable to read CA cert %q: %w", cfg.CACertPath, err)
+		}
+
+		pool := x509.NewCertPool()
+		if !pool.AppendCertsFromPEM(caPEM) {
+			return nil, fmt.Errorf("failed to parse CA cert %q", cfg.CACertPath)
+		}
+		tlsConfig.RootCAs = pool
+	} else {
+		// Use system roots if available.
+		sysPool, _ := x509.SystemCertPool()
+		tlsConfig.RootCAs = sysPool
+	}
+
+	// Client certificate
+	if cfg.CertPath != "" && cfg.KeyPath != "" {
+		cert, err := tls.LoadX509KeyPair(cfg.CertPath, cfg.KeyPath)
+		if err != nil {
+			return nil, fmt.Errorf("unable to load client cert/key (%q, %q): %w", cfg.CertPath, cfg.KeyPath, err)
+		}
+		tlsConfig.Certificates = []tls.Certificate{cert}
+	}
+
+	return tlsConfig, nil
 }
 
-// NewHTTPClient builds a plain *http.Client that applies the same TLS behavior as Config.
-// Useful for hitting Bearer token realms that may live on a different host than your base client.
-func NewHTTPClient(tlsOpts TLSOptions, timeout time.Duration) (*http.Client, *ce.CustomError) {
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: tlsOpts.InsecureSkipVerify}, //nolint:gosec
-	}
-
-	// Custom CA
-	if tlsOpts.CAFile != "" {
-		caPEM, err := os.ReadFile(tlsOpts.CAFile)
-		if err != nil {
-			return nil, &ce.CustomError{Code: 101, Title: "Error reading CA file", Message: err.Error()}
-		}
-		pool, err := x509.SystemCertPool()
-		if err != nil || pool == nil {
-			pool = x509.NewCertPool()
-		}
-		if ok := pool.AppendCertsFromPEM(caPEM); !ok {
-			return nil, &ce.CustomError{Code: 106, Title: "Failed to append CA file"}
-		}
-		if tr.TLSClientConfig == nil {
-			tr.TLSClientConfig = &tls.Config{}
-		}
-		tr.TLSClientConfig.RootCAs = pool
-	}
-
-	// mTLS
-	if tlsOpts.ClientCertFile != "" && tlsOpts.ClientKeyFile != "" {
-		cert, err := tls.LoadX509KeyPair(tlsOpts.ClientCertFile, tlsOpts.ClientKeyFile)
-		if err != nil {
-			return nil, &ce.CustomError{Code: 106, Title: "Error loading cert/key file", Message: err.Error()}
-		}
-		if tr.TLSClientConfig == nil {
-			tr.TLSClientConfig = &tls.Config{}
-		}
-		tr.TLSClientConfig.Certificates = []tls.Certificate{cert}
-	}
-
-	if timeout <= 0 {
-		timeout = 20 * time.Second
-	}
-	return &http.Client{
-		Timeout:   timeout,
-		Transport: tr,
-	}, nil
+// SetAPIVersion sets the API version used for versioned endpoints.
+func (c *Client) SetAPIVersion(v string) {
+	c.apiVersion = strings.TrimSpace(v)
 }
 
-// Helper: parse a string URL and pass to NewClientFromURL.
-func NewClientFromURLString(rawURL, apiVersion string, timeout time.Duration, tlsOpts TLSOptions) (*Client, *ce.CustomError) {
-	u, err := url.Parse(rawURL)
+// APIVersion returns the currently configured API version (possibly empty).
+func (c *Client) APIVersion() string {
+	return c.apiVersion
+}
+
+// Do issues an HTTP request to the daemon.
+// `path` should be the API path, e.g. "/containers/json" or "/version".
+// For most endpoints, a "/v<version>" prefix is automatically added.
+// `/version` is called without a version prefix for negotiation.
+func (c *Client) Do(
+	ctx context.Context,
+	method string,
+	path string,
+	query url.Values,
+	body io.Reader,
+	headers http.Header,
+) (*http.Response, error) {
+	if path == "" || path[0] != '/' {
+		path = "/" + path
+	}
+
+	// /version is unversioned; everything else gets /v<APIVersion>.
+	finalPath := path
+	if path != "/version" && c.apiVersion != "" {
+		finalPath = "/v" + c.apiVersion + path
+	}
+
+	u := *c.baseURL
+	u.Path = joinURLPath(c.baseURL.Path, finalPath)
+	if len(query) > 0 {
+		u.RawQuery = query.Encode()
+	}
+
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), body)
 	if err != nil {
-		return nil, &ce.CustomError{Code: 106, Title: "Error parsing URL", Message: err.Error()}
+		return nil, err
 	}
-	return NewClientFromURL(u, apiVersion, timeout, tlsOpts)
+
+	for k, vs := range headers {
+		for _, v := range vs {
+			req.Header.Add(k, v)
+		}
+	}
+
+	return c.httpClient.Do(req)
+}
+
+func joinURLPath(basePath, addPath string) string {
+	if basePath == "" || basePath == "/" {
+		return addPath
+	}
+	return strings.TrimRight(basePath, "/") + "/" + strings.TrimLeft(addPath, "/")
+}
+
+// DumpURL is a small helper for debugging.
+func (c *Client) DumpURL(path string) string {
+	u := *c.baseURL
+	u.Path = joinURLPath(c.baseURL.Path, path)
+	return u.String()
+}
+
+// SocketPath returns the Unix socket path, if using a Unix transport.
+func (c *Client) SocketPath() string {
+	if !c.isUnix {
+		return ""
+	}
+	return c.unixPath
+}
+
+// ConfigFromEnv is a helper if later you want to mirror DOCKER_* envs more closely.
+func ConfigFromEnv() Config {
+	// This is intentionally minimal for now. You can extend it later.
+	host := os.Getenv("DOCKER_HOST")
+	if host == "" {
+		host = "unix:///var/run/docker.sock"
+	}
+	return Config{
+		Host: host,
+	}
+}
+
+// NormalizePath is a helper to clean a host path (e.g. for certs).
+func NormalizePath(p string) string {
+	if p == "" {
+		return ""
+	}
+	if strings.HasPrefix(p, "~") {
+		home, err := os.UserHomeDir()
+		if err == nil {
+			p = filepath.Join(home, strings.TrimPrefix(p, "~"))
+		}
+	}
+	return p
 }
