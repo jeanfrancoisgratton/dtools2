@@ -15,7 +15,7 @@ var rootCmd = &cobra.Command{
 	Use:          "dtools2",
 	SilenceUsage: true,
 	Short:        "Docker / Podman client",
-	Version:      "1.00.00-0 (2025.09.16)",
+	Version:      "0.10.00 (2025.09.16)",
 	Long: `dtools2 is a lightweight Docker/Podman client that talks directly
 to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {

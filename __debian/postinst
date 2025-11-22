@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
 
-cd /opt/bin
-sudo chgrp -R devops .
-sudo chmod 775 /opt/bin/dtools2
+sudo chmod 755 /opt/bin/dtools2
 

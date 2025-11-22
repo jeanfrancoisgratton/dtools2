@@ -1,7 +1,0 @@
-#!/usr/bin/env ash
-
-cd /opt/bin
-sudo chgrp -R devops .
-sudo chmod 775 /opt/bin/dtools2
-
-exit 0
