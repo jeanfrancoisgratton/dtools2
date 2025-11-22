@@ -19,7 +19,7 @@ var imagesCmd = &cobra.Command{
 	Long:  "Manage container images via the Docker/Podman API (pull, list, etc.).",
 }
 
-// imagesPullCmd implements `dtools2 images pull`, wiring through to images.PullImageFromCLI().
+// imagesPullCmd implements `dtools2 images pull`, wiring through to images.ImagePull().
 // cmd/images.go
 
 var imagesPullCmd = &cobra.Command{
@@ -32,7 +32,7 @@ var imagesPullCmd = &cobra.Command{
 		}
 
 		imageRef := args[0]
-		return images.PullImageFromCLI(cmd.Context(), restClient, imageRef)
+		return images.ImagePull(cmd.Context(), restClient, imageRef)
 	},
 }
 

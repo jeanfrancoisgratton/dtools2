@@ -23,9 +23,9 @@ import (
 	"github.com/moby/term"
 )
 
-// PullImage pulls an image from a registry via the daemon, streaming progress
+// pull pulls an image from a registry via the daemon, streaming progress
 // using Docker's own jsonmessage renderer (same output as `docker pull`).
-func PullImage(ctx context.Context, client *rest.Client, opts PullOptions, out io.Writer) error {
+func pull(ctx context.Context, client *rest.Client, opts PullOptions, out io.Writer) error {
 	if opts.ImageTag == "" {
 		return fmt.Errorf("image reference is required")
 	}
@@ -77,10 +77,11 @@ func PullImage(ctx context.Context, client *rest.Client, opts PullOptions, out i
 }
 
 // Simple CLI helper for Cobra.
-func PullImageFromCLI(ctx context.Context, client *rest.Client, ref string) error {
+
+func ImagePull(ctx context.Context, client *rest.Client, ref string) error {
 	opts := PullOptions{
 		ImageTag: ref,
 		Registry: registryFromImageRef(ref),
 	}
-	return PullImage(ctx, client, opts, os.Stdout)
+	return pull(ctx, client, opts, os.Stdout)
 }

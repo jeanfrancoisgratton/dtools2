@@ -1,11 +1,13 @@
 | Task                        | Slated for | Actual release | Comments |
 |-----------------------------|------------|----------------|----------|
-| [ ] auth                    |            |                |          | 
-| [ ] remote host connection  |            |                |          |
-| [ ] http(s) thin client     |            |                |          |
-| [ ] tab completion          |            |                |          |
+| [x] auth                    | 0.10.00    |                |          | 
+| [x] login                   | 0.10.00    |                |          |
+| [x] remote host connection  | 0.10.00    |                |          |
+| [x] http(s) thin client     |            |                |          |
+| [x] tab completion          | 0.10.00    |                |          |
 | [ ] image list              |            |                |          |
-| [ ] image pull / push       |            |                |          |
+| [x] image pull              | 0.10.00    |                |          |
+| [ ] image push              |            |                |          |
 | [ ] container list          |            |                |          |
 | [ ] container rm            |            |                |          |
 | [ ] image rm                |            |                |          |

@@ -9,7 +9,6 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -20,17 +19,6 @@ import (
 	"strings"
 	"time"
 )
-
-// Client wraps an http.Client and knows how to talk to the Docker daemon
-// via TCP (http/https) or a Unix socket, with an optional API version prefix.
-type Client struct {
-	httpClient *http.Client
-	baseURL    *url.URL
-	apiVersion string
-
-	isUnix   bool
-	unixPath string
-}
 
 // NewClient builds a Client from Config.
 // If Host is empty, DOCKER_HOST or the standard Docker default is used.
@@ -45,40 +33,56 @@ func NewClient(cfg Config) (*Client, error) {
 	}
 
 	isUnix := strings.HasPrefix(host, "unix://")
+
+	// Allow bare host[:port] (e.g. "vps:2475") and treat it as tcp://.
+	if !isUnix && !strings.Contains(host, "://") {
+		host = "tcp://" + host
+	}
+
 	var (
 		transport *http.Transport
 		baseURL   *url.URL
 		unixPath  string
-		err       error
 	)
 
 	if isUnix {
+		// Strip unix:// prefix and keep the socket path.
 		unixPath = strings.TrimPrefix(host, "unix://")
 		if unixPath == "" {
-			return nil, errors.New("invalid unix socket path in host")
+			return nil, fmt.Errorf("unix host %q has empty socket path", host)
 		}
 
 		transport = &http.Transport{
+			Proxy: nil,
 			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+				// Keep the same 30s dial timeout as before.
 				return net.DialTimeout("unix", unixPath, 30*time.Second)
 			},
 		}
 
 		// Fake URL; only the path is used when we build requests.
-		baseURL, _ = url.Parse("http://d") // host is irrelevant for unix sockets
+		baseURL, _ = url.Parse("http://d")
 	} else {
 		u, err := url.Parse(host)
 		if err != nil {
 			return nil, fmt.Errorf("invalid host %q: %w", host, err)
 		}
+		if u.Host == "" {
+			return nil, fmt.Errorf("host %q is missing hostname", host)
+		}
 
 		scheme := u.Scheme
-		if scheme == "tcp" {
+		switch scheme {
+		case "tcp":
 			if cfg.UseTLS {
 				scheme = "https"
 			} else {
 				scheme = "http"
 			}
+		case "http", "https":
+			// Respect explicit scheme, UseTLS only controls TLS config.
+		default:
+			return nil, fmt.Errorf("unsupported scheme %q in host %q", scheme, host)
 		}
 		u.Scheme = scheme
 
@@ -88,8 +92,13 @@ func NewClient(cfg Config) (*Client, error) {
 		}
 
 		transport = &http.Transport{
-			TLSClientConfig: tlsConfig,
+			Proxy:               http.ProxyFromEnvironment,
+			TLSClientConfig:     tlsConfig,
+			MaxIdleConns:        100,
+			IdleConnTimeout:     90 * time.Second,
+			TLSHandshakeTimeout: 10 * time.Second,
 		}
+
 		baseURL = u
 	}
 
@@ -109,7 +118,7 @@ func NewClient(cfg Config) (*Client, error) {
 		apiVersion: strings.TrimSpace(cfg.APIVersion),
 		isUnix:     isUnix,
 		unixPath:   unixPath,
-	}, err
+	}, nil
 }
 
 // buildTLSConfig constructs a *tls.Config from the given settings.
