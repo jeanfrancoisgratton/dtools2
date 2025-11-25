@@ -18,6 +18,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 )
 
 // NewClient builds a Client from Config.
@@ -110,6 +112,10 @@ func NewClient(cfg Config) (*Client, error) {
 	httpClient := &http.Client{
 		Transport: transport,
 		Timeout:   timeout,
+	}
+
+	if !QuietOutput {
+		fmt.Println(fmt.Sprintf("%s %s", hftx.NoteSign("Daemon is"), hftx.Green(host)))
 	}
 
 	return &Client{

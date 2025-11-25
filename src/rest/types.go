@@ -10,6 +10,8 @@ import (
 	"net/url"
 )
 
+var QuietOutput = false
+
 // Client wraps an http.Client and knows how to talk to the Docker daemon
 // via TCP (http/https) or a Unix socket, with an optional API version prefix.
 type Client struct {
