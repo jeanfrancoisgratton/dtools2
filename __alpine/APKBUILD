@@ -1,7 +1,7 @@
 # Maintainer: J.F.Gratton <jean-francois@famillegratton.net>
 # Packager: Package builder <builder@famillegratton.net>
 pkgname=dtools2
-pkgver=0.10.00
+pkgver=0.20.00
 pkgrel=0
 pkgdir=/data/packages
 builddir="$startdir/src/BUILD"
@@ -9,7 +9,7 @@ pkgdesc="docker/podman client"
 url="https://git.famillegratton.net:3000/devops/dtools2.git"
 arch=x86_64
 license=GPL2
-#depends="gcompat"
+depends=""
 install=""
 makedepends="go"
 options="!check"
