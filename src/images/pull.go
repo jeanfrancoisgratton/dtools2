@@ -10,7 +10,6 @@
 package images
 
 import (
-	"context"
 	"dtools2/auth"
 	"dtools2/rest"
 	"fmt"
@@ -23,9 +22,19 @@ import (
 	"github.com/moby/term"
 )
 
+// Simple CLI helper for Cobra.
+
+func ImagePull(client *rest.Client, ref string) error {
+	opts := PullOptions{
+		ImageTag: ref,
+		Registry: registryFromImageRef(ref),
+	}
+	return pull(client, opts, os.Stdout)
+}
+
 // pull pulls an image from a registry via the daemon, streaming progress
 // using Docker's own jsonmessage renderer (same output as `docker pull`).
-func pull(ctx context.Context, client *rest.Client, opts PullOptions, out io.Writer) error {
+func pull(client *rest.Client, opts PullOptions, out io.Writer) error {
 	if opts.ImageTag == "" {
 		return fmt.Errorf("image reference is required")
 	}
@@ -49,7 +58,7 @@ func pull(ctx context.Context, client *rest.Client, opts PullOptions, out io.Wri
 		headers.Set("X-Registry-Auth", h)
 	}
 
-	resp, err := client.Do(ctx, http.MethodPost, "/images/create", q, nil, headers)
+	resp, err := client.Do(rest.Context, http.MethodPost, "/images/create", q, nil, headers)
 	if err != nil {
 		return err
 	}
@@ -74,14 +83,4 @@ func pull(ctx context.Context, client *rest.Client, opts PullOptions, out io.Wri
 
 	// No extra "Image pull completed." message: docker doesn't print one.
 	return nil
-}
-
-// Simple CLI helper for Cobra.
-
-func ImagePull(ctx context.Context, client *rest.Client, ref string) error {
-	opts := PullOptions{
-		ImageTag: ref,
-		Registry: registryFromImageRef(ref),
-	}
-	return pull(ctx, client, opts, os.Stdout)
 }
