@@ -6,7 +6,6 @@
 package containers
 
 import (
-	"context"
 	"dtools2/rest"
 	"encoding/json"
 	"fmt"
@@ -21,7 +20,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/text"
 )
 
-func ContainersList(ctx context.Context, client *rest.Client, outputDisplay bool) ([]ContainerSummary, error) {
+func ContainersList(client *rest.Client, outputDisplay bool) ([]ContainerSummary, error) {
 	q := url.Values{}
 	if OnlyRunningContainers {
 		q.Set("all", "false")
@@ -29,7 +28,7 @@ func ContainersList(ctx context.Context, client *rest.Client, outputDisplay bool
 		q.Set("all", "true")
 	}
 
-	resp, err := client.Do(ctx, http.MethodGet, "/containers/json", q, nil, nil)
+	resp, err := client.Do(rest.Context, http.MethodGet, "/containers/json", q, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +54,7 @@ func ContainersList(ctx context.Context, client *rest.Client, outputDisplay bool
 	stateRow := 0
 	if !ExtendedContainerInfo {
 		stateRow = 3
-		t.AppendHeader(table.Row{"Image", "Name", "Created", "State", "Status", "Ports", "Mounts"})
+		t.AppendHeader(table.Row{"Image", "Name", "Created", "State", "Status", "Ports"})
 	} else {
 		stateRow = 4
 		t.AppendHeader(table.Row{"Container ID", "Image", "Name", "Created", "State", "Status", "Ports", "Command"})
@@ -66,7 +65,7 @@ func ContainersList(ctx context.Context, client *rest.Client, outputDisplay bool
 	if len(containers) == 0 {
 		if !ExtendedContainerInfo {
 			// 7 columns: Image, Name, Created, State, Status, Ports, Mounts
-			t.AppendRow(table.Row{"", "", "", "", "", "", ""})
+			t.AppendRow(table.Row{"", "", "", "", "", ""})
 		} else {
 			// 8 columns: Container ID, Image, Name, Created, State, Status, Ports, Command
 			t.AppendRow(table.Row{"", "", "", "", "", "", "", ""})
@@ -75,7 +74,6 @@ func ContainersList(ctx context.Context, client *rest.Client, outputDisplay bool
 		for _, container := range containers {
 			containerImage := getImageTag(container.Image)
 			prettyPorts := prettifyPortsList(container.Ports)
-			//prettyMounts := prettifyMounts(container.Mounts)
 
 			if !ExtendedContainerInfo {
 				t.AppendRow([]interface{}{
