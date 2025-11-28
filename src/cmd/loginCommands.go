@@ -64,7 +64,6 @@ registry's /v2/ endpoint and, on success, stored in the Docker config file.`,
 func init() {
 	// Attach as `dtools2 auth login`.
 	rootCmd.AddCommand(loginCmd)
-	authCmd.AddCommand(loginCmd)
 
 	loginCmd.Flags().StringVarP(&loginUsername, "username", "u", "", "Username for the registry")
 	loginCmd.Flags().StringVarP(&loginPassword, "password", "p", "", "Password for the registry")

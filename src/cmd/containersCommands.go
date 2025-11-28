@@ -19,9 +19,6 @@ var containersCmd = &cobra.Command{
 	Long:  "Manage containers via the Docker/Podman API (pull, list, etc.).",
 }
 
-// imagePullCmd implements `dtools2 images pull`, wiring through to images.ImagePull().
-// cmd/images.go
-
 var containersListCmd = &cobra.Command{
 	Use:     "ls [flags]",
 	Aliases: []string{"lsc"},
