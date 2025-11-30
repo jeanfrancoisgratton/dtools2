@@ -72,6 +72,6 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&Debug, "debug", "D", false, "Enable debug output on stderr")
 	rootCmd.PersistentFlags().BoolVarP(&rest.QuietOutput, "quiet", "q", false, "Quiet output")
 	rootCmd.PersistentFlags().StringVarP(&ConnectURI, "host", "H", "", "Docker daemon host (e.g. unix:///var/run/docker.sock, tcp://host:2376)")
-	rootCmd.PersistentFlags().StringVarP(&APIVersion, "api-version", "a", "", "Docker API version (e.g. 1.43); if empty, auto-negotiate with the daemon")
+	rootCmd.PersistentFlags().StringVarP(&APIVersion, "api-version", "A", "", "Docker API version (e.g. 1.43); if empty, auto-negotiate with the daemon")
 	rootCmd.PersistentFlags().BoolVarP(&UseTLS, "tls", "t", false, "Use TLS when connecting to the Docker daemon (for tcp:// hosts)")
 }
