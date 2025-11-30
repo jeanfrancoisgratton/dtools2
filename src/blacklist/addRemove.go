@@ -8,6 +8,8 @@ package blacklist
 import (
 	"fmt"
 	"strings"
+
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 )
 
 // Add ensures that RESOURCENAME is present in the given resource type.
@@ -48,7 +50,8 @@ func AddToFile(resourceType, name string) error {
 		return err
 	}
 	if !changed {
-		// no change needed; still considered success
+		fmt.Println(hftx.WarningSign(fmt.Sprintf(" resource name %s is already present in resources type %s",
+			hftx.Yellow(name), hftx.Yellow(resourceType))))
 		return nil
 	}
 
@@ -112,5 +115,11 @@ func RemoveFromFile(resourceType, name string) (bool, error) {
 func AddResource(resourceType string, resourceName []string) {
 	for _, rsc := range resourceName {
 		AddToFile(resourceType, rsc)
+	}
+}
+
+func DeleteResource(resourceType string, resourceName []string) {
+	for _, rsc := range resourceName {
+		RemoveFromFile(resourceType, rsc)
 	}
 }

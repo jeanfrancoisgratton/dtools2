@@ -29,7 +29,7 @@ func getSlice(rb *ResourceBlacklist, resourceType string) (*[]string, error) {
 	case "container", "containers":
 		return &rb.Containers, nil
 	default:
-		return nil, fmt.Errorf("unknown resource type %q (expected volumes, networks, images, containers)", resourceType)
+		return nil, fmt.Errorf("unknown resource type %q (expected %s)", resourceType, ResourceNamesList)
 	}
 }
 

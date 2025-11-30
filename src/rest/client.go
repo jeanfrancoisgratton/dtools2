@@ -115,7 +115,7 @@ func NewClient(cfg Config) (*Client, error) {
 	}
 
 	if !QuietOutput {
-		fmt.Println(fmt.Sprintf("%s %s", hftx.NoteSign("Daemon is"), hftx.Green(host)))
+		fmt.Println(fmt.Sprintf("%s %s", hftx.InfoSign(" Daemon is"), hftx.Green(host)))
 	}
 
 	return &Client{

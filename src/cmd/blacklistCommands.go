@@ -57,13 +57,20 @@ var blAddCmd = &cobra.Command{
 	},
 }
 
+var blRemoveCmd = &cobra.Command{
+	Use:     "remove resource_name resource1..resourceN",
+	Aliases: []string{"rm", "del"},
+	Example: "dtools2 blacklist rm resource_name resource...",
+	Short:   "Add one or more resource to resource_name",
+	Args:    cobra.MinimumNArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		blacklist.DeleteResource(args[0], args[1:])
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(blCmd)
-	blCmd.AddCommand(blListCmd, blAddCmd)
+	blCmd.AddCommand(blListCmd, blAddCmd, blRemoveCmd)
 
 	blListCmd.Flags().BoolVarP(&blacklist.AllBlackLists, "all", "a", false, "List all resources")
-	//containersCmd.AddCommand(containersListCmd)
-	//
-	//containersListCmd.Flags().BoolVarP(&containers.OnlyRunningContainers, "running", "r", false, "List only the running containers")
-	//containersListCmd.Flags().BoolVarP(&containers.ExtendedContainerInfo, "extended", "x", false, "Show extended container info")
 }
