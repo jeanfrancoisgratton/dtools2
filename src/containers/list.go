@@ -82,7 +82,7 @@ func ContainersList(client *rest.Client, outputDisplay bool) ([]ContainerSummary
 					time.Unix(container.Created, 0).Format("2006.01.02 15:04:05"),
 					container.State,
 					container.Status,
-					container.Command, // note: Ports/Mounts not used yet in non-extended view
+					prettyPorts, // note: Ports/Mounts not used yet in non-extended view
 				})
 			} else {
 				t.AppendRow([]interface{}{
