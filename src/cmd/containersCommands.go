@@ -7,27 +7,38 @@ package cmd
 
 import (
 	"dtools2/containers"
+	"dtools2/rest"
 	"fmt"
 
 	"github.com/spf13/cobra"
 )
 
+// containersCmd groups container-related subcommands.
+var containersCmd = &cobra.Command{
 	Use:   "container",
 	Short: "Manage containers",
 	Long:  "Manage containers via the Docker/Podman API (pull, list, etc.).",
 }
 
+var containersListCmd = &cobra.Command{
 	Use:     "ls [flags]",
 	Aliases: []string{"lsc"},
+	Example: "dtools2 containers ls [-r|-a]]",
 	Short:   "Lists the containers",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if restClient == nil {
 			return fmt.Errorf("REST client not initialized")
 		}
+		rest.Context = cmd.Context()
+		_, errCode := containers.ContainersList(restClient, true)
 		return errCode
 	},
 }
 
 func init() {
+	rootCmd.AddCommand(containersCmd, containersListCmd)
+	containersCmd.AddCommand(containersListCmd)
 
+	containersListCmd.Flags().BoolVarP(&containers.OnlyRunningContainers, "running", "r", false, "List only the running containers")
+	containersListCmd.Flags().BoolVarP(&containers.ExtendedContainerInfo, "extended", "x", false, "Show extended container info")
 }
