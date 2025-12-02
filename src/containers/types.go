@@ -7,6 +7,7 @@ package containers
 
 var OnlyRunningContainers bool
 var ExtendedContainerInfo bool
+var DisplaySizeValues bool = false
 
 type PortsStruct struct {
 	PrivatePort uint16 `json:"PrivatePort"`

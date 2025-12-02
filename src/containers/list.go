@@ -26,6 +26,12 @@ func ListContainers(client *rest.Client, outputDisplay bool) ([]ContainerSummary
 		q.Set("all", "true")
 	}
 
+	if DisplaySizeValues {
+		q.Set("size", "true")
+	} else {
+		q.Set("size", "false")
+	}
+
 	resp, err := client.Do(rest.Context, http.MethodGet, "/containers/json", q, nil, nil)
 	if err != nil {
 		return nil, err

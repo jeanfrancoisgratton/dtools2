@@ -43,7 +43,7 @@ func prettifyPortsList(ports []PortsStruct, delimiter string) string {
 		} else {
 			sourcePort = fmt.Sprintf("%d->", val.PublicPort)
 		}
-		if ndx < len(ports)-2 {
+		if ndx < len(ports)-1 {
 			portsString += fmt.Sprintf("%s/%s%d%s", val.Type, sourcePort, val.PrivatePort, delimiter)
 		} else {
 			portsString += fmt.Sprintf("%s/%s%d", val.Type, sourcePort, val.PrivatePort)
@@ -54,23 +54,50 @@ func prettifyPortsList(ports []PortsStruct, delimiter string) string {
 
 // Same principle here as for prettifyPortsList
 func prettifyMounts(mounts []MountsStruct, delimiter string) string {
-	mountspecs := ""
+	var mountspecs string
+
 	for ndx, mount := range mounts {
-		src := ""
-		if mount.Type != "bind" {
-			src = "[" + mount.Source + "]"
-		} else {
-			src = mount.Source
-		}
+		// Last item: no trailing delimiter
 		if ndx == len(mounts)-1 {
 			delimiter = ""
 		}
+
+		var src string
+
+		switch mount.Type {
+		case "bind":
+			// Bind mounts: show the host path
+			src = mount.Source
+
+		case "volume":
+			// Named volumes: show the volume name, not the host path
+			if mount.Name != "" {
+				src = "[" + mount.Name + "]"
+			} else if mount.Source != "" {
+				// Anonymous volume: fall back to source path
+				src = "[" + mount.Source + "]"
+			} else {
+				src = "[<anonymous>]"
+			}
+
+		default:
+			// Anything else (tmpfs, npipe, etc): fall back to Source if present
+			if mount.Source != "" {
+				src = "[" + mount.Source + "]"
+			} else {
+				src = "[?]"
+			}
+		}
+
 		if mount.RW {
-			mountspecs += fmt.Sprintf("%s %s:%s%s", hftx.EnabledSign(""), src, mount.Destination, delimiter)
+			mountspecs += fmt.Sprintf("%s %s:%s%s",
+				hftx.EnabledSign(""), src, mount.Destination, delimiter)
 		} else {
-			mountspecs += fmt.Sprintf("%s %s:%s%s", hftx.ErrorSign(""), src, mount.Destination, delimiter)
+			mountspecs += fmt.Sprintf("%s %s:%s%s",
+				hftx.ErrorSign(""), src, mount.Destination, delimiter)
 		}
 	}
+
 	return mountspecs
 }
 

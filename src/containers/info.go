@@ -20,14 +20,17 @@ func InfoContainers(client *rest.Client, container string) error {
 	// Preserve the current flag. For now, it might not be useful to do so, but might be, eventually
 	currentRunningContainersFlag := OnlyRunningContainers
 	currentExtendedContainersFlag := ExtendedContainerInfo
+	currentDisplaySizeFlag := DisplaySizeValues
 	OnlyRunningContainers = false
 	ExtendedContainerInfo = true
+	DisplaySizeValues = true
 
 	// Fetch the container info from ListContainers()
 	cs, err := ListContainers(client, false)
 	if err != nil {
 		OnlyRunningContainers = currentRunningContainersFlag
 		ExtendedContainerInfo = currentExtendedContainersFlag
+		DisplaySizeValues = currentDisplaySizeFlag
 		return err
 	}
 
@@ -39,8 +42,10 @@ func InfoContainers(client *rest.Client, container string) error {
 		}
 	}
 
+	// restore flags as they were before this fx call
 	OnlyRunningContainers = currentRunningContainersFlag
 	ExtendedContainerInfo = currentExtendedContainersFlag
+	DisplaySizeValues = currentDisplaySizeFlag
 	return nil
 }
 
