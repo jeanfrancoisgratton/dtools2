@@ -13,14 +13,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 )
-
-// versionInfo matches the JSON returned by /version.
-type versionInfo struct {
-	ApiVersion    string `json:"ApiVersion"`
-	MinAPIVersion string `json:"MinAPIVersion"`
-	Version       string `json:"Version"`
-}
 
 // NegotiateAPIVersion queries /version without a version prefix and returns ApiVersion.
 // Caller is expected to call client.SetAPIVersion() with the returned value.
@@ -45,4 +39,14 @@ func NegotiateAPIVersion(ctx context.Context, client *Client) (string, error) {
 	}
 
 	return info.ApiVersion, nil
+}
+
+// SetAPIVersion sets the API version used for versioned endpoints.
+func (c *Client) SetAPIVersion(v string) {
+	c.apiVersion = strings.TrimSpace(v)
+}
+
+// APIVersion returns the currently configured API version (possibly empty).
+func (c *Client) APIVersion() string {
+	return c.apiVersion
 }

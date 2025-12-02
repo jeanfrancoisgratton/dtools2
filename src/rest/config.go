@@ -5,18 +5,18 @@
 
 package rest
 
-import "time"
+import (
+	"os"
+)
 
-// Config holds the connection parameters for the REST client.
-type Config struct {
-	Host       string // e.g. "", unix:///var/run/docker.sock, tcp://host:2376, https://host:2376
-	APIVersion string // e.g. "1.43"; empty means "negotiate"
-
-	UseTLS             bool
-	CACertPath         string
-	CertPath           string
-	KeyPath            string
-	InsecureSkipVerify bool
-
-	Timeout time.Duration // optional; if zero, a sane default is used.
+// ConfigFromEnv is a helper if later I eventually want to mirror DOCKER_* envs more closely.
+func ConfigFromEnv() Config {
+	// This is intentionally minimal for now. You can extend it later.
+	host := os.Getenv("DOCKER_HOST")
+	if host == "" {
+		host = "unix:///var/run/docker.sock"
+	}
+	return Config{
+		Host: host,
+	}
 }

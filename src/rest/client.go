@@ -7,17 +7,16 @@ package rest
 
 import (
 	"context"
-	"crypto/tls"
-	"crypto/x509"
 	"fmt"
 	"io"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
+
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 )
 
 // NewClient builds a Client from Config.
@@ -38,6 +37,7 @@ func NewClient(cfg Config) (*Client, error) {
 	if !isUnix && !strings.Contains(host, "://") {
 		host = "tcp://" + host
 	}
+	fmt.Println(fmt.Sprintf("%s: %s\n", hftx.InfoSign("Connecting to"), hftx.Blue(host)))
 
 	var (
 		transport *http.Transport
@@ -121,58 +121,6 @@ func NewClient(cfg Config) (*Client, error) {
 	}, nil
 }
 
-// buildTLSConfig constructs a *tls.Config from the given settings.
-// For Unix sockets, this is ignored by NewClient.
-func buildTLSConfig(cfg Config) (*tls.Config, error) {
-	if !cfg.UseTLS {
-		return nil, nil
-	}
-
-	tlsConfig := &tls.Config{
-		InsecureSkipVerify: cfg.InsecureSkipVerify,
-		MinVersion:         tls.VersionTLS12,
-	}
-
-	// Root CAs
-	if cfg.CACertPath != "" {
-		caPEM, err := os.ReadFile(cfg.CACertPath)
-		if err != nil {
-			return nil, fmt.Errorf("unable to read CA cert %q: %w", cfg.CACertPath, err)
-		}
-
-		pool := x509.NewCertPool()
-		if !pool.AppendCertsFromPEM(caPEM) {
-			return nil, fmt.Errorf("failed to parse CA cert %q", cfg.CACertPath)
-		}
-		tlsConfig.RootCAs = pool
-	} else {
-		// Use system roots if available.
-		sysPool, _ := x509.SystemCertPool()
-		tlsConfig.RootCAs = sysPool
-	}
-
-	// Client certificate
-	if cfg.CertPath != "" && cfg.KeyPath != "" {
-		cert, err := tls.LoadX509KeyPair(cfg.CertPath, cfg.KeyPath)
-		if err != nil {
-			return nil, fmt.Errorf("unable to load client cert/key (%q, %q): %w", cfg.CertPath, cfg.KeyPath, err)
-		}
-		tlsConfig.Certificates = []tls.Certificate{cert}
-	}
-
-	return tlsConfig, nil
-}
-
-// SetAPIVersion sets the API version used for versioned endpoints.
-func (c *Client) SetAPIVersion(v string) {
-	c.apiVersion = strings.TrimSpace(v)
-}
-
-// APIVersion returns the currently configured API version (possibly empty).
-func (c *Client) APIVersion() string {
-	return c.apiVersion
-}
-
 // Do issues an HTTP request to the daemon.
 // `path` should be the API path, e.g. "/containers/json" or "/version".
 // For most endpoints, a "/v<version>" prefix is automatically added.
@@ -215,50 +163,10 @@ func (c *Client) Do(
 	return c.httpClient.Do(req)
 }
 
-func joinURLPath(basePath, addPath string) string {
-	if basePath == "" || basePath == "/" {
-		return addPath
-	}
-	return strings.TrimRight(basePath, "/") + "/" + strings.TrimLeft(addPath, "/")
-}
-
-// DumpURL is a small helper for debugging.
-func (c *Client) DumpURL(path string) string {
-	u := *c.baseURL
-	u.Path = joinURLPath(c.baseURL.Path, path)
-	return u.String()
-}
-
 // SocketPath returns the Unix socket path, if using a Unix transport.
 func (c *Client) SocketPath() string {
 	if !c.isUnix {
 		return ""
 	}
 	return c.unixPath
-}
-
-// ConfigFromEnv is a helper if later you want to mirror DOCKER_* envs more closely.
-func ConfigFromEnv() Config {
-	// This is intentionally minimal for now. You can extend it later.
-	host := os.Getenv("DOCKER_HOST")
-	if host == "" {
-		host = "unix:///var/run/docker.sock"
-	}
-	return Config{
-		Host: host,
-	}
-}
-
-// NormalizePath is a helper to clean a host path (e.g. for certs).
-func NormalizePath(p string) string {
-	if p == "" {
-		return ""
-	}
-	if strings.HasPrefix(p, "~") {
-		home, err := os.UserHomeDir()
-		if err == nil {
-			p = filepath.Join(home, strings.TrimPrefix(p, "~"))
-		}
-	}
-	return p
 }

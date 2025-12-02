@@ -9,6 +9,7 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 var QuietOutput = false
@@ -23,4 +24,25 @@ type Client struct {
 
 	isUnix   bool
 	unixPath string
+}
+
+// versionInfo matches the JSON returned by /version.
+type versionInfo struct {
+	ApiVersion    string `json:"ApiVersion"`
+	MinAPIVersion string `json:"MinAPIVersion"`
+	Version       string `json:"Version"`
+}
+
+// Config holds the connection parameters for the REST client.
+type Config struct {
+	Host       string // e.g. "", unix:///var/run/docker.sock, tcp://host:2376, https://host:2376
+	APIVersion string // e.g. "1.43"; empty means "negotiate"
+
+	UseTLS             bool
+	CACertPath         string
+	CertPath           string
+	KeyPath            string
+	InsecureSkipVerify bool
+
+	Timeout time.Duration // optional; if zero, a sane default is used.
 }
