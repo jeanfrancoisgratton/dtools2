@@ -12,15 +12,13 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strings"
 	"time"
 
-	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 )
 
-func ContainersList(client *rest.Client, outputDisplay bool) ([]ContainerSummary, error) {
+func ListContainers(client *rest.Client, outputDisplay bool) ([]ContainerSummary, error) {
 	q := url.Values{}
 	if OnlyRunningContainers {
 		q.Set("all", "false")
@@ -38,14 +36,13 @@ func ContainersList(client *rest.Client, outputDisplay bool) ([]ContainerSummary
 		return nil, fmt.Errorf("GET /containers/json returned %s", resp.Status)
 	}
 
-	// If we're not supposed to display anything, just return an empty slice.
-	if !outputDisplay {
-		return []ContainerSummary{}, nil
-	}
-
 	var containers []ContainerSummary
 	if err := json.NewDecoder(resp.Body).Decode(&containers); err != nil {
 		return nil, err
+	}
+	// If we're not supposed to display anything, just return an empty slice.
+	if !outputDisplay {
+		return containers, nil
 	}
 
 	t := table.NewWriter()
@@ -73,7 +70,7 @@ func ContainersList(client *rest.Client, outputDisplay bool) ([]ContainerSummary
 	} else {
 		for _, container := range containers {
 			containerImage := getImageTag(container.Image)
-			prettyPorts := prettifyPortsList(container.Ports)
+			prettyPorts := prettifyPortsList(container.Ports, "\n")
 
 			if !ExtendedContainerInfo {
 				t.AppendRow([]interface{}{
@@ -122,48 +119,4 @@ func ContainersList(client *rest.Client, outputDisplay bool) ([]ContainerSummary
 
 	t.Render()
 	return nil, nil
-}
-
-func prettifyPortsList(ports []PortsStruct) string {
-	var portsString, sourcePort string
-	for _, val := range ports {
-		if val.PublicPort == 0 {
-			sourcePort = ""
-		} else {
-			sourcePort = fmt.Sprintf("%d->", val.PublicPort)
-		}
-		portsString += fmt.Sprintf("%s/%s%d\n", val.Type, sourcePort, val.PrivatePort)
-	}
-	return portsString
-}
-
-// Standardizes the image:tag format, adding :latest when the tag is missing.
-// Handles registry prefixes with or without ports.
-func getImageTag(name string) string {
-	slashIndex := strings.LastIndex(name, "/")
-	colonIndex := strings.LastIndex(name, ":")
-
-	// If the last colon comes after the last slash, we already have a tag.
-	if colonIndex > slashIndex {
-		return name
-	}
-	return name + ":latest"
-}
-
-func prettifyMounts(mounts []MountsStruct) string {
-	mountspecs := ""
-	for _, mount := range mounts {
-		src := ""
-		if mount.Type != "bind" {
-			src = "[" + mount.Source + "]"
-		} else {
-			src = mount.Source
-		}
-		if mount.RW {
-			mountspecs += fmt.Sprintf("%s %s:%s\n", hftx.EnabledSign(""), src, mount.Destination)
-		} else {
-			mountspecs += fmt.Sprintf("%s %s:%s\n", hftx.ErrorSign(""), src, mount.Destination)
-		}
-	}
-	return mountspecs
 }

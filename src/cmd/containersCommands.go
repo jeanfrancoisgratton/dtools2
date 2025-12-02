@@ -31,7 +31,7 @@ var containersListCmd = &cobra.Command{
 			return
 		}
 		rest.Context = cmd.Context()
-		_, errCode := containers.ContainersList(restClient, true)
+		_, errCode := containers.ListContainers(restClient, true)
 		if errCode != nil {
 			fmt.Println(errCode)
 		}
@@ -39,9 +39,29 @@ var containersListCmd = &cobra.Command{
 	},
 }
 
+var containersInfoCmd = &cobra.Command{
+	Use:     "info",
+	Aliases: []string{"lsc"},
+	Example: "dtools2 containers ls [-r|-a]]",
+	Short:   "Lists the containers",
+	Args:    cobra.MinimumNArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+		rest.Context = cmd.Context()
+
+		if errCode := containers.InfoContainers(restClient, args[0]); errCode != nil {
+			fmt.Println(errCode)
+		}
+		return
+	},
+}
+
 func init() {
-	rootCmd.AddCommand(containersCmd, containersListCmd)
-	containersCmd.AddCommand(containersListCmd)
+	rootCmd.AddCommand(containersCmd, containersListCmd, containersInfoCmd)
+	containersCmd.AddCommand(containersListCmd, containersInfoCmd)
 
 	containersListCmd.Flags().BoolVarP(&containers.OnlyRunningContainers, "running", "r", false, "List only the running containers")
 	containersListCmd.Flags().BoolVarP(&containers.ExtendedContainerInfo, "extended", "x", false, "Show extended container info")
