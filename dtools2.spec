@@ -63,4 +63,24 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Tue Dec 02 2025 Binary package builder <builder@famillegratton.net> 0.21.00-0
+- Fixed mountpoints display issue, cutting a new release (jean-
+  francois@famillegratton.net)
+- Completed container info (jean-francois@famillegratton.net)
+- Refactored the rest subpackage (jean-francois@famillegratton.net)
+- Fully migrated from COBRA func RunE() error -> func Run() (jean-
+  francois@famillegratton.net)
+- interim commit (jean-francois@famillegratton.net)
+- Fixed branches merge mess (jean-francois@famillegratton.net)
+- builddeps update (jean-francois@famillegratton.net)
+- Completed the BLACKLIST subcommand; error handling to come later (jean-
+  francois@famillegratton.net)
+- Completed bl ls and bl add (jean-francois@famillegratton.net)
+- Sync before branching out to new branch (jean-francois@famillegratton.net)
+- sync before branching out (jean-francois@famillegratton.net)
+- Completed image push (jean-francois@famillegratton.net)
+- Completed container ls (jean-francois@famillegratton.net)
+- Version bump (jean-francois@famillegratton.net)
+- Fixed APK script (jean-francois@famillegratton.net)
+
 
