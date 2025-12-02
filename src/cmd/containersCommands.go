@@ -25,13 +25,17 @@ var containersListCmd = &cobra.Command{
 	Aliases: []string{"lsc"},
 	Example: "dtools2 containers ls [-r|-a]]",
 	Short:   "Lists the containers",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
-			return fmt.Errorf("REST client not initialized")
+			fmt.Println("REST client not initialized")
+			return
 		}
 		rest.Context = cmd.Context()
 		_, errCode := containers.ContainersList(restClient, true)
-		return errCode
+		if errCode != nil {
+			fmt.Println(errCode)
+		}
+		return
 	},
 }
 

@@ -7,6 +7,7 @@ package cmd
 
 import (
 	"dtools2/auth"
+	"dtools2/rest"
 	"fmt"
 	"os"
 
@@ -23,7 +24,7 @@ var loginCmd = &cobra.Command{
 This is similar to 'docker login': credentials are verified against the
 registry's /v2/ endpoint and, on success, stored in the Docker config file.`,
 	Args: cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		registry := args[0]
 
 		if loginUsername == "" {
@@ -35,7 +36,7 @@ registry's /v2/ endpoint and, on success, stored in the Docker config file.`,
 			}
 		}
 		if loginPassword == "" {
-			loginPassword = hf.GetPassword("Please enter the password: ", false)
+			loginPassword = hf.GetPassword("Please enter the password: ", Debug)
 		}
 		// check again, to ensure that the call to GetPassword() did return something
 		if loginPassword == "" {
@@ -51,13 +52,14 @@ registry's /v2/ endpoint and, on success, stored in the Docker config file.`,
 			CACertPath: loginCACertPath,
 			// Timeout left as zero => default inside auth.Login
 		}
-
-		if err := auth.Login(cmd.Context(), opts); err != nil {
-			return err
+		rest.Context = cmd.Context()
+		if err := auth.Login(opts); err != nil {
+			fmt.Println("Login failed: ", err.Error())
+			os.Exit(1)
 		}
 
 		fmt.Println(hftx.EnabledSign(fmt.Sprintf("Loggin succeeded on registry %s", registry)))
-		return nil
+		return
 	},
 }
 

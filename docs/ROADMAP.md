@@ -11,13 +11,15 @@
 | [ ] container list          | 0.20.00    |                |          |
 | [ ] container info          | 0.20.00    |                |          |
 | [ ] container stop/start    | 0.20.00    |                |          |
-| [ ] container rm            |            |                |          |
+| [ ] container rm            | 0.20.00    |                |          |
+| [ ] container blacklist     | 0.20.00    |                |          |
+| [ ] image blacklist         | 0.20.00    |                |          |
 | [ ] image rm                |            |                |          |
 | [ ] network create / rm     |            |                |          |
 | [ ] network attach / detach |            |                |          |
 | [ ] network / volume ls     |            |                |          |
-| [ ] network blacklist       | 0.20.00    |                |          |
+| [x] network blacklist       | 0.20.00    |                |          |
 | [ ] volume create / rm      | 0.20.00    |                |          |
-| [ ] volume blacklist        |            |                |          |
+| [x] volume blacklist        |            |                |          |
 | [ ] exec (shell)            |            |                |          |
 | [ ] system info             |            |                |          |

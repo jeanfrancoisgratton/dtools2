@@ -9,9 +9,9 @@
 package auth
 
 import (
-	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"dtools2/rest"
 	"encoding/base64"
 	"fmt"
 	"io"
@@ -33,7 +33,7 @@ import (
 // This does NOT attempt to fully emulate Docker's bearer-token dance;
 // it uses the common "GET /v2/ with Basic auth" pattern used by
 // private registries and most Docker setups.
-func Login(ctx context.Context, opts LoginOptions) error {
+func Login(opts LoginOptions) error {
 	if opts.Registry == "" {
 		return fmt.Errorf("registry is required")
 	}
@@ -59,7 +59,7 @@ func Login(ctx context.Context, opts LoginOptions) error {
 	u.Path = "/v2/"
 	u.RawQuery = ""
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	req, err := http.NewRequestWithContext(rest.Context, http.MethodGet, u.String(), nil)
 	if err != nil {
 		return fmt.Errorf("failed to build login request: %w", err)
 	}

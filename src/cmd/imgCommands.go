@@ -27,14 +27,18 @@ var imagePullCmd = &cobra.Command{
 	Use:   "pull IMAGE",
 	Short: "Pull an image from a registry",
 	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
-			return fmt.Errorf("REST client not initialized")
+			fmt.Println("REST client not initialized")
+			return
 		}
 
 		imageRef := args[0]
 		rest.Context = cmd.Context()
-		return images.ImagePull(restClient, imageRef)
+		if err := images.ImagePull(restClient, imageRef); err != nil {
+			fmt.Println(err)
+		}
+		return
 	},
 }
 
@@ -45,14 +49,18 @@ var imagePushCmd = &cobra.Command{
 	Use:   "push IMAGE",
 	Short: "Push an image to a registry",
 	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
-			return fmt.Errorf("REST client not initialized")
+			fmt.Println("REST client not initialized")
+			return
 		}
 
 		imageRef := args[0]
 		rest.Context = cmd.Context()
-		return images.ImagePush(cmd.Context(), restClient, imageRef)
+		if err := images.ImagePush(restClient, imageRef); err != nil {
+			fmt.Println(err)
+		}
+		return
 	},
 }
 

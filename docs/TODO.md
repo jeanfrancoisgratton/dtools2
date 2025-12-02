@@ -1,4 +1,4 @@
 - [ ] output feedback in blacklist commands
-- [ ] migrate error handling to CustomError
+- [ ] migrate error handling to CustomError/v3
 - [ ] proper error handling in blacklist
 - [ ] move COBRA commands from RunE to Run

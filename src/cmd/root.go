@@ -18,9 +18,9 @@ var rootCmd = &cobra.Command{
 	Version:      "0.20.00 (2025.11.24)",
 	Long: `dtools2 is a lightweight Docker/Podman client that talks directly
 to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		if restClient != nil {
-			return nil
+			return
 		}
 
 		cfg := rest.Config{
@@ -35,14 +35,16 @@ to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 
 		client, err := rest.NewClient(cfg)
 		if err != nil {
-			return fmt.Errorf("failed to initialize REST client: %w", err)
+			fmt.Println("Failed to initialize the REST client: ", err.Error())
+			return
 		}
 
 		// If user did not force an API version, negotiate it with /version.
 		if APIVersion == "" {
 			v, err := rest.NegotiateAPIVersion(cmd.Context(), client)
 			if err != nil {
-				return fmt.Errorf("failed to negotiate API version: %w", err)
+				fmt.Println("Failed to negotiate API version: ", err.Error())
+				return
 			}
 			client.SetAPIVersion(v)
 			if Debug {
@@ -51,7 +53,7 @@ to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 		}
 
 		restClient = client
-		return nil
+		return
 	},
 }
 

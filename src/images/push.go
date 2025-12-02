@@ -6,7 +6,6 @@
 package images
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -21,7 +20,7 @@ import (
 
 // ImagePush uses the daemon to push the image to its registry,
 // streaming output EXACTLY like `docker push`.
-func ImagePush(ctx context.Context, client *rest.Client, ref string) error {
+func ImagePush(client *rest.Client, ref string) error {
 	repo, tag := splitRepoTag(ref)
 	if tag == "" {
 		tag = "latest"
@@ -43,7 +42,7 @@ func ImagePush(ctx context.Context, client *rest.Client, ref string) error {
 
 	path := fmt.Sprintf("/images/%s/push", repo)
 
-	resp, err := client.Do(ctx, http.MethodPost, path, q, nil, headers)
+	resp, err := client.Do(rest.Context, http.MethodPost, path, q, nil, headers)
 	if err != nil {
 		return err
 	}
