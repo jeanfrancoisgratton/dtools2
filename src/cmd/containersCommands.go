@@ -59,9 +59,28 @@ var containersInfoCmd = &cobra.Command{
 	},
 }
 
+var containersRemoveCmd = &cobra.Command{
+	Use:     "rm [flags]",
+	Aliases: []string{"remove", "del", "delete"},
+	Example: "dtools2 containers rm [-f]",
+	Short:   "Removes one or many containers",
+	Args:    cobra.MinimumNArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+		rest.Context = cmd.Context()
+		if errCode := containers.RemoveContainer(restClient, args); errCode != nil {
+			fmt.Println(errCode)
+		}
+		return
+	},
+}
+
 func init() {
-	rootCmd.AddCommand(containersCmd, containersListCmd, containersInfoCmd)
-	containersCmd.AddCommand(containersListCmd, containersInfoCmd)
+	rootCmd.AddCommand(containersCmd, containersListCmd, containersInfoCmd, containersRemoveCmd)
+	containersCmd.AddCommand(containersListCmd, containersInfoCmd, containersRemoveCmd)
 
 	containersListCmd.Flags().BoolVarP(&containers.OnlyRunningContainers, "running", "r", false, "List only the running containers")
 	containersListCmd.Flags().BoolVarP(&containers.ExtendedContainerInfo, "extended", "x", false, "Show extended container info")
