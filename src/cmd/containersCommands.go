@@ -82,6 +82,7 @@ func init() {
 	rootCmd.AddCommand(containersCmd, containersListCmd, containersInfoCmd, containersRemoveCmd)
 	containersCmd.AddCommand(containersListCmd, containersInfoCmd, containersRemoveCmd)
 
+	containersRemoveCmd.Flags().BoolVarP(&containers.ForceRemoval, "force", "f", false, "force remove container")
 	containersListCmd.Flags().BoolVarP(&containers.OnlyRunningContainers, "running", "r", false, "List only the running containers")
 	containersListCmd.Flags().BoolVarP(&containers.ExtendedContainerInfo, "extended", "x", false, "Show extended container info")
 }
