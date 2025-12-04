@@ -11,6 +11,7 @@ import (
 	"slices"
 	"strings"
 
+	ce "github.com/jeanfrancoisgratton/customError/v3"
 	"github.com/spf13/cobra"
 )
 
@@ -29,10 +30,10 @@ var blListCmd = &cobra.Command{
 	Example: "dtools2 blacklist ls [{ -a | { volume | network | container | image } }]",
 	Short:   "Lists the black listed resources",
 	Run: func(cmd *cobra.Command, args []string) {
-		//var err error
+		var err *ce.CustomError
 		if blacklist.AllBlackLists {
 			//return blacklist.ListAllFromFile()
-			blacklist.ListAllFromFile()
+			err = blacklist.ListAllFromFile()
 		} else {
 			if len(args) > 0 {
 				a := strings.ToLower(args[0])
@@ -40,9 +41,13 @@ var blListCmd = &cobra.Command{
 					fmt.Println("Resource name not recognized")
 				} else {
 					//return blacklist.ListFromFile(args[0])
-					blacklist.ListFromFile(strings.ToLower(args[0]))
+					err = blacklist.ListFromFile(strings.ToLower(args[0]))
 				}
 			}
+		}
+		if err != nil {
+			fmt.Println(err.Error())
+			return
 		}
 	},
 }
@@ -53,7 +58,10 @@ var blAddCmd = &cobra.Command{
 	Short:   "Add one or more resource to resource_name",
 	Args:    cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		blacklist.AddResource(args[0], args[1:])
+		if err := blacklist.AddResource(args[0], args[1:]); err != nil {
+			fmt.Println(err.Error())
+			return
+		}
 	},
 }
 
@@ -64,7 +72,10 @@ var blRemoveCmd = &cobra.Command{
 	Short:   "Add one or more resource to resource_name",
 	Args:    cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		blacklist.DeleteResource(args[0], args[1:])
+		if _, err := blacklist.DeleteResource(args[0], args[1:]); err != nil {
+			fmt.Println(err.Error())
+			return
+		}
 	},
 }
 

@@ -6,17 +6,17 @@
 package blacklist
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
+	ce "github.com/jeanfrancoisgratton/customError/v3"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 )
 
 // getSlice returns a pointer to the slice corresponding to the resource type.
 // Accepts case-insensitive names and both singular/plural: volume(s), network(s), image(s), container(s).
-func getSlice(rb *ResourceBlacklist, resourceType string) (*[]string, error) {
+func getSlice(rb *ResourceBlacklist, resourceType string) (*[]string, *ce.CustomError) {
 	t := strings.ToLower(resourceType)
 
 	switch t {
@@ -29,13 +29,13 @@ func getSlice(rb *ResourceBlacklist, resourceType string) (*[]string, error) {
 	case "container", "containers":
 		return &rb.Containers, nil
 	default:
-		return nil, fmt.Errorf("unknown resource type %q (expected %s)", resourceType, ResourceNamesList)
+		return nil, &ce.CustomError{Title: "unknown resource type : " + resourceType, Code: 101}
 	}
 }
 
-// outputBLlist simply displays the resource blacklist in a table
+// outputBList simply displays the resource blacklist in a table
 
-func outputBLlist(rbl map[string][]string) error {
+func outputBList(rbl map[string][]string) *ce.CustomError {
 
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)

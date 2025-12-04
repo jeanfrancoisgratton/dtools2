@@ -9,12 +9,13 @@ import (
 	"fmt"
 	"strings"
 
+	ce "github.com/jeanfrancoisgratton/customError/v3"
 	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 )
 
 // Add ensures that RESOURCENAME is present in the given resource type.
 // It returns true if the blacklist was modified.
-func (rb *ResourceBlacklist) Add(resourceType, name string) (bool, error) {
+func (rb *ResourceBlacklist) Add(resourceType, name string) (bool, *ce.CustomError) {
 	slicePtr, err := getSlice(rb, resourceType)
 	if err != nil {
 		return false, err
@@ -22,7 +23,7 @@ func (rb *ResourceBlacklist) Add(resourceType, name string) (bool, error) {
 
 	name = strings.TrimSpace(name)
 	if name == "" {
-		return false, fmt.Errorf("resource name cannot be empty")
+		return false, &ce.CustomError{Title: "resource name cannot be empty", Code: 101}
 	}
 
 	slice := *slicePtr
@@ -39,7 +40,7 @@ func (rb *ResourceBlacklist) Add(resourceType, name string) (bool, error) {
 }
 
 // AddToFile adds a resource name to the given resource type and persists the file.
-func AddToFile(resourceType, name string) error {
+func AddToFile(resourceType, name string) *ce.CustomError {
 	rb, err := Load()
 	if err != nil {
 		return err
@@ -60,7 +61,7 @@ func AddToFile(resourceType, name string) error {
 
 // Remove removes RESOURCENAME from the given resource type.
 // It returns true if it was actually removed, false if it was not found.
-func (rb *ResourceBlacklist) Remove(resourceType, name string) (bool, error) {
+func (rb *ResourceBlacklist) Remove(resourceType, name string) (bool, *ce.CustomError) {
 	slicePtr, err := getSlice(rb, resourceType)
 	if err != nil {
 		return false, err
@@ -68,7 +69,7 @@ func (rb *ResourceBlacklist) Remove(resourceType, name string) (bool, error) {
 
 	name = strings.TrimSpace(name)
 	if name == "" {
-		return false, fmt.Errorf("resource name cannot be empty")
+		return false, &ce.CustomError{Title: "resource name cannot be empty", Code: 101}
 	}
 
 	slice := *slicePtr
@@ -92,7 +93,7 @@ func (rb *ResourceBlacklist) Remove(resourceType, name string) (bool, error) {
 
 // RemoveFromFile removes a resource name from the given resource type and persists the file.
 // It returns (false, nil) if the resource was not in the blacklist (non-fatal).
-func RemoveFromFile(resourceType, name string) (bool, error) {
+func RemoveFromFile(resourceType, name string) (bool, *ce.CustomError) {
 	rb, err := Load()
 	if err != nil {
 		return false, err
@@ -112,14 +113,22 @@ func RemoveFromFile(resourceType, name string) (bool, error) {
 	return removed, nil
 }
 
-func AddResource(resourceType string, resourceName []string) {
+func AddResource(resourceType string, resourceName []string) *ce.CustomError {
 	for _, rsc := range resourceName {
-		AddToFile(resourceType, rsc)
+		if err := AddToFile(resourceType, rsc); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
-func DeleteResource(resourceType string, resourceName []string) {
+func DeleteResource(resourceType string, resourceName []string) (bool, *ce.CustomError) {
+	var removed bool
+	var err *ce.CustomError
 	for _, rsc := range resourceName {
-		RemoveFromFile(resourceType, rsc)
+		if removed, err = RemoveFromFile(resourceType, rsc); err != nil {
+			return removed, err
+		}
 	}
+	return removed, nil
 }
