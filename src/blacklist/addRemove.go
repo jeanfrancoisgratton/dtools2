@@ -16,7 +16,7 @@ import (
 // Add ensures that RESOURCENAME is present in the given resource type.
 // It returns true if the blacklist was modified.
 func (rb *ResourceBlacklist) Add(resourceType, name string) (bool, *ce.CustomError) {
-	slicePtr, err := getSlice(rb, resourceType)
+	slice, err := getSlice(rb, resourceType)
 	if err != nil {
 		return false, err
 	}
@@ -26,7 +26,7 @@ func (rb *ResourceBlacklist) Add(resourceType, name string) (bool, *ce.CustomErr
 		return false, &ce.CustomError{Title: "resource name cannot be empty", Code: 101}
 	}
 
-	slice := *slicePtr
+	//slice := *slicePtr
 	for _, existing := range slice {
 		if existing == name {
 			// already present: "update" is effectively a no-op
@@ -35,7 +35,7 @@ func (rb *ResourceBlacklist) Add(resourceType, name string) (bool, *ce.CustomErr
 	}
 
 	slice = append(slice, name)
-	*slicePtr = slice
+	//*slicePtr = slice
 	return true, nil
 }
 
@@ -62,7 +62,7 @@ func AddToFile(resourceType, name string) *ce.CustomError {
 // Remove removes RESOURCENAME from the given resource type.
 // It returns true if it was actually removed, false if it was not found.
 func (rb *ResourceBlacklist) Remove(resourceType, name string) (bool, *ce.CustomError) {
-	slicePtr, err := getSlice(rb, resourceType)
+	slice, err := getSlice(rb, resourceType)
 	if err != nil {
 		return false, err
 	}
@@ -72,7 +72,7 @@ func (rb *ResourceBlacklist) Remove(resourceType, name string) (bool, *ce.Custom
 		return false, &ce.CustomError{Title: "resource name cannot be empty", Code: 101}
 	}
 
-	slice := *slicePtr
+	//slice := *slicePtr
 	out := slice[:0]
 	removed := false
 
@@ -85,7 +85,7 @@ func (rb *ResourceBlacklist) Remove(resourceType, name string) (bool, *ce.Custom
 	}
 
 	if removed {
-		*slicePtr = out
+		slice = out
 	}
 
 	return removed, nil

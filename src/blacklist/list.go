@@ -25,7 +25,7 @@ func (rb *ResourceBlacklist) List(resourceType string) ([]string, *ce.CustomErro
 		return nil, err
 	}
 	// Return a copy to avoid external mutation.
-	return append([]string(nil), (*slicePtr)...), nil
+	return append([]string(nil), (slicePtr)...), nil
 }
 
 // ListAllFromFile loads the blacklist and returns all entries.
