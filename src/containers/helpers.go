@@ -13,6 +13,7 @@ import (
 )
 
 // Name2ID takes the human-readable container name and returns its docker/podman ID
+
 func Name2ID(client *rest.Client, containerName string) (string, *ce.CustomError) {
 	OnlyRunningContainers = false
 	ExtendedContainerInfo = false
@@ -35,6 +36,7 @@ func Name2ID(client *rest.Client, containerName string) (string, *ce.CustomError
 }
 
 // ID2Name takes a container ID and returns its human-readable name
+
 func ID2Name(client *rest.Client, containerID string) (string, *ce.CustomError) {
 	OnlyRunningContainers = false
 	ExtendedContainerInfo = false
