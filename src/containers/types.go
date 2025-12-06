@@ -8,7 +8,9 @@ package containers
 var OnlyRunningContainers bool
 var ExtendedContainerInfo bool
 var DisplaySizeValues bool = false
-var ForceRemoval bool = false
+var RemoveBlacklistedContainers bool = false
+var RemoveUnamedVolumes = true
+var KillRunningContainers = false
 
 type PortsStruct struct {
 	PrivatePort uint16 `json:"PrivatePort"`

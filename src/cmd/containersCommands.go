@@ -82,7 +82,9 @@ func init() {
 	rootCmd.AddCommand(containersCmd, containersListCmd, containersInfoCmd, containersRemoveCmd)
 	containersCmd.AddCommand(containersListCmd, containersInfoCmd, containersRemoveCmd)
 
-	containersRemoveCmd.Flags().BoolVarP(&containers.ForceRemoval, "force", "f", false, "force remove container")
+	containersRemoveCmd.Flags().BoolVarP(&containers.KillRunningContainers, "kill", "k", false, "remove container even if running")
+	containersRemoveCmd.Flags().BoolVarP(&containers.RemoveUnamedVolumes, "remove-vols", "r", true, "remove non-named volume")
+	containersRemoveCmd.Flags().BoolVarP(&containers.RemoveBlacklistedContainers, "force", "f", false, "remove container even if blacklisted")
 	containersListCmd.Flags().BoolVarP(&containers.OnlyRunningContainers, "running", "r", false, "List only the running containers")
 	containersListCmd.Flags().BoolVarP(&containers.ExtendedContainerInfo, "extended", "x", false, "Show extended container info")
 }

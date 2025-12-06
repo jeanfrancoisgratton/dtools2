@@ -9,6 +9,9 @@ import (
 	"dtools2/blacklist"
 	"dtools2/rest"
 	"fmt"
+	"net/http"
+	"net/url"
+	"strconv"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
 	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
@@ -33,7 +36,7 @@ func RemoveContainer(client *rest.Client, containerList []string) *ce.CustomErro
 			if !rest.QuietOutput {
 				fmt.Println(hftx.WarningSign("Container " + cname + "is blacklisted"))
 			}
-			if ForceRemoval {
+			if RemoveBlacklistedContainers {
 				if !rest.QuietOutput {
 					fmt.Println(hftx.InfoSign("Force removal flag is present, continuing"))
 				}
@@ -56,11 +59,28 @@ func RemoveContainer(client *rest.Client, containerList []string) *ce.CustomErro
 
 // The actual removal call
 func remove(client *rest.Client, cname string) *ce.CustomError {
+	var id string
+	var cerr *ce.CustomError
 
-	//resp, err := client.Do(rest.Context, http.MethodDelete, "/containers/"+cname+"/json", q, nil, nil)
-	//if err := json.NewDecoder(resp.Body).Decode(&containers); err != nil {
-	//	return nil,
-	//		&customError.CustomError{Title: "Unable to decode JSON", Message: err.Error(), Code: 201}
-	//}
+	q := url.Values{}
+	q.Set("force", strconv.FormatBool(KillRunningContainers))
+	q.Set("v", strconv.FormatBool(RemoveUnamedVolumes))
+
+	if id, cerr = Name2ID(client, cname); cerr != nil {
+		return cerr
+	}
+	path := "/containers/{" + id + "}"
+	resp, err := client.Do(rest.Context, http.MethodDelete, path, q, nil, nil)
+	if err != nil {
+		return &ce.CustomError{Title: "Unable to post DELETE", Message: err.Error(), Code: 201}
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
+		return &ce.CustomError{Title: "DELETE request returned an error", Message: "http requested returned " + resp.Status, Code: 201}
+	}
+	if !rest.QuietOutput {
+		hftx.InProgressSign("Container " + cname + hftx.Red(" REMOVED"))
+	}
 	return nil
 }
