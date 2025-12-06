@@ -13,14 +13,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// containersCmd groups container-related subcommands.
-var containersCmd = &cobra.Command{
+// containerCmd groups container-related subcommands.
+var containerCmd = &cobra.Command{
 	Use:   "container",
 	Short: "Manage containers",
 	Long:  "Manage containers via the Docker/Podman API (pull, list, etc.).",
 }
 
-var containersListCmd = &cobra.Command{
+var containerListCmd = &cobra.Command{
 	Use:     "ls [flags]",
 	Aliases: []string{"lsc"},
 	Example: "dtools2 containers ls [-r|-a]]",
@@ -39,10 +39,10 @@ var containersListCmd = &cobra.Command{
 	},
 }
 
-var containersInfoCmd = &cobra.Command{
+var containerInfoCmd = &cobra.Command{
 	Use:     "info",
 	Aliases: []string{"lsc"},
-	Example: "dtools2 containers ls [-r|-a]]",
+	Example: "dtools2 container ls [-r|-x]]",
 	Short:   "Lists the containers",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -59,10 +59,10 @@ var containersInfoCmd = &cobra.Command{
 	},
 }
 
-var containersRemoveCmd = &cobra.Command{
+var containerRemoveCmd = &cobra.Command{
 	Use:     "rm [flags]",
 	Aliases: []string{"remove", "del", "delete"},
-	Example: "dtools2 containers rm [-f]",
+	Example: "dtools2 container rm [-f] [-k] [-r] container1 container2 .. containerN",
 	Short:   "Removes one or many containers",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -79,12 +79,12 @@ var containersRemoveCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(containersCmd, containersListCmd, containersInfoCmd, containersRemoveCmd)
-	containersCmd.AddCommand(containersListCmd, containersInfoCmd, containersRemoveCmd)
+	rootCmd.AddCommand(containerCmd, containerListCmd, containerInfoCmd, containerRemoveCmd)
+	containerCmd.AddCommand(containerListCmd, containerInfoCmd, containerRemoveCmd)
 
-	containersRemoveCmd.Flags().BoolVarP(&containers.KillRunningContainers, "kill", "k", false, "remove container even if running")
-	containersRemoveCmd.Flags().BoolVarP(&containers.RemoveUnamedVolumes, "remove-vols", "r", true, "remove non-named volume")
-	containersRemoveCmd.Flags().BoolVarP(&containers.RemoveBlacklistedContainers, "force", "f", false, "remove container even if blacklisted")
-	containersListCmd.Flags().BoolVarP(&containers.OnlyRunningContainers, "running", "r", false, "List only the running containers")
-	containersListCmd.Flags().BoolVarP(&containers.ExtendedContainerInfo, "extended", "x", false, "Show extended container info")
+	containerRemoveCmd.Flags().BoolVarP(&containers.KillRunningContainers, "kill", "k", false, "remove container even if running")
+	containerRemoveCmd.Flags().BoolVarP(&containers.RemoveUnamedVolumes, "remove-vols", "r", true, "remove non-named volume")
+	containerRemoveCmd.Flags().BoolVarP(&containers.RemoveBlacklistedContainers, "force", "f", false, "remove container even if blacklisted")
+	containerListCmd.Flags().BoolVarP(&containers.OnlyRunningContainers, "running", "r", false, "List only the running containers")
+	containerListCmd.Flags().BoolVarP(&containers.ExtendedContainerInfo, "extended", "x", false, "Show extended container info")
 }
