@@ -1,4 +1,2 @@
 #!/usr/bin/env bash
 
-sudo chmod 755 /opt/bin/dtools2
-
