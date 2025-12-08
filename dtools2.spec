@@ -63,6 +63,23 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Sun Dec 07 2025 Binary package builder <builder@famillegratton.net> 0.30.00-0
+- Fixing APKBUILD (jean-francois@famillegratton.net)
+- Completed the container subcommand (jean-francois@famillegratton.net)
+- Edited container subcommand name (jean-francois@famillegratton.net)
+- Completed container rm (jean-francois@famillegratton.net)
+- Fixed comments typo (jean-francois@famillegratton.net)
+- Changed TLS flag (jean-francois@famillegratton.net)
+- interim sync (jean-francois@famillegratton.net)
+- Fixed blacklist pointer issue (jean-francois@famillegratton.net)
+- Fully migrated blacklist from error to customError (jean-
+  francois@famillegratton.net)
+- Fixed go vet issue with non-constant string in Fprint() (jean-
+  francois@famillegratton.net)
+- Added stub for remove (jean-francois@famillegratton.net)
+- added 'containers rm' stub (jean-francois@famillegratton.net)
+- GO version bump, version bump (jean-francois@famillegratton.net)
+
 * Tue Dec 02 2025 Binary package builder <builder@famillegratton.net> 0.21.00-0
 - Fixed mountpoints display issue, cutting a new release (jean-
   francois@famillegratton.net)
