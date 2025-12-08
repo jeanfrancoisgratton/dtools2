@@ -61,8 +61,8 @@ func RemoveContainer(client *rest.Client, containerList []string) *ce.CustomErro
 func remove(client *rest.Client, cname string) *ce.CustomError {
 	var id string
 	var cerr *ce.CustomError
-
 	q := url.Values{}
+
 	q.Set("force", strconv.FormatBool(KillRunningContainers))
 	q.Set("v", strconv.FormatBool(RemoveUnamedVolumes))
 
@@ -80,7 +80,7 @@ func remove(client *rest.Client, cname string) *ce.CustomError {
 		return &ce.CustomError{Title: "DELETE request returned an error", Message: "http requested returned " + resp.Status, Code: 201}
 	}
 	if !rest.QuietOutput {
-		hftx.InProgressSign("Container " + cname + hftx.Red(" REMOVED"))
+		fmt.Println(hftx.InProgressSign("Container " + cname + hftx.Red(" REMOVED")))
 	}
 	return nil
 }

@@ -9,10 +9,11 @@
 | [x] image pull              | 0.10.00    | same           |          |
 | [x] image push              | 0.20.00    | same           |          |
 | [x] container list          | 0.20.00    | 0.21.00        |          |
-| [x] container info          | 0.20.00    | 0.21.00        |          |
-| [ ] container stop/start    | 0.20.00    |                |          |
-| [ ] container rm            | 0.20.00    |                |          |
-| [x] container blacklist     | 0.20.00    |                |          |
+| [x] container info          | 0.20.00    | 0.30.00        |          |
+| [x] container stop/start    | 0.30.00    | 0.30.00        |          |
+| [x] container pause/unpause | 0.30.00    | 0.30.00        |          |
+| [x] container rm            | 0.20.00    | 0.30.00        |          |
+| [x] container blacklist     | 0.20.00    | 0.30.00        |          |
 | [ ] image blacklist         | 0.20.00    | 0.21.00        |          |
 | [ ] image rm                |            |                |          |
 | [ ] network create / rm     |            |                |          |

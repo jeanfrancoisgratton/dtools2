@@ -5,7 +5,12 @@
 
 package blacklist
 
-import ce "github.com/jeanfrancoisgratton/customError/v3"
+import (
+	"fmt"
+
+	ce "github.com/jeanfrancoisgratton/customError/v3"
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
+)
 
 // ListAll returns all resources grouped by type.
 // All resources are mapped in a key:value map for easier retrieval
@@ -20,6 +25,7 @@ func (rb *ResourceBlacklist) ListAll() map[string][]string {
 
 // List returns all resources of a given type.
 func (rb *ResourceBlacklist) List(resourceType string) ([]string, *ce.CustomError) {
+
 	slicePtr, err := getSlice(rb, resourceType)
 	if err != nil {
 		return nil, err
@@ -41,8 +47,11 @@ func ListAllFromFile() *ce.CustomError {
 // ListFromFile lists entries for a given resource type.
 // resourceType examples: "volumes", "networks", "images", "containers".
 func ListFromFile(resourceType string) *ce.CustomError {
-	//var rsources []string
-	//var rbErr error
+	if len(resourceType) == 0 {
+		fmt.Println(hftx.WarningSign("resourceType is empty"))
+		return nil
+	}
+
 	rmp := make(map[string][]string)
 
 	rb, err := Load()

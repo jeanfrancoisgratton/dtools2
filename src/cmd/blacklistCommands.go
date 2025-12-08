@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 	"github.com/spf13/cobra"
 )
 
@@ -43,6 +44,9 @@ var blListCmd = &cobra.Command{
 					//return blacklist.ListFromFile(args[0])
 					err = blacklist.ListFromFile(strings.ToLower(args[0]))
 				}
+			} else {
+				fmt.Println(hftx.WarningSign(" resourceType is empty"))
+				return
 			}
 		}
 		if err != nil {

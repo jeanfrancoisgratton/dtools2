@@ -12,6 +12,12 @@ var RemoveBlacklistedContainers bool = false
 var RemoveUnamedVolumes = true
 var KillRunningContainers = false
 
+// StopTimeout controls stop behaviour:
+//
+//	>0 => sequential stop, value passed as Docker/Podman `t` parameter
+//	 0 => concurrent stop, internal default timeout used per container
+var StopTimeout int = 10
+
 type PortsStruct struct {
 	PrivatePort uint16 `json:"PrivatePort"`
 	PublicPort  uint16 `json:"PublicPort"`
