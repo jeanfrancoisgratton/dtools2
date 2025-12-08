@@ -42,4 +42,3 @@ package() {
 	install "$builddir/$binaryname" "$pkgdir/opt/bin/$binaryname"
 }
 
-
