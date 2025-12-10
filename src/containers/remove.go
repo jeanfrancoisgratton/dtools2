@@ -61,6 +61,7 @@ func RemoveContainer(client *rest.Client, containerList []string) *ce.CustomErro
 func remove(client *rest.Client, cname string) *ce.CustomError {
 	var id string
 	var cerr *ce.CustomError
+	var q url.Values{}
 
 	q.Set("force", strconv.FormatBool(KillRunningContainers))
 	q.Set("v", strconv.FormatBool(RemoveUnamedVolumes))
