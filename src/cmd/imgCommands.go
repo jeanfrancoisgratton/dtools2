@@ -64,9 +64,27 @@ var imagePushCmd = &cobra.Command{
 	},
 }
 
+var imageListCmd = &cobra.Command{
+	Use:     "list",
+	Aliases: []string{"lsi"},
+	Short:   "List images",
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+
+		rest.Context = cmd.Context()
+		if err := images.ImagesList(restClient); err != nil {
+			fmt.Println(err)
+		}
+		return
+	},
+}
+
 func init() {
-	rootCmd.AddCommand(imgCmd, imagePullCmd, imagePushCmd)
-	imgCmd.AddCommand(imagePullCmd, imagePushCmd)
+	rootCmd.AddCommand(imgCmd, imagePullCmd, imagePushCmd, imageListCmd)
+	imgCmd.AddCommand(imagePullCmd, imagePushCmd, imageListCmd)
 
 	imagePullCmd.Flags().StringVarP(&imagePullRegistry, "registry", "r", "", "Registry hostname to use for auth (e.g. registry.example.com:5000); empty for anonymous")
 }

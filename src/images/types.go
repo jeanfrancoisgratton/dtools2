@@ -10,3 +10,18 @@ type PullOptions struct {
 	ImageTag string // e.g. "alpine:latest", "registry.example.com/ns/image:tag"
 	Registry string // registry to use for auth header; if empty, no auth header is sent
 }
+
+type ImageSummary struct {
+	ID          string            `json:"Id"`
+	ParentID    string            `json:"ParentId.omitempty"`
+	RepoTags    []string          `json:"RepoTags"`
+	RepoDigests []string          `json:"RepoDigests.omitempty"`
+	Created     int64             `json:"Created"`
+	Size        int64             `json:"Size"`
+	VirtualSize int64             `json:"VirtualSize"`
+	SharedSize  int64             `json:"SharedSize"`
+	Labels      map[string]string `json:"Labels.omitempty"`
+	Containers  int               `json:"Containers"`
+	RepoImgName string            `json:"RepoImgName"`
+	ImgTag      string            `json:"ImgTag"`
+}

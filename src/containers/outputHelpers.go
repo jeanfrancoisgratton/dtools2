@@ -101,6 +101,7 @@ func prettifyMounts(mounts []MountsStruct, delimiter string) string {
 	return mountspecs
 }
 
+// TODO : move in its own subpackage
 func formatSize(sz int64) string {
 	numSize := (float64)(sz) / 1000.0 / 1000.0 // this will give us the size in MB
 	if (int)(math.Log10(float64(numSize))) > 2 {
