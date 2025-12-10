@@ -69,7 +69,7 @@ func remove(client *rest.Client, cname string) *ce.CustomError {
 	if id, cerr = Name2ID(client, cname); cerr != nil {
 		return cerr
 	}
-	path := "/containers/{" + id + "}"
+	path := "/containers/" + id
 	resp, err := client.Do(rest.Context, http.MethodDelete, path, q, nil, nil)
 	if err != nil {
 		return &ce.CustomError{Title: "Unable to post DELETE", Message: err.Error(), Code: 201}
