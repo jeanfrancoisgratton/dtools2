@@ -20,10 +20,9 @@ import (
 
 func ImagesList(client *rest.Client) *ce.CustomError {
 	var iInfoSlice []ImageSummary
-	q := url.Values{}
 
 	// Create & execute the http request
-	resp, err := client.Do(rest.Context, http.MethodGet, "/images/json", q, nil, nil)
+	resp, err := client.Do(rest.Context, http.MethodGet, "/images/json", url.Values{}, nil, nil)
 	if err != nil {
 		return &ce.CustomError{
 			Title:   "Unable to list images",

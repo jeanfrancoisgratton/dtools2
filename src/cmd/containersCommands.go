@@ -192,7 +192,7 @@ var containerRenameCmd = &cobra.Command{
 	Use:     "rename",
 	Example: "dtools2 rename OLD_NAME NEW_NAME",
 	Short:   "Rename a container",
-	Args:    cobra.MinimumNArgs(2),
+	Args:    cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
 			fmt.Println("REST client not initialized")

@@ -58,9 +58,8 @@ func start(client *rest.Client, id string, containerName string) *ce.CustomError
 	}
 
 	path := "/containers/" + id + "/start"
-	q := url.Values{}
 
-	resp, err := client.Do(rest.Context, http.MethodPost, path, q, nil, nil)
+	resp, err := client.Do(rest.Context, http.MethodPost, path, url.Values{}, nil, nil)
 	if err != nil {
 		return &ce.CustomError{Title: "Unable to start container " + containerName, Message: err.Error(), Code: 201}
 	}

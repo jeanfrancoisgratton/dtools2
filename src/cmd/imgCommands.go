@@ -82,6 +82,24 @@ var imageListCmd = &cobra.Command{
 	},
 }
 
+var imageTagCmd = &cobra.Command{
+	Use:   "tag IMAGE:TAG IMAGE:NEWTAG",
+	Short: "Tag image",
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+
+		rest.Context = cmd.Context()
+		if err := images.TagImage(restClient, args[0], args[1]); err != nil {
+			fmt.Println(err)
+		}
+		return
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(imgCmd, imagePullCmd, imagePushCmd, imageListCmd)
 	imgCmd.AddCommand(imagePullCmd, imagePushCmd, imageListCmd)

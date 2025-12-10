@@ -61,7 +61,6 @@ func RemoveContainer(client *rest.Client, containerList []string) *ce.CustomErro
 func remove(client *rest.Client, cname string) *ce.CustomError {
 	var id string
 	var cerr *ce.CustomError
-	q := url.Values{}
 
 	q.Set("force", strconv.FormatBool(KillRunningContainers))
 	q.Set("v", strconv.FormatBool(RemoveUnamedVolumes))
@@ -70,7 +69,7 @@ func remove(client *rest.Client, cname string) *ce.CustomError {
 		return cerr
 	}
 	path := "/containers/" + id
-	resp, err := client.Do(rest.Context, http.MethodDelete, path, q, nil, nil)
+	resp, err := client.Do(rest.Context, http.MethodDelete, path, url.Values{}, nil, nil)
 	if err != nil {
 		return &ce.CustomError{Title: "Unable to post DELETE", Message: err.Error(), Code: 201}
 	}

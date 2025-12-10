@@ -49,7 +49,6 @@ func PauseContainer(client *rest.Client, containers []string) *ce.CustomError {
 func UnpauseContainer(client *rest.Client, containers []string) *ce.CustomError {
 	var id string
 	var cerr *ce.CustomError
-	q := url.Values{}
 
 	for _, container := range containers {
 		if id, cerr = Name2ID(client, container); cerr != nil {
@@ -57,7 +56,7 @@ func UnpauseContainer(client *rest.Client, containers []string) *ce.CustomError 
 		}
 		path := "/containers/{" + id + "}/unpause"
 
-		resp, err := client.Do(rest.Context, http.MethodPost, path, q, nil, nil)
+		resp, err := client.Do(rest.Context, http.MethodPost, path, url.Values{}, nil, nil)
 		if err != nil {
 			return &ce.CustomError{Title: "Unable to POST request", Message: err.Error(), Code: 201}
 		}
