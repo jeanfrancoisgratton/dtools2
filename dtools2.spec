@@ -63,6 +63,16 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Wed Dec 10 2025 Binary package builder <builder@famillegratton.net> 0.40.00-0
+- Fixed ENV vars issue in APK build scripts (jean-francois@famillegratton.net)
+- Re-instated variable removed by mistake (jean-francois@famillegratton.net)
+- Added image tag (jean-francois@famillegratton.net)
+- Simplified the http queries (jean-francois@famillegratton.net)
+- Version bump (jean-francois@famillegratton.net)
+- Completed container rename command (jean-francois@famillegratton.net)
+- Completed image ls (jean-francois@famillegratton.net)
+- updated DEB package buildscripts (jean-francois@famillegratton.net)
+
 * Sun Dec 07 2025 Binary package builder <builder@famillegratton.net> 0.30.00-0
 - Fixing APKBUILD (jean-francois@famillegratton.net)
 - Completed the container subcommand (jean-francois@famillegratton.net)
