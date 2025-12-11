@@ -21,12 +21,12 @@ import (
 // This can be wrapped in RemoveAll
 func RemoveContainer(client *rest.Client, containerList []string) *ce.CustomError {
 	for _, container := range containerList {
-		cname, err := Name2ID(client, container)
+		id, err := Name2ID(client, container)
 		if err != nil {
 			return err
 		}
 
-		isBL, err := blacklist.IsResourceBlackListed("containers", cname)
+		isBL, err := blacklist.IsResourceBlackListed("containers", container)
 		if err != nil {
 			return err
 		}
@@ -34,22 +34,22 @@ func RemoveContainer(client *rest.Client, containerList []string) *ce.CustomErro
 		// FIXME: this is tangled.. we need to clean this up
 		if isBL {
 			if !rest.QuietOutput {
-				fmt.Println(hftx.WarningSign("Container " + cname + "is blacklisted"))
+				fmt.Println(hftx.WarningSign(" Container " + container + " is blacklisted"))
 			}
 			if RemoveBlacklistedContainers {
 				if !rest.QuietOutput {
 					fmt.Println(hftx.InfoSign("Force removal flag is present, continuing"))
+					if err := remove(client, container, id); err != nil {
+						return err
+					}
 				}
 			} else {
 				if !rest.QuietOutput {
 					fmt.Println(hftx.InfoSign("Removal flag is absent, skipping container"))
 				}
-				if err := remove(client, cname); err != nil {
-					return err
-				}
 			}
 		} else {
-			if err := remove(client, cname); err != nil {
+			if err := remove(client, container, id); err != nil {
 				return err
 			}
 		}
@@ -58,21 +58,19 @@ func RemoveContainer(client *rest.Client, containerList []string) *ce.CustomErro
 }
 
 // The actual removal call
-func remove(client *rest.Client, cname string) *ce.CustomError {
-	var id string
-	var cerr *ce.CustomError
+func remove(client *rest.Client, name, id string) *ce.CustomError {
 	q := url.Values{}
 
 	q.Set("force", strconv.FormatBool(KillRunningContainers))
 	q.Set("v", strconv.FormatBool(RemoveUnamedVolumes))
 
-	if id, cerr = Name2ID(client, cname); cerr != nil {
-		return cerr
-	}
+	//if id, cerr = Name2ID(client, cname); cerr != nil {
+	//	return cerr
+	//}
 	path := "/containers/" + id
-	resp, err := client.Do(rest.Context, http.MethodDelete, path, url.Values{}, nil, nil)
-	if err != nil {
-		return &ce.CustomError{Title: "Unable to post DELETE", Message: err.Error(), Code: 201}
+	resp, derr := client.Do(rest.Context, http.MethodDelete, path, url.Values{}, nil, nil)
+	if derr != nil {
+		return &ce.CustomError{Title: "Unable to post DELETE", Message: derr.Error(), Code: 201}
 	}
 	defer resp.Body.Close()
 
@@ -80,7 +78,8 @@ func remove(client *rest.Client, cname string) *ce.CustomError {
 		return &ce.CustomError{Title: "DELETE request returned an error", Message: "http requested returned " + resp.Status, Code: 201}
 	}
 	if !rest.QuietOutput {
-		fmt.Println(hftx.InProgressSign("Container " + cname + hftx.Red(" REMOVED")))
+
+		fmt.Println(hftx.InProgressSign("Container " + name + hftx.Red(" REMOVED")))
 	}
 	return nil
 }

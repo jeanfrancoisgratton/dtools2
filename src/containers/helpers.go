@@ -7,7 +7,6 @@ package containers
 
 import (
 	"dtools2/rest"
-	"strings"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
 )
@@ -27,7 +26,7 @@ func Name2ID(client *rest.Client, containerName string) (string, *ce.CustomError
 			return "", &ce.CustomError{Fatality: ce.Warning, Message: "No containers found"}
 		}
 		for _, container := range cs {
-			if strings.ToLower(container.Names[0][1:]) == containerName {
+			if container.Names[0][1:] == containerName {
 				return container.ID, nil
 			}
 		}
@@ -50,7 +49,7 @@ func ID2Name(client *rest.Client, containerID string) (string, *ce.CustomError) 
 			return "", &ce.CustomError{Fatality: ce.Warning, Message: "No containers found"}
 		}
 		for _, container := range cs {
-			if strings.ToLower(container.ID) == strings.ToLower(containerID) {
+			if container.ID == containerID {
 				return container.Names[0][1:], nil
 			}
 		}
