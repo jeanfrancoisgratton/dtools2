@@ -24,15 +24,6 @@ prepare() {
 build() {
 	cd "$builddir"
 
-	# Ensure no global PIE flags leak in
-	unset GOFLAGS
-	export GOENV=off
-	export CGO_ENABLED=0
-	export GOOS=linux GOARCH=amd64
-	export GO111MODULE=on
-
-	go env | egrep 'GOFLAGS|CGO_ENABLED|GOOS|GOARCH' || true
-
 	# Static, non-PIE, internal linker
 	go build -trimpath -ldflags="-s -w -buildid= -linkmode=internal" -o "$binaryname" .
 }
