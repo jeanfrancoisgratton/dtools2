@@ -25,13 +25,12 @@ func (rb *ResourceBlacklist) ListAll() map[string][]string {
 
 // List returns all resources of a given type.
 func (rb *ResourceBlacklist) List(resourceType string) ([]string, *ce.CustomError) {
-
 	slicePtr, err := getSlice(rb, resourceType)
 	if err != nil {
 		return nil, err
 	}
 	// Return a copy to avoid external mutation.
-	return append([]string(nil), (slicePtr)...), nil
+	return append([]string(nil), (*slicePtr)...), nil
 }
 
 // ListAllFromFile loads the blacklist and returns all entries.

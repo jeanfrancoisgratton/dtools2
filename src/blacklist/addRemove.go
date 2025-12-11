@@ -13,20 +13,22 @@ import (
 	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 )
 
-// Add ensures that RESOURCENAME is present in the given resource type.
-// It returns true if the blacklist was modified.
 func (rb *ResourceBlacklist) Add(resourceType, name string) (bool, *ce.CustomError) {
-	slice, err := getSlice(rb, resourceType)
+	slicePtr, err := getSlice(rb, resourceType)
 	if err != nil {
 		return false, err
 	}
 
 	name = strings.TrimSpace(name)
 	if name == "" {
-		return false, &ce.CustomError{Title: "resource name cannot be empty", Code: 101}
+		return false, &ce.CustomError{
+			Title: "resource name cannot be empty",
+			Code:  101,
+		}
 	}
 
-	//slice := *slicePtr
+	slice := *slicePtr
+
 	for _, existing := range slice {
 		if existing == name {
 			// already present: "update" is effectively a no-op
@@ -35,7 +37,8 @@ func (rb *ResourceBlacklist) Add(resourceType, name string) (bool, *ce.CustomErr
 	}
 
 	slice = append(slice, name)
-	//*slicePtr = slice
+	*slicePtr = slice
+
 	return true, nil
 }
 
@@ -59,20 +62,21 @@ func AddToFile(resourceType, name string) *ce.CustomError {
 	return rb.Save()
 }
 
-// Remove removes RESOURCENAME from the given resource type.
-// It returns true if it was actually removed, false if it was not found.
 func (rb *ResourceBlacklist) Remove(resourceType, name string) (bool, *ce.CustomError) {
-	slice, err := getSlice(rb, resourceType)
+	slicePtr, err := getSlice(rb, resourceType)
 	if err != nil {
 		return false, err
 	}
 
 	name = strings.TrimSpace(name)
 	if name == "" {
-		return false, &ce.CustomError{Title: "resource name cannot be empty", Code: 101}
+		return false, &ce.CustomError{
+			Title: "resource name cannot be empty",
+			Code:  101,
+		}
 	}
 
-	//slice := *slicePtr
+	slice := *slicePtr
 	out := slice[:0]
 	removed := false
 
@@ -85,7 +89,7 @@ func (rb *ResourceBlacklist) Remove(resourceType, name string) (bool, *ce.Custom
 	}
 
 	if removed {
-		slice = out
+		*slicePtr = out
 	}
 
 	return removed, nil
