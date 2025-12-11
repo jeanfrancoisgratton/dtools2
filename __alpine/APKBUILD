@@ -14,7 +14,7 @@ install=""
 makedepends="go"
 options="!check"
 #source="$pkgname-$pkgver-$pkgrel.tar.bz2::http://localhost/$pkgname-$pkgver-$pkgrel.tar.bz2"
-binaryname=dtools2
+binaryname=dtools
 
 prepare() {
 	mkdir -p "$builddir"

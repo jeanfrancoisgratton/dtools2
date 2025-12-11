@@ -10,8 +10,8 @@ done
 
 echo "Building binary from source"
 cd ../src
-CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -buildid=" -o ../__debian/${PKGDIR}/opt/bin/dtools2 .
-sudo chown 0:0 ../__debian/${PKGDIR}/opt/bin/dtools2
+CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -buildid=" -o ../__debian/${PKGDIR}/opt/bin/dtools .
+sudo chown 0:0 ../__debian/${PKGDIR}/opt/bin/dtools
 
 echo "Binary built. Now packaging..."
 cd ../__debian/

@@ -4,7 +4,7 @@ set -e
 
 BRANCH=`git rev-parse --abbrev-ref HEAD`
 BRANCH=$(echo "$BRANCH" | tr '/' '_')
-BINARY=dtools2
+BINARY=dtools
 OUTPUT=/opt/bin
 COMPLETION=false
 

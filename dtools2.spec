@@ -15,7 +15,7 @@
 %define _version 0.50.00
 %define _rel 0
 #%define _arch x86_64
-%define _binaryname dtools2
+%define _binaryname dtools
 
 Name:       dtools2
 Version:    %{_version}
