@@ -23,8 +23,11 @@ func RenameContainer(client *rest.Client, oldname, newname string) *ce.CustomErr
 	if id, cerr = Name2ID(client, oldname); cerr != nil {
 		return cerr
 	}
-	path := "/containers/" + id + "/rename?name=" + newname
-	resp, err := client.Do(rest.Context, http.MethodPost, path, url.Values{}, nil, nil)
+	path := "/containers/" + id + "/rename"
+	q := url.Values{}
+	q.Set("name", newname)
+
+	resp, err := client.Do(rest.Context, http.MethodPost, path, q, nil, nil)
 	if err != nil {
 		return &ce.CustomError{Title: "Unable to POST request", Message: err.Error(), Code: 201}
 	}
