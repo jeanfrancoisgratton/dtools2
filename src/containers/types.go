@@ -8,7 +8,7 @@ package containers
 var OnlyRunningContainers bool
 var ExtendedContainerInfo bool
 var DisplaySizeValues bool = false
-var RemoveBlacklistedContainers bool = false
+var RemoveBlacklisted bool = false
 var RemoveUnamedVolumes = true
 var KillRunningContainers = false
 

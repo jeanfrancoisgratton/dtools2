@@ -100,9 +100,32 @@ var imageTagCmd = &cobra.Command{
 	},
 }
 
-func init() {
-	rootCmd.AddCommand(imgCmd, imagePullCmd, imagePushCmd, imageListCmd, imageTagCmd)
-	imgCmd.AddCommand(imagePullCmd, imagePushCmd, imageListCmd, imageTagCmd)
+var imageRemoveCmd = &cobra.Command{
+	Use:     "remove image1 [image2 ...] [flags]",
+	Example: "dtools2 remove [-B] [-f] image1",
+	Aliases: []string{"rmi", "del"},
+	Short:   "Remove image",
+	Args:    cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
 
-	imagePullCmd.Flags().StringVarP(&imagePullRegistry, "registry", "r", "", "Registry hostname to use for auth (e.g. registry.example.com:5000); empty for anonymous")
+		rest.Context = cmd.Context()
+		if err := images.RemoveImage(restClient, args); err != nil {
+			fmt.Println(err)
+		}
+		return
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(imgCmd, imagePullCmd, imagePushCmd, imageListCmd, imageTagCmd, imageRemoveCmd)
+	imgCmd.AddCommand(imagePullCmd, imagePushCmd, imageListCmd, imageTagCmd, imageRemoveCmd)
+
+	imagePullCmd.Flags().StringVarP(&imagePullRegistry, "registry", "r", "", "registry hostname to use for auth (e.g. registry.example.com:5000); empty for anonymous")
+	imageRemoveCmd.Flags().BoolVarP(&images.ForceRemove, "force", "f", false, "Force remove image")
+	imageRemoveCmd.Flags().BoolVarP(&images.RemoveBlacklisted, "blacklist", "B", false, "remove image even if blacklisted")
+
 }

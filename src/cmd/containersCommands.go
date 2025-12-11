@@ -206,17 +206,54 @@ var containerRenameCmd = &cobra.Command{
 	},
 }
 
+var containerKillCmd = &cobra.Command{
+	Use:     "kill",
+	Example: "dtools2 kill container1 container2 .. containerN",
+	Short:   "Kills one or many containers",
+	Args:    cobra.MinimumNArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+		rest.Context = cmd.Context()
+		if errCode := containers.KillContainer(restClient, args); errCode != nil {
+			fmt.Println(errCode)
+		}
+		return
+	},
+}
+
+var containerKillAllCmd = &cobra.Command{
+	Use:     "killall",
+	Example: "dtools2 killall",
+	Short:   "Kills all running containers",
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+		rest.Context = cmd.Context()
+		if errCode := containers.KillAllContainers(restClient); errCode != nil {
+			fmt.Println(errCode)
+		}
+		return
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(containerCmd, containerListCmd, containerInfoCmd, containerRemoveCmd, containerPauseCmd,
-		containerUnpauseCmd, containerStartCmd, containerStartAllCmd, containerStopCmd, containerStopAllCmd, containerRenameCmd)
+		containerUnpauseCmd, containerStartCmd, containerStartAllCmd, containerStopCmd, containerStopAllCmd,
+		containerRenameCmd, containerKillCmd, containerKillAllCmd)
 	containerCmd.AddCommand(containerListCmd, containerInfoCmd, containerRemoveCmd, containerPauseCmd,
-		containerUnpauseCmd, containerUnpauseCmd, containerStartCmd, containerStartAllCmd, containerStopCmd, containerStopAllCmd, containerRenameCmd)
+		containerUnpauseCmd, containerUnpauseCmd, containerStartCmd, containerStartAllCmd, containerStopCmd, containerStopAllCmd,
+		containerRenameCmd, containerKillCmd, containerKillAllCmd)
 
 	containerStopCmd.Flags().IntVarP(&containers.StopTimeout, "timeout", "t", 10, "timeout (seconds) when stopping containers; 0 to stop all concurrently")
 	containerStopAllCmd.Flags().IntVarP(&containers.StopTimeout, "timeout", "t", 10, "timeout (seconds) when stopping containers; 0 to stop all concurrently")
 	containerRemoveCmd.Flags().BoolVarP(&containers.KillRunningContainers, "kill", "k", false, "remove container even if running")
 	containerRemoveCmd.Flags().BoolVarP(&containers.RemoveUnamedVolumes, "remove-vols", "r", true, "remove non-named volume")
-	containerRemoveCmd.Flags().BoolVarP(&containers.RemoveBlacklistedContainers, "force", "f", false, "remove container even if blacklisted")
+	containerRemoveCmd.Flags().BoolVarP(&containers.RemoveBlacklisted, "blacklist", "B", false, "remove container even if blacklisted")
 	containerListCmd.Flags().BoolVarP(&containers.OnlyRunningContainers, "running", "r", false, "List only the running containers")
 	containerListCmd.Flags().BoolVarP(&containers.ExtendedContainerInfo, "extended", "x", false, "Show extended container info")
 }

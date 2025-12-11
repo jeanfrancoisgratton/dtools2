@@ -1,9 +1,9 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
-// Original timestamp: 2025/12/02 18:45
-// Original filename: src/containers/remove.go
+// Original timestamp: 2025/12/11 13:01
+// Original filename: src/images/remove.go
 
-package containers
+package images
 
 import (
 	"dtools2/blacklist"
@@ -17,29 +17,20 @@ import (
 	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 )
 
-// RemoveContainer Remove a single or multiple containers
-// This can be wrapped in RemoveAll
-func RemoveContainer(client *rest.Client, containerList []string) *ce.CustomError {
-	for _, container := range containerList {
-		id, err := Name2ID(client, container)
+func RemoveImage(client *rest.Client, imglist []string) *ce.CustomError {
+	for _, img := range imglist {
+		isBL, err := blacklist.IsResourceBlackListed("images", img)
 		if err != nil {
 			return err
 		}
-
-		isBL, err := blacklist.IsResourceBlackListed("containers", container)
-		if err != nil {
-			return err
-		}
-
-		// FIXME: this is tangled.. we need to clean this up
 		if isBL {
 			if !rest.QuietOutput {
-				fmt.Println(hftx.WarningSign(" Container " + container + " is blacklisted"))
+				fmt.Println(hftx.WarningSign(" Image " + img + " is blacklisted"))
 			}
 			if RemoveBlacklisted {
 				if !rest.QuietOutput {
 					fmt.Println(hftx.InfoSign("Force removal flag is present, continuing"))
-					if err := remove(client, container, id); err != nil {
+					if err := remove(client, img); err != nil {
 						return err
 					}
 				}
@@ -49,7 +40,7 @@ func RemoveContainer(client *rest.Client, containerList []string) *ce.CustomErro
 				}
 			}
 		} else {
-			if err := remove(client, container, id); err != nil {
+			if err := remove(client, img); err != nil {
 				return err
 			}
 		}
@@ -57,17 +48,13 @@ func RemoveContainer(client *rest.Client, containerList []string) *ce.CustomErro
 	return nil
 }
 
-// The actual removal call
-func remove(client *rest.Client, name, id string) *ce.CustomError {
+// The actual removal function
+
+func remove(client *rest.Client, imagename string) *ce.CustomError {
 	q := url.Values{}
+	q.Set("force", strconv.FormatBool(ForceRemove))
 
-	q.Set("force", strconv.FormatBool(KillRunningContainers))
-	q.Set("v", strconv.FormatBool(RemoveUnamedVolumes))
-
-	//if id, cerr = Name2ID(client, cname); cerr != nil {
-	//	return cerr
-	//}
-	path := "/containers/" + id
+	path := "/images/" + imagename
 	resp, derr := client.Do(rest.Context, http.MethodDelete, path, url.Values{}, nil, nil)
 	if derr != nil {
 		return &ce.CustomError{Title: "Unable to post DELETE", Message: derr.Error(), Code: 201}
@@ -78,7 +65,7 @@ func remove(client *rest.Client, name, id string) *ce.CustomError {
 		return &ce.CustomError{Title: "DELETE request returned an error", Message: "http requested returned " + resp.Status, Code: 201}
 	}
 	if !rest.QuietOutput {
-		fmt.Println(hftx.InProgressSign("Container " + name + hftx.Red(" REMOVED")))
+		fmt.Println(hftx.InProgressSign("Image " + imagename + hftx.Red(" REMOVED")))
 	}
 	return nil
 }

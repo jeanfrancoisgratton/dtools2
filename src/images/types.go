@@ -5,6 +5,9 @@
 
 package images
 
+var ForceRemove = false
+var RemoveBlacklisted = false
+
 // PullOptions controls how an image is pulled.
 type PullOptions struct {
 	ImageTag string // e.g. "alpine:latest", "registry.example.com/ns/image:tag"
