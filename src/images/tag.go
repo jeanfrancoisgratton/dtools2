@@ -18,16 +18,22 @@ import (
 // Retag an image
 
 func TagImage(client *rest.Client, oldtag, newtag string) *ce.CustomError {
-	repo, tag := splitURI(newtag)
-	path := "/images/" + oldtag + "/tag?repo=" + repo + "&tag=" + tag
 
-	resp, err := client.Do(rest.Context, http.MethodPost, path, url.Values{}, nil, nil)
+	repo, tag := splitURI(newtag)
+
+	path := "/images/" + oldtag + "/tag"
+
+	q := url.Values{}
+	q.Set("repo", repo)
+	q.Set("tag", tag)
+
+	resp, err := client.Do(rest.Context, http.MethodPost, path, q, nil, nil)
 	if err != nil {
 		return &ce.CustomError{Title: "Unable to POST request", Message: err.Error(), Code: 201}
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusCreated {
+	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK {
 		return &ce.CustomError{Title: "POST request returned an error", Message: "http requested returned " + resp.Status, Code: 201}
 	}
 	if !rest.QuietOutput {

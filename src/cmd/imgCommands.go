@@ -101,8 +101,8 @@ var imageTagCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(imgCmd, imagePullCmd, imagePushCmd, imageListCmd)
-	imgCmd.AddCommand(imagePullCmd, imagePushCmd, imageListCmd)
+	rootCmd.AddCommand(imgCmd, imagePullCmd, imagePushCmd, imageListCmd, imageTagCmd)
+	imgCmd.AddCommand(imagePullCmd, imagePushCmd, imageListCmd, imageTagCmd)
 
 	imagePullCmd.Flags().StringVarP(&imagePullRegistry, "registry", "r", "", "Registry hostname to use for auth (e.g. registry.example.com:5000); empty for anonymous")
 }
