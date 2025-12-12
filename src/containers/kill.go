@@ -7,20 +7,41 @@ package containers
 
 import (
 	"dtools2/rest"
-	"fmt"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
-	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 )
 
 // ENDPOINT : POST /containers/{id}/kill
 
-func KillContainer(client *rest.Client, containers []string) *ce.CustomError {
-	fmt.Println(hftx.Red("KILLCONTAINER"))
+func KillContainers(client *rest.Client, containers []string) *ce.CustomError {
+	KillSwitch = true
+
+	for _, container := range containers {
+		if err := stop(client, "", container, 0); err != nil {
+			return err
+		}
+
+	}
 	return nil
 }
 
 func KillAllContainers(client *rest.Client) *ce.CustomError {
-	fmt.Println(hftx.Red("KILLALLCONTAINERS"))
-	return nil
+	var (
+		cerr *ce.CustomError
+		cs   []ContainerSummary
+	)
+
+	OnlyRunningContainers = true
+
+	// Fetch the list of containers currently present on the daemon, regardless of their state.
+	if cs, cerr = ListContainers(client, false); cerr != nil {
+		return cerr
+	}
+
+	var containerList []string
+	for _, c := range cs {
+		containerList = append(containerList, c.Names[0][1:])
+	}
+
+	return KillContainers(client, containerList)
 }

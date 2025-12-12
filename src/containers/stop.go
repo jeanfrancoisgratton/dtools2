@@ -131,7 +131,7 @@ func stopContainersConcurrent(client *rest.Client, targets []ContainerSummary) *
 // parameter when greater than zero.
 func stop(client *rest.Client, id string, containerName string, timeout int) *ce.CustomError {
 	var cerr *ce.CustomError
-
+	action := "/stop"
 	if id == "" {
 		if id, cerr = Name2ID(client, containerName); cerr != nil {
 			return cerr
@@ -143,7 +143,11 @@ func stop(client *rest.Client, id string, containerName string, timeout int) *ce
 		}
 	}
 
-	path := "/containers/" + id + "/stop"
+	// The KillSwitch is used mainly by the Kill / KillAll commands
+	if KillSwitch {
+		action = "/kill"
+	}
+	path := "/containers/" + id + action
 	q := url.Values{}
 
 	if timeout > 0 {
@@ -152,7 +156,7 @@ func stop(client *rest.Client, id string, containerName string, timeout int) *ce
 
 	resp, err := client.Do(rest.Context, http.MethodPost, path, q, nil, nil)
 	if err != nil {
-		return &ce.CustomError{Title: "Unable to stop container " + containerName, Message: err.Error(), Code: 201}
+		return &ce.CustomError{Title: "Unable to stop/kill the container " + containerName, Message: err.Error(), Code: 201}
 	}
 	defer resp.Body.Close()
 
@@ -175,7 +179,7 @@ func StopAll(client *rest.Client) *ce.CustomError {
 		cs   []ContainerSummary
 	)
 
-	OnlyRunningContainers = false
+	OnlyRunningContainers = true
 
 	// Fetch the list of containers currently present on the daemon, regardless of their state.
 	if cs, cerr = ListContainers(client, false); cerr != nil {

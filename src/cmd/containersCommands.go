@@ -217,7 +217,7 @@ var containerKillCmd = &cobra.Command{
 			return
 		}
 		rest.Context = cmd.Context()
-		if errCode := containers.KillContainer(restClient, args); errCode != nil {
+		if errCode := containers.KillContainers(restClient, args); errCode != nil {
 			fmt.Println(errCode)
 		}
 		return
