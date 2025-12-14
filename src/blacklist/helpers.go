@@ -30,10 +30,7 @@ func getSlice(rb *ResourceBlacklist, resourceType string) (*[]string, *ce.Custom
 	case "container", "containers":
 		return &rb.Containers, nil
 	default:
-		return nil, &ce.CustomError{
-			Title: "unknown resource type : " + resourceType,
-			Code:  101,
-		}
+		return nil, &ce.CustomError{Title: "unknown resource type : " + resourceType}
 	}
 }
 

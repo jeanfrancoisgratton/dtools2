@@ -6,6 +6,7 @@
 package images
 
 import (
+	"dtools2/extras"
 	"dtools2/rest"
 	"encoding/json"
 	"net/http"
@@ -24,31 +25,19 @@ func ImagesList(client *rest.Client) *ce.CustomError {
 	// Create & execute the http request
 	resp, err := client.Do(rest.Context, http.MethodGet, "/images/json", url.Values{}, nil, nil)
 	if err != nil {
-		return &ce.CustomError{
-			Title:   "Unable to list images",
-			Message: err.Error(),
-			Code:    201,
-		}
+		return &ce.CustomError{Title: "Unable to list images", Message: err.Error()}
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		return &ce.CustomError{
-			Title:   "http request returned an error",
-			Message: "GET /images/json returned " + resp.Status,
-			Code:    201,
-		}
+		return &ce.CustomError{Title: "http request returned an error", Message: "GET /images/json returned " + resp.Status}
 	}
 
 	// Decode JSON only if we actually have content
 	var images []ImageSummary
 	if resp.StatusCode == http.StatusOK {
 		if err := json.NewDecoder(resp.Body).Decode(&images); err != nil {
-			return &ce.CustomError{
-				Title:   "Unable to decode JSON",
-				Message: err.Error(),
-				Code:    201,
-			}
+			return &ce.CustomError{Title: "Unable to decode JSON", Message: err.Error()}
 		}
 	}
 
@@ -59,7 +48,7 @@ func ImagesList(client *rest.Client) *ce.CustomError {
 		for _, tag := range img.RepoTags {
 			var iInfo ImageSummary
 
-			iInfo.RepoImgName, iInfo.ImgTag = splitURI(tag)
+			iInfo.RepoImgName, iInfo.ImgTag = extras.SplitURI(tag)
 			// Drop "sha256:" prefix for display
 			if len(img.ID) > 7 {
 				iInfo.ID = img.ID[7:]

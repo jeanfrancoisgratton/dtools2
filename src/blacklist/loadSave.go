@@ -26,7 +26,7 @@ func Load() (*ResourceBlacklist, *ce.CustomError) {
 			// No file yet: return an empty struct
 			return &ResourceBlacklist{}, nil
 		}
-		return nil, &ce.CustomError{Title: "cannot read blacklist file " + path, Message: err.Error(), Code: 101}
+		return nil, &ce.CustomError{Title: "cannot read blacklist file " + path, Message: err.Error()}
 	}
 
 	if len(bytes.TrimSpace(data)) == 0 {
@@ -35,7 +35,7 @@ func Load() (*ResourceBlacklist, *ce.CustomError) {
 
 	var rb ResourceBlacklist
 	if err := json.Unmarshal(data, &rb); err != nil {
-		return nil, &ce.CustomError{Title: "cannot parse blacklist JSON " + path, Message: err.Error(), Code: 101}
+		return nil, &ce.CustomError{Title: "cannot parse blacklist JSON " + path, Message: err.Error()}
 	}
 
 	return &rb, nil
@@ -47,12 +47,12 @@ func (rb *ResourceBlacklist) Save() *ce.CustomError {
 
 	data, err := json.MarshalIndent(rb, "", "  ")
 	if err != nil {
-		return &ce.CustomError{Title: "cannot marshal blacklist struct", Message: err.Error(), Code: 101}
+		return &ce.CustomError{Title: "cannot marshal blacklist struct", Message: err.Error()}
 	}
 
 	// 0600 so only the user can read/write
 	if err := os.WriteFile(path, data, 0o600); err != nil {
-		return &ce.CustomError{Title: "cannot write blacklist file " + path, Message: err.Error(), Code: 101}
+		return &ce.CustomError{Title: "cannot write blacklist file " + path, Message: err.Error()}
 	}
 
 	return nil

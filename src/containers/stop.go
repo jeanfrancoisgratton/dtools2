@@ -101,7 +101,6 @@ func stopContainersConcurrent(client *rest.Client, targets []ContainerSummary) *
 
 	var (
 		errMsgs []string
-		code    int = 201
 	)
 
 	for e := range errCh {
@@ -109,20 +108,13 @@ func stopContainersConcurrent(client *rest.Client, targets []ContainerSummary) *
 			continue
 		}
 		errMsgs = append(errMsgs, e.Title+": "+e.Message)
-		if e.Code != 0 {
-			code = e.Code
-		}
 	}
 
 	if len(errMsgs) == 0 {
 		return nil
 	}
 
-	return &ce.CustomError{
-		Title:   "Errors occurred while stopping containers concurrently",
-		Message: strings.Join(errMsgs, "; "),
-		Code:    code,
-	}
+	return &ce.CustomError{Title: "Errors occurred while stopping containers concurrently", Message: strings.Join(errMsgs, "; ")}
 }
 
 // stop performs the actual HTTP POST /containers/{id}/stop call.
@@ -191,5 +183,9 @@ func StopAll(client *rest.Client) *ce.CustomError {
 		containerList = append(containerList, c.Names[0][1:])
 	}
 
+	if len(containerList) == 0 {
+		fmt.Println(hftx.NoteSign("Not a single container is running, STOPALL is thus un-needed"))
+		return nil
+	}
 	return StopContainer(client, containerList)
 }
