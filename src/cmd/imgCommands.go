@@ -105,7 +105,7 @@ var imageRemoveCmd = &cobra.Command{
 	Example: "dtools2 remove [-B] [-f] image1",
 	Aliases: []string{"rmi", "del"},
 	Short:   "Remove image",
-	Args:    cobra.ExactArgs(2),
+	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
 			fmt.Println("REST client not initialized")

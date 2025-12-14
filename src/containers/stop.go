@@ -156,12 +156,12 @@ func stop(client *rest.Client, id string, containerName string, timeout int) *ce
 
 	resp, err := client.Do(rest.Context, http.MethodPost, path, q, nil, nil)
 	if err != nil {
-		return &ce.CustomError{Title: "Unable to stop/kill the container " + containerName, Message: err.Error(), Code: 201}
+		return &ce.CustomError{Title: "Unable to stop/kill the container " + containerName, Message: err.Error()}
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusOK {
-		return &ce.CustomError{Title: "http request returned an error", Message: "POST " + path + " returned " + resp.Status, Code: 201}
+		return &ce.CustomError{Title: "http request returned an error", Message: "POST " + path + " returned " + resp.Status}
 	}
 
 	if !rest.QuietOutput {

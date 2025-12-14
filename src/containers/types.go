@@ -10,8 +10,8 @@ var ExtendedContainerInfo bool
 var DisplaySizeValues bool = false
 var RemoveBlacklisted bool = false
 var RemoveUnamedVolumes = true
-var KillRunningContainers = false
 var KillSwitch = false
+var ForceRemoveContainer = false
 
 // StopTimeout controls stop behaviour:
 //

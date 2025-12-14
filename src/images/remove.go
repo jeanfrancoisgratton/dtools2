@@ -57,12 +57,12 @@ func remove(client *rest.Client, imagename string) *ce.CustomError {
 	path := "/images/" + imagename
 	resp, derr := client.Do(rest.Context, http.MethodDelete, path, url.Values{}, nil, nil)
 	if derr != nil {
-		return &ce.CustomError{Title: "Unable to post DELETE", Message: derr.Error(), Code: 201}
+		return &ce.CustomError{Title: "Unable to post DELETE", Message: derr.Error()}
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		return &ce.CustomError{Title: "DELETE request returned an error", Message: "http requested returned " + resp.Status, Code: 201}
+		return &ce.CustomError{Title: "DELETE request returned an error", Message: "http requested returned " + resp.Status}
 	}
 	if !rest.QuietOutput {
 		fmt.Println(hftx.InProgressSign("Image " + imagename + hftx.Red(" REMOVED")))

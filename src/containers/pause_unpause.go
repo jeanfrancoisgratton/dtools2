@@ -30,12 +30,12 @@ func PauseContainer(client *rest.Client, containers []string) *ce.CustomError {
 
 		resp, err := client.Do(rest.Context, http.MethodPost, path, q, nil, nil)
 		if err != nil {
-			return &ce.CustomError{Title: "Unable to POST request", Message: err.Error(), Code: 201}
+			return &ce.CustomError{Title: "Unable to POST request", Message: err.Error()}
 		}
 		defer resp.Body.Close()
 
 		if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusOK {
-			return &ce.CustomError{Title: "http request returned an error", Message: "POST" + path + " returned " + resp.Status, Code: 201}
+			return &ce.CustomError{Title: "http request returned an error", Message: "POST" + path + " returned " + resp.Status}
 		}
 		if !rest.QuietOutput {
 			fmt.Println(hftx.InProgressSign("Container " + container + hftx.Yellow(" PAUSED")))
@@ -58,12 +58,12 @@ func UnpauseContainer(client *rest.Client, containers []string) *ce.CustomError 
 
 		resp, err := client.Do(rest.Context, http.MethodPost, path, url.Values{}, nil, nil)
 		if err != nil {
-			return &ce.CustomError{Title: "Unable to POST request", Message: err.Error(), Code: 201}
+			return &ce.CustomError{Title: "Unable to POST request", Message: err.Error()}
 		}
 		defer resp.Body.Close()
 
 		if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusOK {
-			return &ce.CustomError{Title: "http request returned an error", Message: "POST" + path + " returned " + resp.Status, Code: 201}
+			return &ce.CustomError{Title: "http request returned an error", Message: "POST" + path + " returned " + resp.Status}
 		}
 		if !rest.QuietOutput {
 			fmt.Println(hftx.InProgressSign("Container " + container + hftx.Green(" UNPAUSED")))

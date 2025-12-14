@@ -39,9 +39,9 @@ func RemoveContainer(client *rest.Client, containerList []string) *ce.CustomErro
 			if RemoveBlacklisted {
 				if !rest.QuietOutput {
 					fmt.Println(hftx.InfoSign("Force removal flag is present, continuing"))
-					if err := remove(client, container, id); err != nil {
-						return err
-					}
+				}
+				if err := remove(client, container, id); err != nil {
+					return err
 				}
 			} else {
 				if !rest.QuietOutput {
@@ -61,21 +61,21 @@ func RemoveContainer(client *rest.Client, containerList []string) *ce.CustomErro
 func remove(client *rest.Client, name, id string) *ce.CustomError {
 	q := url.Values{}
 
-	q.Set("force", strconv.FormatBool(KillRunningContainers))
+	q.Set("force", strconv.FormatBool(ForceRemoveContainer))
 	q.Set("v", strconv.FormatBool(RemoveUnamedVolumes))
 
-	//if id, cerr = Name2ID(client, cname); cerr != nil {
-	//	return cerr
-	//}
 	path := "/containers/" + id
-	resp, derr := client.Do(rest.Context, http.MethodDelete, path, url.Values{}, nil, nil)
+	resp, derr := client.Do(rest.Context, http.MethodDelete, path, q, nil, nil)
 	if derr != nil {
-		return &ce.CustomError{Title: "Unable to post DELETE", Message: derr.Error(), Code: 201}
+		return &ce.CustomError{Title: "Unable to post DELETE", Message: derr.Error()}
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusConflict {
+		return &ce.CustomError{Title: "DELETE request returned http 409 (Conflict)", Message: "Container " + name + " might be running"}
+	}
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		return &ce.CustomError{Title: "DELETE request returned an error", Message: "http requested returned " + resp.Status, Code: 201}
+		return &ce.CustomError{Title: "DELETE request returned an error", Message: "http requested returned " + resp.Status}
 	}
 	if !rest.QuietOutput {
 		fmt.Println(hftx.InProgressSign("Container " + name + hftx.Red(" REMOVED")))

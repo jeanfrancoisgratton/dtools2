@@ -61,12 +61,12 @@ func start(client *rest.Client, id string, containerName string) *ce.CustomError
 
 	resp, err := client.Do(rest.Context, http.MethodPost, path, url.Values{}, nil, nil)
 	if err != nil {
-		return &ce.CustomError{Title: "Unable to start container " + containerName, Message: err.Error(), Code: 201}
+		return &ce.CustomError{Title: "Unable to start container " + containerName, Message: err.Error()}
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusOK {
-		return &ce.CustomError{Title: "http request returned an error", Message: "POST" + path + " returned " + resp.Status, Code: 201}
+		return &ce.CustomError{Title: "http request returned an error", Message: "POST" + path + " returned " + resp.Status}
 	}
 	if !rest.QuietOutput {
 		fmt.Println(hftx.InProgressSign("Container " + containerName + hftx.Green(" STARTED")))

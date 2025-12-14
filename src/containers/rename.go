@@ -29,16 +29,16 @@ func RenameContainer(client *rest.Client, oldname, newname string) *ce.CustomErr
 
 	resp, err := client.Do(rest.Context, http.MethodPost, path, q, nil, nil)
 	if err != nil {
-		return &ce.CustomError{Title: "Unable to POST request", Message: err.Error(), Code: 201}
+		return &ce.CustomError{Title: "Unable to POST request", Message: err.Error()}
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusConflict {
-		return &ce.CustomError{Title: "Unable to rename the container", Message: "Container already exists", Code: 201}
+		return &ce.CustomError{Title: "Unable to rename the container", Message: "Container already exists"}
 	}
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		return &ce.CustomError{Title: "POST request returned an error", Message: "http requested returned " + resp.Status, Code: 201}
+		return &ce.CustomError{Title: "POST request returned an error", Message: "http requested returned " + resp.Status}
 	}
 	if !rest.QuietOutput {
 		fmt.Println("Container " + hftx.Green(oldname) + " renamed to " + hftx.Green(newname))

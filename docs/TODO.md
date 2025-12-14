@@ -5,3 +5,4 @@
 - [ ] ~~fix default port for `-H` when no port is specified~~
 - [ ] add a handler for the default registry (re: upcoming `dockerrm` and `dockerclean` commands)
 - [ ] .... better quality control :p
+- [x] remove the `Code` member from all `ce.CustomError` structures

@@ -251,7 +251,7 @@ func init() {
 
 	containerStopCmd.Flags().IntVarP(&containers.StopTimeout, "timeout", "t", 10, "timeout (seconds) when stopping containers; 0 to stop all concurrently")
 	containerStopAllCmd.Flags().IntVarP(&containers.StopTimeout, "timeout", "t", 10, "timeout (seconds) when stopping containers; 0 to stop all concurrently")
-	containerRemoveCmd.Flags().BoolVarP(&containers.KillRunningContainers, "kill", "k", false, "remove container even if running")
+	containerRemoveCmd.Flags().BoolVarP(&containers.ForceRemoveContainer, "force", "f", false, "force removal of container")
 	containerRemoveCmd.Flags().BoolVarP(&containers.RemoveUnamedVolumes, "remove-vols", "r", true, "remove non-named volume")
 	containerRemoveCmd.Flags().BoolVarP(&containers.RemoveBlacklisted, "blacklist", "B", false, "remove container even if blacklisted")
 	containerListCmd.Flags().BoolVarP(&containers.OnlyRunningContainers, "running", "r", false, "List only the running containers")
