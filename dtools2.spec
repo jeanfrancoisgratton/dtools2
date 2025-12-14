@@ -63,6 +63,23 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Sun Dec 14 2025 Binary package builder <builder@famillegratton.net> 0.51.00-0
+- Version bump and completed/fixed containers and images (jean-
+  francois@famillegratton.net)
+- Removed forgotten Code var from customError (jean-
+  francois@famillegratton.net)
+- Fixed container rm -f, removed all exit codes from ce.CustomError (jean-
+  francois@famillegratton.net)
+- Completed killall/kill (jean-francois@famillegratton.net)
+- Interim commit (jean-francois@famillegratton.net)
+- Changed binary name from dtools2 to dtools (jean-francois@famillegratton.net)
+- fixed removal (jean-francois@famillegratton.net)
+- Fixed regression in the blacklist subpackage (jean-
+  francois@famillegratton.net)
+- Fixed image tag (jean-francois@famillegratton.net)
+- fixed container rename (jean-francois@famillegratton.net)
+- Version bump (jean-francois@famillegratton.net)
+
 * Wed Dec 10 2025 Binary package builder <builder@famillegratton.net> 0.40.00-0
 - Fixed ENV vars issue in APK build scripts (jean-francois@famillegratton.net)
 - Re-instated variable removed by mistake (jean-francois@famillegratton.net)
