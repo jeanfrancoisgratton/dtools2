@@ -101,15 +101,15 @@ func ImagesList(client *rest.Client) *ce.CustomError {
 	t.SortBy([]table.SortBy{
 		{Name: "Repository/image name", Mode: table.Asc},
 	})
-	t.SetStyle(table.StyleBold)
+	t.SetStyle(table.StyleColoredBlackOnBlueWhite)
 	t.Style().Format.Header = text.FormatDefault
 	t.SetRowPainter(func(row table.Row) text.Colors {
-		// row[8] is "# containers"
 		switch row[5] {
 		case 0:
-			return text.Colors{text.FgWhite}
+			return text.Colors{text.FgBlack, text.BgHiWhite}
 		default:
-			return text.Colors{text.FgHiGreen}
+			//return text.Colors{text.FgHiGreen}
+			return text.Colors{text.FgHiGreen, text.BgWhite}
 		}
 	})
 

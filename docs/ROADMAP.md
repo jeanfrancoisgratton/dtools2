@@ -16,10 +16,11 @@
 | [x] container rename                            | 0.40.00    | 0.50.00        |                                  |
 | [x] image rm                                    | 0.40.00    | 0.51.00        |                                  |
 | [x] image tag                                   | 0.40.00    | 0.50.00        |                                  |
-| [ ] network create / rm                         |            |                |                                  |
-| [ ] network attach / detach                     |            |                |                                  |
-| [ ] network / volume ls                         |            |                |                                  |
+| [ ] network create / rm                         | 0.60.00    |                |                                  |
+| [ ] network attach / detach                     | 0.60.00    |                |                                  |
+| [ ] network / volume ls                         | 0.60.00    |                |                                  |
 | [ ] volume create / rm                          | 0.20.00    |                |                                  |
+| [ ] volume ls                                   | 0.20.00    |                |                                  |
 | [ ] exec (shell)                                |            |                |                                  |
 | [ ] system info                                 |            |                |                                  |
 | [x] blacklist list [-a]                         | 0.20.00    | 0.30.00        | fixed regression in 0.50.00      |
