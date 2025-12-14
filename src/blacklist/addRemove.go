@@ -6,6 +6,8 @@
 package blacklist
 
 import (
+	"dtools2/extras"
+	"dtools2/rest"
 	"fmt"
 	"strings"
 
@@ -21,17 +23,16 @@ func (rb *ResourceBlacklist) Add(resourceType, name string) (bool, *ce.CustomErr
 
 	name = strings.TrimSpace(name)
 	if name == "" {
-		return false, &ce.CustomError{
-			Title: "resource name cannot be empty",
-			Code:  101,
-		}
+		return false, &ce.CustomError{Title: "resource name cannot be empty"}
 	}
-
+	if resourceType == "image" {
+		r, t := extras.SplitURI(name)
+		name = r + ":" + t
+	}
 	slice := *slicePtr
 
 	for _, existing := range slice {
 		if existing == name {
-			// already present: "update" is effectively a no-op
 			return false, nil
 		}
 	}
@@ -39,6 +40,9 @@ func (rb *ResourceBlacklist) Add(resourceType, name string) (bool, *ce.CustomErr
 	slice = append(slice, name)
 	*slicePtr = slice
 
+	if !rest.QuietOutput {
+		fmt.Println(hftx.NoteSign("Resource " + name + " now blacklisted from " + resourceType))
+	}
 	return true, nil
 }
 
@@ -62,6 +66,15 @@ func AddToFile(resourceType, name string) *ce.CustomError {
 	return rb.Save()
 }
 
+func AddResource(resourceType string, resourceName []string) *ce.CustomError {
+	for _, rsc := range resourceName {
+		if err := AddToFile(resourceType, rsc); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (rb *ResourceBlacklist) Remove(resourceType, name string) (bool, *ce.CustomError) {
 	slicePtr, err := getSlice(rb, resourceType)
 	if err != nil {
@@ -70,10 +83,12 @@ func (rb *ResourceBlacklist) Remove(resourceType, name string) (bool, *ce.Custom
 
 	name = strings.TrimSpace(name)
 	if name == "" {
-		return false, &ce.CustomError{
-			Title: "resource name cannot be empty",
-			Code:  101,
-		}
+		return false, &ce.CustomError{Title: "resource name cannot be empty"}
+	}
+
+	if resourceType == "image" {
+		r, t := extras.SplitURI(name)
+		name = r + ":" + t
 	}
 
 	slice := *slicePtr
@@ -92,6 +107,9 @@ func (rb *ResourceBlacklist) Remove(resourceType, name string) (bool, *ce.Custom
 		*slicePtr = out
 	}
 
+	if !rest.QuietOutput {
+		fmt.Println(hftx.NoteSign("Resource " + name + " removed from the " + resourceType + " list"))
+	}
 	return removed, nil
 }
 
@@ -115,15 +133,6 @@ func RemoveFromFile(resourceType, name string) (bool, *ce.CustomError) {
 	}
 
 	return removed, nil
-}
-
-func AddResource(resourceType string, resourceName []string) *ce.CustomError {
-	for _, rsc := range resourceName {
-		if err := AddToFile(resourceType, rsc); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func DeleteResource(resourceType string, resourceName []string) (bool, *ce.CustomError) {

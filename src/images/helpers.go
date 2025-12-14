@@ -57,30 +57,6 @@ func registryFromImageRef(ref string) string {
 	return ""
 }
 
-// splitURI takes a RepoTag entry (e.g. "registry:5000/repo/img:tag")
-// and returns (imageName, tag).
-// If no tag exists, tag = "latest".
-func splitURI(ref string) (string, string) {
-	// Find last colon. Tags are ALWAYS after the last colon,
-	// except cases like registry:5000 without a tag.
-	idx := strings.LastIndex(ref, ":")
-	if idx == -1 {
-		// No colon → no explicit tag
-		return ref, "latest"
-	}
-
-	// Check if this colon belongs to a registry port, not a tag.
-	// That happens if ":" appears before the last "/" in the path.
-	slash := strings.LastIndex(ref, "/")
-	if slash != -1 && idx < slash {
-		// Example: "registry:5000/repo/image" → no tag
-		return ref, "latest"
-	}
-
-	// Split into name and tag
-	return ref[:idx], ref[idx+1:]
-}
-
 func formatSize(sz int64) string {
 	numSize := (float64)(sz) / 1000.0 / 1000.0 // this will give us the size in MB
 	if (int)(math.Log10(float64(numSize))) > 2 {

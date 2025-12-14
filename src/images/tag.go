@@ -6,6 +6,7 @@
 package images
 
 import (
+	"dtools2/extras"
 	"dtools2/rest"
 	"fmt"
 	"net/http"
@@ -19,7 +20,7 @@ import (
 
 func TagImage(client *rest.Client, oldtag, newtag string) *ce.CustomError {
 
-	repo, tag := splitURI(newtag)
+	repo, tag := extras.SplitURI(newtag)
 
 	path := "/images/" + oldtag + "/tag"
 

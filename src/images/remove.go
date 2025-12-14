@@ -55,7 +55,7 @@ func remove(client *rest.Client, imagename string) *ce.CustomError {
 	q.Set("force", strconv.FormatBool(ForceRemove))
 
 	path := "/images/" + imagename
-	resp, derr := client.Do(rest.Context, http.MethodDelete, path, url.Values{}, nil, nil)
+	resp, derr := client.Do(rest.Context, http.MethodDelete, path, q, nil, nil)
 	if derr != nil {
 		return &ce.CustomError{Title: "Unable to post DELETE", Message: derr.Error()}
 	}

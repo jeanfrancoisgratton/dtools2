@@ -6,3 +6,4 @@
 - [ ] add a handler for the default registry (re: upcoming `dockerrm` and `dockerclean` commands)
 - [ ] .... better quality control :p
 - [x] remove the `Code` member from all `ce.CustomError` structures
+- [x] `blacklist add` and `blacklist rm` are now more verbose
