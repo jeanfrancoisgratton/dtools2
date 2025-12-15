@@ -16,8 +16,8 @@ import (
 // imgCmd groups image-related subcommands.
 var imgCmd = &cobra.Command{
 	Use:   "image",
-	Short: "Manage docker images",
-	Long:  "Manage docker images via the Docker/Podman API (pull, list, etc.).",
+	Short: "Manage docker/podman images",
+	Long:  "Manage docker/podman images via the Docker/Podman API (pull, list, etc.).",
 }
 
 // imagePullCmd implements `dtools2 images pull`, wiring through to images.ImagePull().

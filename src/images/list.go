@@ -35,7 +35,7 @@ func ImagesList(client *rest.Client) *ce.CustomError {
 
 	// Decode JSON only if we actually have content
 	var images []ImageSummary
-	if resp.StatusCode == http.StatusOK {
+	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusNoContent {
 		if err := json.NewDecoder(resp.Body).Decode(&images); err != nil {
 			return &ce.CustomError{Title: "Unable to decode JSON", Message: err.Error()}
 		}

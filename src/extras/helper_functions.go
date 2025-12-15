@@ -1,7 +1,7 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2025/12/14 14:37
-// Original filename: src/images/extras.go
+// Original filename: src/images/helper_functions.go
 
 package extras
 
