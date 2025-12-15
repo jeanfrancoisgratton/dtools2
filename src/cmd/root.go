@@ -4,6 +4,7 @@
 package cmd
 
 import (
+	"dtools2/extras"
 	"dtools2/rest"
 	"fmt"
 	"os"
@@ -15,7 +16,7 @@ var rootCmd = &cobra.Command{
 	Use:          "dtools2",
 	SilenceUsage: true,
 	Short:        "Docker / Podman client",
-	Version:      "0.51.00 (2025.12.14)",
+	Version:      "0.60.00 (2025.12.15)",
 	Long: `dtools2 is a lightweight Docker/Podman client that talks directly
 to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -47,8 +48,8 @@ to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 				return
 			}
 			client.SetAPIVersion(v)
-			if Debug {
-				fmt.Fprintf(os.Stderr, "Negotiated API version: %s\n", v)
+			if extras.Debug {
+				fmt.Fprintf(os.Stderr, "Negotiated API version: v%s\n", v)
 			}
 		}
 
@@ -71,7 +72,7 @@ func init() {
 	rootCmd.AddCommand(completionCmd)
 
 	// Global flags.
-	rootCmd.PersistentFlags().BoolVarP(&Debug, "debug", "D", false, "Enable debug output on stderr")
+	rootCmd.PersistentFlags().BoolVarP(&extras.Debug, "debug", "D", false, "Enable debug output on stderr")
 	rootCmd.PersistentFlags().BoolVarP(&rest.QuietOutput, "quiet", "q", false, "Quiet output")
 	rootCmd.PersistentFlags().StringVarP(&ConnectURI, "host", "H", "", "Docker daemon host (e.g. unix:///var/run/docker.sock, tcp://host:2376)")
 	rootCmd.PersistentFlags().StringVarP(&APIVersion, "api-version", "A", "", "Docker API version (e.g. 1.43); if empty, auto-negotiate with the daemon")

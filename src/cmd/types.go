@@ -9,7 +9,6 @@ import "dtools2/rest"
 
 // Global flags used for option parsing by COBRA
 
-var Debug bool
 var ConnectURI string
 var APIVersion string
 var UseTLS bool

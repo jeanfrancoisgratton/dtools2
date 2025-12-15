@@ -7,6 +7,7 @@ package cmd
 
 import (
 	"dtools2/auth"
+	"dtools2/extras"
 	"dtools2/rest"
 	"fmt"
 	"os"
@@ -36,7 +37,7 @@ registry's /v2/ endpoint and, on success, stored in the Docker config file.`,
 			}
 		}
 		if loginPassword == "" {
-			loginPassword = hf.GetPassword("Please enter the password: ", Debug)
+			loginPassword = hf.GetPassword("Please enter the password: ", extras.Debug)
 		}
 		// check again, to ensure that the call to GetPassword() did return something
 		if loginPassword == "" {

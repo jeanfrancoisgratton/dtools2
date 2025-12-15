@@ -6,12 +6,15 @@
 package networks
 
 import (
+	"dtools2/extras"
 	"dtools2/rest"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 )
 
 func ListNetworks(client *rest.Client) *ce.CustomError {
@@ -33,3 +36,14 @@ func ListNetworks(client *rest.Client) *ce.CustomError {
 			return &ce.CustomError{Title: "Unable to decode JSON", Message: err.Error()}
 		}
 	}
+	if len(networks) == 0 {
+		fmt.Println(hftx.WarningSign(" No network were found"))
+		return nil
+	}
+
+	if extras.Debug {
+		fmt.Println(hftx.ScrollSign(fmt.Sprintf("Found %v networks", len(networks))))
+		return nil
+	}
+	return nil
+}
