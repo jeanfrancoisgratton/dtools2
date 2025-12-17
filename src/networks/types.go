@@ -22,14 +22,15 @@ type NetworkSummary struct {
 	ID         string            `json:"Id"`
 	Created    string            `json:"Created"`
 	Scope      string            `json:"Scope"`
-	Driver     string            `json:"Driver"`
-	EnableIPv6 bool              `json:"EnableIPv6"`
-	Internal   bool              `json:"Internal"`
-	Attachable bool              `json:"Attachable"`
-	Ingress    bool              `json:"Ingress"`
-	IPAM       IPAMSummary       `json:"IPAM"`
-	Options    map[string]string `json:"Options"`
-	Labels     map[string]string `json:"Labels"`
+	Driver     string            `json:"Driver,omitempty"`
+	EnableIPv6 bool              `json:"EnableIPv6,omitempty"`
+	Internal   bool              `json:"Internal,omitempty"`
+	Attachable bool              `json:"Attachable,omitempty"`
+	Ingress    bool              `json:"Ingress,omitempty"`
+	IPAM       IPAMSummary       `json:"IPAM,omitempty"`
+	Options    map[string]string `json:"Options,omitempty"`
+	Labels     map[string]string `json:"Labels,omitempty"`
+	InUse      bool              `json:"InUse,omitempty"`
 }
 
 type NetworkCreateRequest struct {

@@ -6,44 +6,49 @@
 package networks
 
 import (
-	"dtools2/extras"
+	"dtools2/containers"
 	"dtools2/rest"
-	"encoding/json"
-	"fmt"
-	"net/http"
-	"net/url"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
-	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 )
 
+// NETWORK LIST
+// Steps are:
+// 		1. fetch the network list
+//		2. fetch the containers list, to see if a container actually uses the networks
+//		3. loop the network list
+//			a. loop the container list
+//			b. if the network appears in the container's info, we set the USED flag to true, no need to further process the loop
+
 func ListNetworks(client *rest.Client) *ce.CustomError {
-	// Create & execute the http request
-	resp, err := client.Do(rest.Context, http.MethodGet, "/networks", url.Values{}, nil, nil)
-	if err != nil {
-		return &ce.CustomError{Title: "Unable to list networks", Message: err.Error()}
-	}
-	defer resp.Body.Close()
+	var cerr *ce.CustomError
+	var ns []NetworkSummary
+	var cs []containers.ContainerSummary
+	//NetWorksAllFree := false
 
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		return &ce.CustomError{Title: "http request returned an error", Message: "GET /networks returned " + resp.Status}
+	// fetch the network list
+	if ns, cerr = fetchNetworkList(client); cerr != nil {
+		return cerr
 	}
 
-	// Decode JSON only if we actually have content
-	var networks []NetworkSummary
-	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusNoContent {
-		if err := json.NewDecoder(resp.Body).Decode(&networks); err != nil {
-			return &ce.CustomError{Title: "Unable to decode JSON", Message: err.Error()}
+	// fetch container info
+	containers.OnlyRunningContainers = false
+	if cs, cerr = containers.ListContainers(client, false); cerr != nil {
+		return cerr
+	}
+
+	for _, n := range ns {
+		for _, c := range cs {
+			if networkInUse(n.Name, c.Names[0][1:]) {
+				
+			}
 		}
 	}
-	if len(networks) == 0 {
-		fmt.Println(hftx.WarningSign(" No network were found"))
-		return nil
-	}
+	//// If no container is on the daemon, this means that no network is in use
+	//if len(cs) == 0 {
+	//	NetWorksAllFree = true
+	//}
+	//
 
-	if extras.Debug {
-		fmt.Println(hftx.ScrollSign(fmt.Sprintf("Found %v networks", len(networks))))
-		return nil
-	}
 	return nil
 }
