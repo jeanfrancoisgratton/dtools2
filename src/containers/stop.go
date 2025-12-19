@@ -19,7 +19,7 @@ import (
 	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 )
 
-// StopContainer stops one or many containers whose names are provided in the
+// StopContainers stops one or many containers whose names are provided in the
 // containers slice. Behaviour depends on the StopTimeout value:
 //
 //   - StopTimeout > 0: containers are stopped sequentially, and the timeout
@@ -27,7 +27,7 @@ import (
 //     parameter.
 //   - StopTimeout == 0: containers are stopped concurrently using goroutines,
 //     each with a sensible default timeout.
-func StopContainer(client *rest.Client, containers []string) *ce.CustomError {
+func StopContainers(client *rest.Client, containers []string) *ce.CustomError {
 	var (
 		cerr *ce.CustomError
 		cs   []ContainerSummary
@@ -163,9 +163,9 @@ func stop(client *rest.Client, id string, containerName string, timeout int) *ce
 	return nil
 }
 
-// StopAll builds a list of all containers present on the daemon and delegates
-// to StopContainer, so it benefits from the timeout and concurrency logic.
-func StopAll(client *rest.Client) *ce.CustomError {
+// StopAllContainers builds a list of all containers present on the daemon and delegates
+// to StopContainers, so it benefits from the timeout and concurrency logic.
+func StopAllContainers(client *rest.Client) *ce.CustomError {
 	var (
 		cerr *ce.CustomError
 		cs   []ContainerSummary
@@ -187,5 +187,5 @@ func StopAll(client *rest.Client) *ce.CustomError {
 		fmt.Println(hftx.NoteSign("Not a single container is running, STOPALL is thus un-needed"))
 		return nil
 	}
-	return StopContainer(client, containerList)
+	return StopContainers(client, containerList)
 }

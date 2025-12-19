@@ -19,7 +19,7 @@ import (
 
 // Starts one or many containers
 
-func StartContainer(client *rest.Client, containers []string) *ce.CustomError {
+func StartContainers(client *rest.Client, containers []string) *ce.CustomError {
 	var cerr *ce.CustomError
 	var cs []ContainerSummary
 	OnlyRunningContainers = false
@@ -76,7 +76,7 @@ func start(client *rest.Client, id string, containerName string) *ce.CustomError
 
 // Starts all non-running containers
 
-func StartAll(client *rest.Client) *ce.CustomError {
+func StartAllContainers(client *rest.Client) *ce.CustomError {
 	var cerr *ce.CustomError
 	var cs []ContainerSummary
 	var containerList []string
@@ -91,5 +91,5 @@ func StartAll(client *rest.Client) *ce.CustomError {
 		containerList = append(containerList, container.Names[0][1:])
 	}
 
-	return StartContainer(client, containerList)
+	return StartContainers(client, containerList)
 }
