@@ -242,9 +242,9 @@ var containerKillAllCmd = &cobra.Command{
 }
 
 var containerRestartCmd = &cobra.Command{
-	Use:     "kill",
-	Example: "dtools2 kill container1 container2 .. containerN",
-	Short:   "Kills one or many containers",
+	Use:     "restart",
+	Example: "dtools2 restart container1 container2 .. containerN",
+	Short:   "Restarts one or many containers",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -260,9 +260,9 @@ var containerRestartCmd = &cobra.Command{
 }
 
 var containerRestartAllCmd = &cobra.Command{
-	Use:     "killall",
-	Example: "dtools2 killall",
-	Short:   "Kills all running containers",
+	Use:     "restartall",
+	Example: "dtools2 restartall",
+	Short:   "Restarts all running containers",
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
 			fmt.Println("REST client not initialized")
