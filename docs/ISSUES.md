@@ -4,6 +4,7 @@
 - [x] container rename is not working
 - [x] container rm not working anymore ?!?!
 - [x] blacklist broken
-- [ ] blacklisted image should assume the latest tag when none is provided
+- [x] blacklisted image should assume the latest tag when none is provided
 - [ ] `rmi` is not honouring the -f flag on images with containers
 - [x] revisit `rm` for running containers
+- [ ] restart -k does not restart all containers
