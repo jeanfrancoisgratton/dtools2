@@ -126,7 +126,7 @@ var containerStartCmd = &cobra.Command{
 			return
 		}
 		rest.Context = cmd.Context()
-		if errCode := containers.StartContainer(restClient, args); errCode != nil {
+		if errCode := containers.StartContainers(restClient, args); errCode != nil {
 			fmt.Println(errCode)
 		}
 		return
@@ -143,7 +143,7 @@ var containerStartAllCmd = &cobra.Command{
 			return
 		}
 		rest.Context = cmd.Context()
-		if errCode := containers.StartAll(restClient); errCode != nil {
+		if errCode := containers.StartAllContainers(restClient); errCode != nil {
 			fmt.Println(errCode)
 		}
 		return
@@ -163,7 +163,7 @@ var containerStopCmd = &cobra.Command{
 			return
 		}
 		rest.Context = cmd.Context()
-		if errCode := containers.StopContainer(restClient, args); errCode != nil {
+		if errCode := containers.StopContainers(restClient, args); errCode != nil {
 			fmt.Println(errCode)
 		}
 		return
@@ -181,7 +181,7 @@ var containerStopAllCmd = &cobra.Command{
 			return
 		}
 		rest.Context = cmd.Context()
-		if errCode := containers.StopAll(restClient); errCode != nil {
+		if errCode := containers.StopAllContainers(restClient); errCode != nil {
 			fmt.Println(errCode)
 		}
 		return
@@ -241,14 +241,51 @@ var containerKillAllCmd = &cobra.Command{
 	},
 }
 
+var containerRestartCmd = &cobra.Command{
+	Use:     "kill",
+	Example: "dtools2 kill container1 container2 .. containerN",
+	Short:   "Kills one or many containers",
+	Args:    cobra.MinimumNArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+		rest.Context = cmd.Context()
+		if errCode := containers.RestartContainers(restClient, args); errCode != nil {
+			fmt.Println(errCode)
+		}
+		return
+	},
+}
+
+var containerRestartAllCmd = &cobra.Command{
+	Use:     "killall",
+	Example: "dtools2 killall",
+	Short:   "Kills all running containers",
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+		rest.Context = cmd.Context()
+		if errCode := containers.RestartAllContainers(restClient); errCode != nil {
+			fmt.Println(errCode)
+		}
+		return
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(containerCmd, containerListCmd, containerInfoCmd, containerRemoveCmd, containerPauseCmd,
 		containerUnpauseCmd, containerStartCmd, containerStartAllCmd, containerStopCmd, containerStopAllCmd,
-		containerRenameCmd, containerKillCmd, containerKillAllCmd)
+		containerRenameCmd, containerKillCmd, containerKillAllCmd, containerRestartCmd, containerRestartAllCmd)
 	containerCmd.AddCommand(containerListCmd, containerInfoCmd, containerRemoveCmd, containerPauseCmd,
 		containerUnpauseCmd, containerUnpauseCmd, containerStartCmd, containerStartAllCmd, containerStopCmd, containerStopAllCmd,
-		containerRenameCmd, containerKillCmd, containerKillAllCmd)
+		containerRenameCmd, containerKillCmd, containerKillAllCmd, containerRestartCmd, containerRestartAllCmd)
 
+	containerRestartCmd.Flags().BoolVarP(&containers.KillSwitch, "kill", "k", false, "force kill of container")
+	containerRestartAllCmd.Flags().BoolVarP(&containers.KillSwitch, "kill", "k", false, "force kill of container")
 	containerStopCmd.Flags().IntVarP(&containers.StopTimeout, "timeout", "t", 10, "timeout (seconds) when stopping containers; 0 to stop all concurrently")
 	containerStopAllCmd.Flags().IntVarP(&containers.StopTimeout, "timeout", "t", 10, "timeout (seconds) when stopping containers; 0 to stop all concurrently")
 	containerRemoveCmd.Flags().BoolVarP(&containers.ForceRemoveContainer, "force", "f", false, "force removal of container")
