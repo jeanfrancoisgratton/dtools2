@@ -6,51 +6,72 @@
 package networks
 
 import (
+	"dtools2/containers"
 	"dtools2/extras"
 	"dtools2/rest"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
-	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 )
 
-// This is where we actually fetch the network list
+// fetchNetworkList fetches the daemon's network summaries.
 func fetchNetworkList(client *rest.Client) ([]NetworkSummary, *ce.CustomError) {
-	// Create & execute the http request
 	resp, err := client.Do(rest.Context, http.MethodGet, "/networks", url.Values{}, nil, nil)
 	if err != nil {
 		return nil, &ce.CustomError{Title: "Unable to list networks", Message: err.Error()}
 	}
 	defer resp.Body.Close()
 
+	// Docker: 200 OK (JSON array). Some implementations may return 204 when empty.
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		return nil, &ce.CustomError{Title: "http request returned an error", Message: "GET /networks returned " + resp.Status}
-	}
-
-	// Decode JSON only if we actually have content
-	var networks []NetworkSummary
-	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusNoContent {
-		if err := json.NewDecoder(resp.Body).Decode(&networks); err != nil {
-			return nil, &ce.CustomError{Title: "Unable to decode JSON", Message: err.Error()}
+		return nil, &ce.CustomError{
+			Title:   "http request returned an error",
+			Message: "GET /networks returned " + resp.Status,
 		}
 	}
-	if len(networks) == 0 {
-		fmt.Println(hftx.WarningSign(" No network were found"))
-		return nil, nil
+
+	// 204 => empty list
+	if resp.StatusCode == http.StatusNoContent {
+		return []NetworkSummary{}, nil
+	}
+
+	var networks []NetworkSummary
+	if err := json.NewDecoder(resp.Body).Decode(&networks); err != nil {
+		return nil, &ce.CustomError{Title: "Unable to decode JSON", Message: err.Error()}
 	}
 
 	if extras.Debug {
-		fmt.Println(hftx.ScrollSign(fmt.Sprintf("Found %v networks", len(networks))))
-		return nil, nil
+		// Keep behavior non-destructive: debug should not short-circuit business logic.
+		// Callers decide what to print.
 	}
+
 	return networks, nil
 }
 
-// This is where we validate if a network is being used by a container
-// TODO : function signature needs refining
-func networkInUse(client *rest.Client, networkname NetworkSummary) (bool, *ce.CustomError) {
-	return true, nil
+// computeNetworkUsage builds two lookup sets (by network name and by network ID)
+// from the container summaries returned by GET /containers/json.
+//
+// This allows callers to mark networks as "in use" without doing N calls to
+// GET /networks/{id}.
+func computeNetworkUsage(cs []containers.ContainerSummary) (map[string]struct{}, map[string]struct{}) {
+	usedByName := make(map[string]struct{})
+	usedByID := make(map[string]struct{})
+
+	for _, c := range cs {
+		if c.NetworkSettings == nil || c.NetworkSettings.Networks == nil {
+			continue
+		}
+		for netName, ep := range c.NetworkSettings.Networks {
+			if netName != "" {
+				usedByName[netName] = struct{}{}
+			}
+			if ep.NetworkID != "" {
+				usedByID[ep.NetworkID] = struct{}{}
+			}
+		}
+	}
+
+	return usedByName, usedByID
 }

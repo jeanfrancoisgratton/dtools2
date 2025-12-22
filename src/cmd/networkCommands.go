@@ -15,15 +15,15 @@ import (
 
 var networkCmd = &cobra.Command{
 	Use:     "network",
-	Aliases: []string{"net"},
+	Aliases: []string{"net", "networks"},
 	Short:   "Manage docker/podman networks",
-	Long:    "Manage docker images via the Docker/Podman API (pull, list, etc.).",
+	Long:    "Manage docker networks via the Docker/Podman API (pull, list, etc.).",
 }
 
 var networkListCmd = &cobra.Command{
 	Use:     "list",
 	Aliases: []string{"lsn"},
-	Short:   "List images",
+	Short:   "List networks",
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
 			fmt.Println("REST client not initialized")
@@ -39,6 +39,6 @@ var networkListCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(imgCmd, networkCmd, networkListCmd)
+	rootCmd.AddCommand(networkCmd, networkListCmd)
 	networkCmd.AddCommand(networkListCmd)
 }
