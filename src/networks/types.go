@@ -5,6 +5,11 @@
 
 package networks
 
+var NetworkDriverName = "bridge"
+var NetworkInternalUse = false
+var NetworkAttachable = false
+var NetworkEnableIPv6 = false
+
 type IPAMConfig struct {
 	Subnet     string            `json:"Subnet,omitempty"`
 	IPRange    string            `json:"IPRange,omitempty"`
