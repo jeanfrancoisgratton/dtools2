@@ -39,7 +39,7 @@ func ListNetworks(client *rest.Client) *ce.CustomError {
 	}
 
 	// 3) Compute network usage from container summaries (O(nets + containers))
-	usedByName, usedByID := computeNetworkUsage(cs)
+	_, usedByName, usedByID := computeNetworkUsage(cs)
 	for i := range ns {
 		_, byName := usedByName[ns[i].Name]
 		_, byID := usedByID[ns[i].ID]

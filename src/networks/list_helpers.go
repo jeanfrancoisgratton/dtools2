@@ -55,7 +55,7 @@ func fetchNetworkList(client *rest.Client) ([]NetworkSummary, *ce.CustomError) {
 //
 // This allows callers to mark networks as "in use" without doing N calls to
 // GET /networks/{id}.
-func computeNetworkUsage(cs []containers.ContainerSummary) (map[string]struct{}, map[string]struct{}) {
+func computeNetworkUsage(cs []containers.ContainerSummary) (bool, map[string]struct{}, map[string]struct{}) {
 	usedByName := make(map[string]struct{})
 	usedByID := make(map[string]struct{})
 
@@ -73,5 +73,6 @@ func computeNetworkUsage(cs []containers.ContainerSummary) (map[string]struct{},
 		}
 	}
 
-	return usedByName, usedByID
+	networkIsUsed := len(usedByName) > 0 || len(usedByID) > 0
+	return networkIsUsed, usedByName, usedByID
 }
