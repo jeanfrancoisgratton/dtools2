@@ -13,6 +13,7 @@ import (
 	"os"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 )
@@ -52,7 +53,7 @@ func ListNetworks(client *rest.Client) *ce.CustomError {
 	// 4) Render output
 	tw := table.NewWriter()
 	tw.SetOutputMirror(os.Stdout)
-	tw.AppendHeader(table.Row{"Name", "Driver", "Scope", "In use", "Network ID"})
+	tw.AppendHeader(table.Row{"Name", "Driver", "Scope", "Used", "Network ID"})
 
 	if len(ns) == 0 {
 		tw.AppendRow(table.Row{"", "", "", "", ""})
@@ -63,9 +64,11 @@ func ListNetworks(client *rest.Client) *ce.CustomError {
 				displayID = displayID[:12]
 			}
 
-			inUse := "no"
+			//inUse := hftx.ThumbsDownSign("")
+			inUse := hftx.ErrorSign("")
 			if n.InUse {
-				inUse = "yes"
+				//inUse = hftx.ThumbsUpSign("")
+				inUse = hftx.EnabledSign("")
 			}
 
 			tw.AppendRow(table.Row{

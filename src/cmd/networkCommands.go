@@ -22,7 +22,7 @@ var networkCmd = &cobra.Command{
 
 var networkListCmd = &cobra.Command{
 	Use:     "list",
-	Aliases: []string{"lsn"},
+	Aliases: []string{"lsn", "ls"},
 	Short:   "List networks",
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -38,7 +38,24 @@ var networkListCmd = &cobra.Command{
 	},
 }
 
+var networkAddCmd = &cobra.Command{
+	Use:   "add",
+	Short: "Add network",
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+
+		rest.Context = cmd.Context()
+		if err := networks.AddNetwork(restClient, args[0]); err != nil {
+			fmt.Println(err)
+		}
+		return
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(networkCmd, networkListCmd)
-	networkCmd.AddCommand(networkListCmd)
+	networkCmd.AddCommand(networkListCmd, networkAddCmd)
 }
