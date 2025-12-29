@@ -1,7 +1,7 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2025/12/15 18:47
-// Original filename: src/networks/list_helpers.go
+// Original filename: src/networks/helpers.go
 
 package networks
 
@@ -10,6 +10,7 @@ import (
 	"dtools2/extras"
 	"dtools2/rest"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -75,4 +76,42 @@ func computeNetworkUsage(cs []containers.ContainerSummary) (bool, map[string]str
 
 	networkIsUsed := len(usedByName) > 0 || len(usedByID) > 0
 	return networkIsUsed, usedByName, usedByID
+}
+
+// Name2ID takes the human-readable network name and returns its docker/podman ID.
+func Name2ID(client *rest.Client, networkName string) (string, *ce.CustomError) {
+	ns, err := fetchNetworkList(client)
+	if err != nil {
+		return "", err
+	}
+	if len(ns) == 0 {
+		return "", &ce.CustomError{Fatality: ce.Warning, Message: "No networks found"}
+	}
+
+	for _, n := range ns {
+		if n.Name == networkName {
+			return n.ID, nil
+		}
+	}
+
+	return "", &ce.CustomError{Fatality: ce.Warning, Message: fmt.Sprintf("Network not found: %s", networkName)}
+}
+
+// ID2Name takes a network ID and returns its human-readable name.
+func ID2Name(client *rest.Client, networkID string) (string, *ce.CustomError) {
+	ns, err := fetchNetworkList(client)
+	if err != nil {
+		return "", err
+	}
+	if len(ns) == 0 {
+		return "", &ce.CustomError{Fatality: ce.Warning, Message: "No networks found"}
+	}
+
+	for _, n := range ns {
+		if n.ID == networkID {
+			return n.Name, nil
+		}
+	}
+
+	return "", &ce.CustomError{Fatality: ce.Warning, Message: fmt.Sprintf("Network not found: %s", networkID)}
 }

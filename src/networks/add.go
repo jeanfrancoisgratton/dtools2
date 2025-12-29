@@ -40,7 +40,7 @@ func AddNetwork(client *rest.Client, networkName string) *ce.CustomError {
 
 	payload, jerr := json.Marshal(ncr)
 	if jerr != nil {
-		return &ce.CustomError{Title: "Unable to create the network", Message: jerr.Error()}
+		return &ce.CustomError{Title: "Unable to marshal the JSON payload", Message: jerr.Error()}
 	}
 
 	headers := http.Header{}

@@ -9,6 +9,8 @@ var NetworkDriverName = "bridge"
 var NetworkInternalUse = false
 var NetworkAttachable = false
 var NetworkEnableIPv6 = false
+var RemoveEvenIfBlackListed = false
+var ForceNetworkDetach = false
 
 type IPAMConfig struct {
 	Subnet     string            `json:"Subnet,omitempty"`
@@ -54,4 +56,23 @@ type NetworkCreateRequest struct {
 type NetworkCreateResponse struct {
 	Id      string `json:"Id"`
 	Warning string `json:"Warning,omitempty"`
+}
+
+type NetworkConnectRequest struct {
+	Container      string            `json:"Container"`
+	EndpointConfig *EndpointSettings `json:"EndpointConfig,omitempty"`
+}
+
+type NetworkDisconnectRequest struct {
+	Container string `json:"Container"`
+	Force     bool   `json:"Force,omitempty"`
+}
+
+type EndpointSettings struct {
+	IPAMConfig *IPAMConfig `json:"IPAMConfig,omitempty"`
+	Links      []string    `json:"Links,omitempty"`
+	Aliases    []string    `json:"Aliases,omitempty"`
+	// Keep the rest optional; Docker may return more fields than you send.
+	MacAddress string            `json:"MacAddress,omitempty"`
+	DriverOpts map[string]string `json:"DriverOpts,omitempty"`
 }

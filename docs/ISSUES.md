@@ -5,6 +5,7 @@
 - [x] container rm not working anymore ?!?!
 - [x] blacklist broken
 - [x] blacklisted image should assume the latest tag when none is provided
-- [ ] `rmi` is not honouring the -f flag on images with containers
+- [x] `rmi` is not honouring the -f flag on images with containers
 - [x] revisit `rm` for running containers
-- [ ] restart -k does not restart all containers
+- [ ] restart -k does not restart all containers <-- _not reproduced yet_
+- [ ] blacklist rm image not removing image from JSON if the `latest` tag is assumed
