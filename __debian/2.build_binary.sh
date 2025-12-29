@@ -4,9 +4,9 @@ PKGDIR="dtools2-0.60.00-0_amd64"
 
 mkdir -p ${PKGDIR}/opt/bin ${PKGDIR}/DEBIAN
 mkdir -p ${PKGDIR}/opt/bin ${PKGDIR}/DEBIAN
-for i in control preinst prerm postinst postrm;do
-  mv $i ${PKGDIR}/DEBIAN/
-done
+#for i in control preinst prerm postinst postrm;do
+  mv control ${PKGDIR}/DEBIAN/
+#done
 
 echo "Building binary from source"
 cd ../src
