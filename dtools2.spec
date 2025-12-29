@@ -63,6 +63,28 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Mon Dec 29 2025 Binary package builder <builder@famillegratton.net> 0.60.00-0
+- Completed the network subcommand (jean-francois@famillegratton.net)
+- Added network add (jean-francois@famillegratton.net)
+- Fixed conditional in computeNetworkUse to add a simple true/false value for
+  simpler spot checks (jean-francois@famillegratton.net)
+- Prettified net ls (jean-francois@famillegratton.net)
+- net ls completed (jean-francois@famillegratton.net)
+- added restart / restartall, with issue on restartall -k (jean-
+  francois@famillegratton.net)
+- added a forgotten subcommand, restart (jean-francois@famillegratton.net)
+- version bump (jean-francois@famillegratton.net)
+- Automatic commit of package [dtools2] release [0.51.00-0].
+  (builder@famillegratton.net)
+- interim sync (jean-francois@famillegratton.net)
+- Moved the Debug variable in another package to avoid circular imports (jean-
+  francois@famillegratton.net)
+- Removed un-needed DEB build files (jean-francois@famillegratton.net)
+- Network subcommand stub (jean-francois@famillegratton.net)
+- Various minor fixes (jean-francois@famillegratton.net)
+- version bump (jean-francois@famillegratton.net)
+- Coloured output for image ls (jean-francois@famillegratton.net)
+
 * Sun Dec 14 2025 Binary package builder <builder@famillegratton.net> 0.51.00-0
 - Version bump and completed/fixed containers and images (jean-
   francois@famillegratton.net)
