@@ -63,6 +63,20 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Wed Dec 31 2025 Binary package builder <builder@famillegratton.net> 0.70.00-0
+- Completed sys catalog and sys tags (jean-francois@famillegratton.net)
+- Fixed behaviour of sys tags and sys catalog, needs fixing output now (jean-
+  francois@famillegratton.net)
+- completed sys catalog (jean-francois@famillegratton.net)
+- Completed get catalog and get tags (jean-francois@famillegratton.net)
+- interim sync as refactoring is getting messy (jean-
+  francois@famillegratton.net)
+- Fixed gitignore (jean-francois@famillegratton.net)
+- added temp gitignore (jean-francois@famillegratton.net)
+- Completed the registry subcommands (jean-francois@famillegratton.net)
+- Version bump (jean-francois@famillegratton.net)
+- Updated packaging scripts (builder@famillegratton.net)
+
 * Mon Dec 29 2025 Binary package builder <builder@famillegratton.net> 0.60.00-0
 - Completed the network subcommand (jean-francois@famillegratton.net)
 - Added network add (jean-francois@famillegratton.net)
