@@ -21,7 +21,7 @@ import (
 
 // GetTags : fetches all tags of a given image
 
-func GetTags(image string) *ce.CustomError {
+func GetTags(repo string) *ce.CustomError {
 	var dreg string
 	var clt *registry.Client
 	var err *ce.CustomError
@@ -38,7 +38,7 @@ func GetTags(image string) *ce.CustomError {
 	if clt, err = registry.NewClient(dreg); err != nil {
 		return err
 	}
-	if returnedBytes, err = clt.CatalogJSON(context.Background(), nil); err != nil {
+	if returnedBytes, err = clt.TagsJSON(context.Background(), repo, nil); err != nil {
 		return err
 	}
 
@@ -48,7 +48,7 @@ func GetTags(image string) *ce.CustomError {
 	}
 	if JSONoutputfile != "" {
 		if !rest.QuietOutput {
-			hftx.EnabledSign("Output sent to " + JSONoutputfile)
+			fmt.Println(hftx.EnabledSign("Output sent to " + JSONoutputfile))
 		}
 		jStream, jerr := json.MarshalIndent(payload, "", "  ")
 		if jerr != nil {

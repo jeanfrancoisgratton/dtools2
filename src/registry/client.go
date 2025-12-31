@@ -9,7 +9,6 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -119,10 +118,10 @@ func (c *Client) CatalogJSON(ctx context.Context, q url.Values) ([]byte, *ce.Cus
 	return c.getJSON(ctx, "/v2/_catalog", q)
 }
 
-func (c *Client) TagsJSON(ctx context.Context, repo string, q url.Values) ([]byte, error) {
+func (c *Client) TagsJSON(ctx context.Context, repo string, q url.Values) ([]byte, *ce.CustomError) {
 	repo = strings.TrimLeft(repo, "/")
 	if repo == "" {
-		return nil, errors.New("repo name is empty")
+		return nil, &ce.CustomError{Title: "Unable to fetch repository tags", Message: "repo name is empty"}
 	}
 	return c.getJSON(ctx, "/v2/"+repo+"/tags/list", q)
 }

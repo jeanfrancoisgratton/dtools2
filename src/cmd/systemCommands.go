@@ -29,10 +29,6 @@ var sysGetCatalogCmd = &cobra.Command{
 		if env.RegConfigFile == "" {
 			env.RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools2", "defaultRegistry.json")
 		}
-		if env.RegConfigFile == "" {
-			fmt.Println("No registry config file specified (see the -r flag), or file is missing")
-			return
-		}
 
 		if err := system.GetCatalog(); err != nil {
 			fmt.Println(err)
