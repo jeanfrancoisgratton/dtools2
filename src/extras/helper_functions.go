@@ -5,7 +5,12 @@
 
 package extras
 
-import "strings"
+import (
+	"dtools2/registry"
+	"strings"
+
+	ce "github.com/jeanfrancoisgratton/customError/v3"
+)
 
 // SplitURI takes a RepoTag entry (e.g. "registry:5000/repo/img:tag")
 // and returns (imageName, tag).
@@ -29,4 +34,17 @@ func SplitURI(ref string) (string, string) {
 
 	// Split into name and tag
 	return ref[:idx], ref[idx+1:]
+}
+
+// GetDefaultRegistry : fetches the default registry from the JSON file
+// An error here should not be fatal
+
+func GetDefaultRegistry(regfile string) (string, *ce.CustomError) {
+	var err *ce.CustomError
+	var dre *registry.RegistryEntry
+	
+	if dre, err = registry.Load(regfile); err != nil {
+		return "", err
+	}
+	return dre.RegistryName, nil
 }

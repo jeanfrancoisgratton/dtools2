@@ -41,7 +41,7 @@ func buildTLSConfig(cfg Config) (*tls.Config, error) {
 		}
 		tlsConfig.RootCAs = pool
 	} else {
-		// Use system roots if available.
+		// Use extras roots if available.
 		sysPool, _ := x509.SystemCertPool()
 		tlsConfig.RootCAs = sysPool
 	}

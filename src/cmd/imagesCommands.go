@@ -1,7 +1,7 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2025/11/18 22:01
-// Original filename: src/cmd/imgCommands.go
+// Original filename: src/cmd/imagesCommands.go
 
 package cmd
 

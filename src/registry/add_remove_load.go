@@ -1,7 +1,7 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2025/12/29 02:26
-// Original filename: src/registry/add_remove.go
+// Original filename: src/registry/add_remove_load.go
 
 package registry
 

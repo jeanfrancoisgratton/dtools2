@@ -30,5 +30,7 @@
 | [x] container kill / killall                    | 0.50.00    |                |                                    | 
 | [ ] `dockerrm.sh`                               | 0.70.00    |                | porting my bash script to dtools   |
 | [ ] `dockerclean.sh`                            | 0.70.00    |                | porting my bash script to dtools   |
+| [ ] `dockergettag.sh`                           | 0.70.00    |                | porting my bash script to dtools   |
+| [ ] `dockergetcatalog.sh`                       | 0.70.00    |                | porting my bash script to dtools   |
 | [ ] rebranding `dtools2`<br>as `dtools 2.00.00` | 2.00.00    |                |                                    |
 | [ ] default registry handling (registry subcmd) | 0.70.00    |                |                                    |
