@@ -6,18 +6,40 @@
 package registry
 
 import (
-	"os"
-	"path/filepath"
+	"net/http"
+	"net/url"
+	"sync"
+	"time"
 )
 
-var RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "dtools2", "defaultRegistry.json")
-var RegEntryComment = ""
-var RegEntryUsername = ""
-var RegEntryPassword = ""
+type tokenResponse struct {
+	Token       string `json:"token"`
+	AccessToken string `json:"access_token"`
+	ExpiresIn   int64  `json:"expires_in"`
+	IssuedAt    string `json:"issued_at"`
+}
 
-type RegistryEntry struct {
-	RegistryName  string `json:"RegistryName,omitempty"`
-	Comments      string `json:"Comments,omitempty"`
-	Username      string `json:"Username,omitempty"`
-	EncodedPasswd string `json:"EncodedPasswd,omitempty"`
+type Client struct {
+	baseURL    *url.URL
+	httpClient *http.Client
+
+	creds CredentialsProvider
+
+	mu         sync.Mutex
+	tokenCache map[string]cachedToken // key => token
+}
+
+type cachedToken struct {
+	token  string
+	expiry time.Time
+}
+
+type Option func(*Client) error
+
+type CredentialsProvider func(registryHost string) (username, password string, ok bool)
+
+type bearerChallenge struct {
+	Realm   string
+	Service string
+	Scope   string
 }

@@ -3,7 +3,7 @@
 // Original timestamp: 2025/12/29 02:26
 // Original filename: src/registry/add_remove_load.go
 
-package registry
+package env
 
 import (
 	"encoding/json"

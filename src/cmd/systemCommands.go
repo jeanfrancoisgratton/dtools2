@@ -6,8 +6,7 @@
 package cmd
 
 import (
-	"dtools2/registry"
-	"dtools2/rest"
+	"dtools2/env"
 	"dtools2/system"
 	"fmt"
 
@@ -22,20 +21,28 @@ var sysCmd = &cobra.Command{
 }
 
 var sysGetCatalogCmd = &cobra.Command{
-	Use:   "getcatalog",
+	Use:   "catalog",
 	Short: "fetches the registry's full catalog, in JSON format",
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if env.RegConfigFile == "" {
+			fmt.Println("No registry config file specified (see the -r flag), or file is missing")
 			return
 		}
-		drf := ""
-		if len(args) == 0 {
-			drf = registry.RegConfigFile
-		}
 
-		rest.Context = cmd.Context()
-		if err := system.GetCatalog(restClient, drf); err != nil {
+		if err := system.GetCatalog(); err != nil {
+			fmt.Println(err)
+		}
+		return
+	},
+}
+
+var sysGetTagsCmd = &cobra.Command{
+	Use:   "tags IMAGE_NAME",
+	Short: "fetches all of the tags for a given image",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+
+		if err := system.GetTags(args[0]); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -44,7 +51,8 @@ var sysGetCatalogCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(sysCmd)
-	sysCmd.AddCommand(sysGetCatalogCmd)
+	sysCmd.AddCommand(sysGetCatalogCmd, sysGetTagsCmd)
 
-	sysCmd.Flags().StringVarP(&registry.RegConfigFile, "registryfile", "r", "", "registry config file")
+	sysCmd.Flags().StringVarP(&env.RegConfigFile, "registryfile", "r", "", "registry config file")
+	sysCmd.Flags().StringVarP(&system.JSONoutputfile, "output", "o", "", "send output to file")
 }

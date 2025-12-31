@@ -6,7 +6,7 @@
 package extras
 
 import (
-	"dtools2/registry"
+	"dtools2/env"
 	"strings"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
@@ -41,9 +41,9 @@ func SplitURI(ref string) (string, string) {
 
 func GetDefaultRegistry(regfile string) (string, *ce.CustomError) {
 	var err *ce.CustomError
-	var dre *registry.RegistryEntry
-	
-	if dre, err = registry.Load(regfile); err != nil {
+	var dre *env.RegistryEntry
+
+	if dre, err = env.Load(regfile); err != nil {
 		return "", err
 	}
 	return dre.RegistryName, nil
