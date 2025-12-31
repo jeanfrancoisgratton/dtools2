@@ -20,17 +20,17 @@
 | [x] network create / rm                         | 0.60.00    | same           |                                    |
 | [x] network attach / detach                     | 0.60.00    | same           |                                    |
 | [x] network / volume ls                         | 0.60.00    | same           |                                    |
-| [ ] volume prune / rm                           | 0.70.00    |                |                                    |
-| [ ] volume ls / create                          | 0.70.00    |                |                                    |
+| [ ] volume prune / rm                           | 0.80.00    |                |                                    |
+| [ ] volume ls / create                          | 0.80.00    |                |                                    |
 | [ ] exec (shell)                                |            |                |                                    |
 | [ ] system info                                 |            |                |                                    |
 | [x] blacklist list [-a]                         | 0.20.00    | 0.30.00        | fixed regression in 0.50.00        |
 | [x] blacklist rm                                | 0.20.00    | 0.30.00        | fixed regression in 0.50.00        |
 | [x] blacklist add                               | 0.20.00    | 0.30.00        | fixed regression in 0.50.00        |
 | [x] container kill / killall                    | 0.50.00    |                |                                    | 
-| [ ] `dockerrm.sh`                               | 0.70.00    |                | porting my bash script to dtools   |
-| [ ] `dockerclean.sh`                            | 0.70.00    |                | porting my bash script to dtools   |
-| [ ] `dockergettag.sh`                           | 0.70.00    |                | porting my bash script to dtools   |
-| [ ] `dockergetcatalog.sh`                       | 0.70.00    |                | porting my bash script to dtools   |
+| [ ] `dockerrm.sh`                               | 0.90.00    |                | porting my bash script to dtools   |
+| [ ] `dockerclean.sh`                            | 0.90.00    |                | porting my bash script to dtools   |
+| [x] `dockergettag.sh`                           | 0.70.00    | same           | porting my bash script to dtools   |
+| [x] `dockergetcatalog.sh`                       | 0.70.00    | same           | porting my bash script to dtools   |
 | [ ] rebranding `dtools2`<br>as `dtools 2.00.00` | 2.00.00    |                |                                    |
-| [ ] default registry handling (registry subcmd) | 0.70.00    |                |                                    |
+| [x] default registry handling (registry subcmd) | 0.70.00    | same           |                                    |

@@ -3,7 +3,7 @@
 - [x] proper error handling in blacklist
 - [x] move COBRA commands from RunE to Run
 - [ ] ~~fix default port for `-H` when no port is specified~~
-- [ ] add a handler for the default registry (re: upcoming `dockerrm` and `dockerclean` commands)
+- [x] add a handler for the default registry (re: upcoming `dockerrm` and `dockerclean` commands)
 - [ ] .... better quality control :p
 - [x] remove the `Code` member from all `ce.CustomError` structures
 - [x] `blacklist add` and `blacklist rm` are now more verbose

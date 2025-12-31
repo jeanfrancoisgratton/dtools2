@@ -19,10 +19,8 @@ github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/jeanfrancoisgratton/customError/v3 v3.0.0 h1:cZp3oioIPuqq+uvMdjgkURoGkFmJp7M8Pdvl/oK7BVo=
 github.com/jeanfrancoisgratton/customError/v3 v3.0.0/go.mod h1:4DojV/C2wDStlOEnWtuNrvLBwkyZ9wGstdq3U+gCJP8=
-github.com/jeanfrancoisgratton/helperFunctions/v4 v4.0.0 h1:5KZr6bkANIX9KHjnLxnl8OpUUL/C/GGyfJaMtbiGwEQ=
-github.com/jeanfrancoisgratton/helperFunctions/v4 v4.0.0/go.mod h1:i/iFSWBwlzSQ7306tnaAx+HWpxyCvQgwagAIox1cFLs=
-github.com/jedib0t/go-pretty/v6 v6.7.7 h1:Y1Id3lJ3k4UB8uwWWy3l8EVFnUlx5chR5+VbsofPNX0=
-github.com/jedib0t/go-pretty/v6 v6.7.7/go.mod h1:YwC5CE4fJ1HFUDeivSV1r//AmANFHyqczZk+U6BDALU=
+github.com/jeanfrancoisgratton/helperFunctions/v4 v4.1.1 h1:ZQBsX9/Dgh8XwW3Lr6ASd3pXdaswL6v+dOR/0qXqN5w=
+github.com/jeanfrancoisgratton/helperFunctions/v4 v4.1.1/go.mod h1:LjqeZ2da6OrmHrF/6QrhTQ1V3W0Q2DhUXPKhEdTPybY=
 github.com/jedib0t/go-pretty/v6 v6.7.8 h1:BVYrDy5DPBA3Qn9ICT+PokP9cvCv1KaHv2i+Hc8sr5o=
 github.com/jedib0t/go-pretty/v6 v6.7.8/go.mod h1:YwC5CE4fJ1HFUDeivSV1r//AmANFHyqczZk+U6BDALU=
 github.com/jwalton/gchalk v1.3.0 h1:uTfAaNexN8r0I9bioRTksuT8VGjrPs9YIXR1PQbtX/Q=

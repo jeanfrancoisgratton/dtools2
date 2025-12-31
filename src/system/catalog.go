@@ -16,6 +16,7 @@ import (
 	"os"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
+	hfjson "github.com/jeanfrancoisgratton/helperFunctions/v4/prettyjson"
 	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 )
 
@@ -59,6 +60,6 @@ func GetCatalog() *ce.CustomError {
 		}
 		return nil
 	}
-	fmt.Printf("%s\n", payload)
+	hfjson.Print(returnedBytes)
 	return nil
 }
