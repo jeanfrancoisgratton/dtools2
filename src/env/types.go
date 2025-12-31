@@ -5,15 +5,10 @@
 
 package env
 
-import (
-	"os"
-	"path/filepath"
-)
-
-var RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "dtools2", "defaultRegistry.json")
-var RegEntryComment = ""
-var RegEntryUsername = ""
-var RegEntryPassword = ""
+var RegConfigFile string
+var RegEntryComment string
+var RegEntryUsername string
+var RegEntryPassword string
 
 type RegistryEntry struct {
 	RegistryName  string `json:"RegistryName,omitempty"`

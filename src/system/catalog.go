@@ -48,7 +48,7 @@ func GetCatalog() *ce.CustomError {
 	}
 	if JSONoutputfile != "" {
 		if !rest.QuietOutput {
-			hftx.EnabledSign("Output sent to " + JSONoutputfile)
+			fmt.Println(hftx.EnabledSign("Output sent to " + JSONoutputfile))
 		}
 		jStream, jerr := json.MarshalIndent(payload, "", "  ")
 		if jerr != nil {

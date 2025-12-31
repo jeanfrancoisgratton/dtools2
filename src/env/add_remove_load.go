@@ -18,6 +18,9 @@ import (
 // RemoveReg : a simple matter of removing a file, and then create a new one with
 // an empty JSON struct
 func (re RegistryEntry) RemoveReg() *ce.CustomError {
+	//if RegConfigFile == "" {
+	//	RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools2", "defaultRegistry.json")
+	//}
 	err := os.Remove(RegConfigFile)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
@@ -31,6 +34,9 @@ func (re RegistryEntry) RemoveReg() *ce.CustomError {
 
 // AddReg : Create a new JSON file, overwriting the previous one
 func (re RegistryEntry) AddReg() *ce.CustomError {
+	//if RegConfigFile == "" {
+	//	RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools2", "defaultRegistry.json")
+	//}
 	payload, jerr := json.MarshalIndent(re, "", "  ")
 	if jerr != nil {
 		return &ce.CustomError{Title: "Unable to marshal the JSON payload", Message: jerr.Error()}

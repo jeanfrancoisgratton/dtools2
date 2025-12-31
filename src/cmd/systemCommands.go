@@ -9,6 +9,8 @@ import (
 	"dtools2/env"
 	"dtools2/system"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
@@ -24,6 +26,9 @@ var sysGetCatalogCmd = &cobra.Command{
 	Use:   "catalog",
 	Short: "fetches the registry's full catalog, in JSON format",
 	Run: func(cmd *cobra.Command, args []string) {
+		if env.RegConfigFile == "" {
+			env.RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools2", "defaultRegistry.json")
+		}
 		if env.RegConfigFile == "" {
 			fmt.Println("No registry config file specified (see the -r flag), or file is missing")
 			return
@@ -41,7 +46,9 @@ var sysGetTagsCmd = &cobra.Command{
 	Short: "fetches all of the tags for a given image",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-
+		if env.RegConfigFile == "" {
+			env.RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools2", "defaultRegistry.json")
+		}
 		if err := system.GetTags(args[0]); err != nil {
 			fmt.Println(err)
 		}
@@ -53,6 +60,9 @@ func init() {
 	rootCmd.AddCommand(sysCmd)
 	sysCmd.AddCommand(sysGetCatalogCmd, sysGetTagsCmd)
 
-	sysCmd.Flags().StringVarP(&env.RegConfigFile, "registryfile", "r", "", "registry config file")
-	sysCmd.Flags().StringVarP(&system.JSONoutputfile, "output", "o", "", "send output to file")
+	sysGetCatalogCmd.Flags().StringVarP(&env.RegConfigFile, "registryfile", "r", "", "registry config file")
+	sysGetCatalogCmd.Flags().StringVarP(&system.JSONoutputfile, "output", "o", "", "send output to file")
+	sysGetTagsCmd.Flags().StringVarP(&env.RegConfigFile, "registryfile", "r", "", "registry config file")
+	sysGetTagsCmd.Flags().StringVarP(&system.JSONoutputfile, "output", "o", "", "send output to file")
+
 }
