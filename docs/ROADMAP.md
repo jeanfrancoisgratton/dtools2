@@ -28,6 +28,7 @@
 | [x] blacklist rm                                | 0.20.00    | 0.30.00        | fixed regression in 0.50.00        |
 | [x] blacklist add                               | 0.20.00    | 0.30.00        | fixed regression in 0.50.00        |
 | [x] container kill / killall                    | 0.50.00    |                |                                    | 
-| [ ] `dockerrm.sh`                               |            |                | porting my bash script to dtools   |
-| [ ] `dockerclean.sh`                            |            |                | porting my bash script to dtools   |
+| [ ] `dockerrm.sh`                               | 0.70.00    |                | porting my bash script to dtools   |
+| [ ] `dockerclean.sh`                            | 0.70.00    |                | porting my bash script to dtools   |
 | [ ] rebranding `dtools2`<br>as `dtools 2.00.00` | 2.00.00    |                |                                    |
+| [ ] default registry handling (registry subcmd) | 0.70.00    |                |                                    |

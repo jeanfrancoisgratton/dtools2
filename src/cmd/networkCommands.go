@@ -62,7 +62,7 @@ var networkAddCmd = &cobra.Command{
 
 var networkRmCmd = &cobra.Command{
 	Use:     "rm",
-	Aliases: []string{"remove", "del"},
+	Aliases: []string{"remove", "rmn"},
 	Short:   "Remove a network",
 	Example: "dtools net rm NETWORK_NAME1 [NETWORK_NAME2..NETWORK_NAMEn]",
 	Args:    cobra.MinimumNArgs(1),
@@ -125,7 +125,7 @@ var networkDetachCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(networkCmd, networkListCmd)
+	rootCmd.AddCommand(networkCmd, networkListCmd, networkRmCmd)
 	networkCmd.AddCommand(networkListCmd, networkAddCmd, networkRmCmd, networkAttachCmd, networkDetachCmd)
 
 	networkDetachCmd.Flags().BoolVarP(&networks.ForceNetworkDetach, "force", "f", false, "force-detach the network from the container")

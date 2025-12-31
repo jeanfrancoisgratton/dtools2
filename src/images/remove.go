@@ -1,7 +1,7 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2025/12/11 13:01
-// Original filename: src/images/remove.go
+// Original filename: src/images/add_remove.go
 
 package images
 

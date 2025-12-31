@@ -38,7 +38,7 @@ func AddNetwork(client *rest.Client, networkName string) *ce.CustomError {
 		EnableIPv6:     NetworkEnableIPv6,
 	}
 
-	payload, jerr := json.Marshal(ncr)
+	payload, jerr := json.MarshalIndent(ncr, "", "  ")
 	if jerr != nil {
 		return &ce.CustomError{Title: "Unable to marshal the JSON payload", Message: jerr.Error()}
 	}

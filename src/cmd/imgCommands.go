@@ -103,7 +103,7 @@ var imageTagCmd = &cobra.Command{
 var imageRemoveCmd = &cobra.Command{
 	Use:     "remove image1 [image2 ...] [flags]",
 	Example: "dtools2 remove [-B] [-f] image1",
-	Aliases: []string{"rmi", "del"},
+	Aliases: []string{"rmi"},
 	Short:   "Remove image",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {

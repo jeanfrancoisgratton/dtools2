@@ -1,7 +1,7 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2025/12/02 18:45
-// Original filename: src/containers/remove.go
+// Original filename: src/containers/add_remove.go
 
 package containers
 
