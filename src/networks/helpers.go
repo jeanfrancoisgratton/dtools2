@@ -7,7 +7,6 @@ package networks
 
 import (
 	"dtools2/containers"
-	"dtools2/extras"
 	"dtools2/rest"
 	"encoding/json"
 	"fmt"
@@ -41,11 +40,6 @@ func fetchNetworkList(client *rest.Client) ([]NetworkSummary, *ce.CustomError) {
 	var networks []NetworkSummary
 	if err := json.NewDecoder(resp.Body).Decode(&networks); err != nil {
 		return nil, &ce.CustomError{Title: "Unable to decode JSON", Message: err.Error()}
-	}
-
-	if extras.Debug {
-		// Keep behavior non-destructive: debug should not short-circuit business logic.
-		// Callers decide what to print.
 	}
 
 	return networks, nil
