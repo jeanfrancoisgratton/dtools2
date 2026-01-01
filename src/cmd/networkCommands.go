@@ -17,7 +17,7 @@ var networkCmd = &cobra.Command{
 	Use:     "network",
 	Aliases: []string{"net", "networks"},
 	Short:   "Manage docker/podman networks",
-	Long:    "Manage docker networks via the Docker/Podman API (pull, list, etc.).",
+	Long:    "Manage docker networks via the Docker/Podman API.",
 }
 
 var networkListCmd = &cobra.Command{
