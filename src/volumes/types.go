@@ -5,6 +5,9 @@
 
 package volumes
 
+var RemoveEvenIfBlackListed = false
+var ForceRemoval = false
+
 type VolumeListResponse struct {
 	Volumes  []Volume `json:"Volumes"`
 	Warnings []string `json:"Warnings"`

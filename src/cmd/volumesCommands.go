@@ -38,10 +38,34 @@ var volumeListCmd = &cobra.Command{
 	},
 }
 
-func init() {
-	rootCmd.AddCommand(volumeCmd, volumeListCmd)
-	volumeCmd.AddCommand(volumeListCmd)
+var volumeRmCmd = &cobra.Command{
+	Use:     "rm",
+	Aliases: []string{"rmv", "remove"},
+	Example: "docker volume rm [flags] VOLUME1 [VOLUME2..VOLUMEn]",
+	Short:   "Remove volumes",
+	Long: `Remove docker volumes via the Docker/Podman API.
+		Blacklisted volumes will not be removed, unless the -B flag is passed.`,
+	Args: cobra.MinimumNArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
 
+		rest.Context = cmd.Context()
+		if err := volumes.RemoveVolumes(restClient, args); err != nil {
+			fmt.Println(err)
+		}
+		return
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(volumeCmd, volumeListCmd, volumeRmCmd)
+	volumeCmd.AddCommand(volumeListCmd, volumeRmCmd)
+
+	volumeRmCmd.Flags().BoolVarP(&volumes.RemoveEvenIfBlackListed, "blacklist", "B", false, "remove volume even if blacklisted")
+	volumeRmCmd.Flags().BoolVarP(&volumes.ForceRemoval, "force", "f", false, "force-remove volume")
 	//networkDetachCmd.Flags().BoolVarP(&networks.ForceNetworkDetach, "force", "f", false, "force-detach the network from the container")
 	//networkAddCmd.Flags().StringVarP(&networks.NetworkDriverName, "driver", "d", "bridge", "network driver network")
 	//networkAddCmd.Flags().BoolVarP(&networks.NetworkEnableIPv6, "ipv6", "6", false, "enable IPv6 on the network")

@@ -75,7 +75,7 @@ func remove(client *rest.Client, name, id string) *ce.CustomError {
 		return &ce.CustomError{Title: "DELETE request returned http 409 (Conflict)", Message: "Container " + name + " might be running"}
 	}
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		return &ce.CustomError{Title: "DELETE request returned an error", Message: "http requested returned " + resp.Status}
+		return &ce.CustomError{Title: "DELETE request returned an error", Message: "http request returned " + resp.Status}
 	}
 	if !rest.QuietOutput {
 		fmt.Println(hftx.InProgressSign("Container " + name + hftx.Red(" REMOVED")))

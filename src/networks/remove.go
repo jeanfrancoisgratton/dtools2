@@ -25,7 +25,7 @@ func RemoveNetwork(client *rest.Client, netList []string) *ce.CustomError {
 			if RemoveEvenIfBlackListed {
 				if !rest.QuietOutput {
 					fmt.Println(hftx.InfoSign("Force removal flag is present, continuing"))
-					if err := removeNetwork(client, net); err != nil {
+					if err := removeNet(client, net); err != nil {
 						return err
 					}
 				}
@@ -35,7 +35,7 @@ func RemoveNetwork(client *rest.Client, netList []string) *ce.CustomError {
 				}
 			}
 		} else {
-			if err := removeNetwork(client, net); err != nil {
+			if err := removeNet(client, net); err != nil {
 				return err
 			}
 		}
@@ -43,7 +43,7 @@ func RemoveNetwork(client *rest.Client, netList []string) *ce.CustomError {
 	return nil
 }
 
-func removeNetwork(client *rest.Client, networkName string) *ce.CustomError {
+func removeNet(client *rest.Client, networkName string) *ce.CustomError {
 	var id string
 	var err *ce.CustomError
 
