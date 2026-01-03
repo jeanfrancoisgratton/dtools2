@@ -15,15 +15,14 @@ import (
 
 var volumeCmd = &cobra.Command{
 	Use:     "volume",
-	Aliases: []string{"vol", "volumes"},
+	Aliases: []string{"vol"},
 	Short:   "Manage docker/podman volumes",
 	Long:    "Manage docker volumes via the Docker/Podman API.",
 }
 
 var volumeListCmd = &cobra.Command{
-	Use:     "list",
-	Aliases: []string{"lsv", "ls"},
-	Short:   "List volumes",
+	Use:   "lsv",
+	Short: "List volumes",
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
 			fmt.Println("REST client not initialized")
@@ -31,7 +30,7 @@ var volumeListCmd = &cobra.Command{
 		}
 
 		rest.Context = cmd.Context()
-		if err := volumes.ListVolumes(restClient); err != nil {
+		if _, err := volumes.ListVolumes(restClient, true); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -39,10 +38,9 @@ var volumeListCmd = &cobra.Command{
 }
 
 var volumeRmCmd = &cobra.Command{
-	Use:     "rm",
-	Aliases: []string{"rmv", "remove"},
-	Example: "docker volume rm [flags] VOLUME1 [VOLUME2..VOLUMEn]",
-	Short:   "Remove volumes",
+	Use:     "rmv",
+	Example: "docker volume rmv [flags] volume_name1 [volume_name2..volume_nameN]",
+	Short:   "Remove one or many volumes",
 	Long: `Remove docker volumes via the Docker/Podman API.
 		Blacklisted volumes will not be removed, unless the -B flag is passed.`,
 	Args: cobra.MinimumNArgs(1),
@@ -60,10 +58,32 @@ var volumeRmCmd = &cobra.Command{
 	},
 }
 
+var volumePruneCmd = &cobra.Command{
+	Use:     "prune",
+	Example: "docker volume prune [flags]",
+	Short:   "Prune volumes",
+	Long: `Prune volumes via the Docker/Podman API.
+		Blacklisted volumes will not be removed, unless the -B flag is passed.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+
+		rest.Context = cmd.Context()
+		if err := volumes.PruneVolumes(restClient); err != nil {
+			fmt.Println(err)
+		}
+		return
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(volumeCmd, volumeListCmd, volumeRmCmd)
-	volumeCmd.AddCommand(volumeListCmd, volumeRmCmd)
+	volumeCmd.AddCommand(volumeListCmd, volumeRmCmd, volumePruneCmd)
 
+	volumePruneCmd.Flags().BoolVarP(&volumes.RemoveEvenIfBlackListed, "blacklist", "B", false, "remove volume even if blacklisted")
+	volumePruneCmd.Flags().BoolVarP(&volumes.RemoveNamedVolumes, "all", "a", false, "remove anonymous AND non-anonymous volumes")
 	volumeRmCmd.Flags().BoolVarP(&volumes.RemoveEvenIfBlackListed, "blacklist", "B", false, "remove volume even if blacklisted")
 	volumeRmCmd.Flags().BoolVarP(&volumes.ForceRemoval, "force", "f", false, "force-remove volume")
 	//networkDetachCmd.Flags().BoolVarP(&networks.ForceNetworkDetach, "force", "f", false, "force-detach the network from the container")

@@ -65,9 +65,8 @@ var imagePushCmd = &cobra.Command{
 }
 
 var imageListCmd = &cobra.Command{
-	Use:     "list",
-	Aliases: []string{"lsi"},
-	Short:   "List images",
+	Use:   "lsi",
+	Short: "List images",
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
 			fmt.Println("REST client not initialized")
@@ -101,9 +100,8 @@ var imageTagCmd = &cobra.Command{
 }
 
 var imageRemoveCmd = &cobra.Command{
-	Use:     "remove image1 [image2 ...] [flags]",
-	Example: "dtools2 remove [-B] [-f] image1",
-	Aliases: []string{"rmi"},
+	Use:     "rmi IMAGE_NAME",
+	Example: "dtools2 rmi [-B] [-f] image_name1 [image_name2..image_nameN]",
 	Short:   "Remove image",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {

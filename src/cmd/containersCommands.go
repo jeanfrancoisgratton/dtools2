@@ -21,9 +21,8 @@ var containerCmd = &cobra.Command{
 }
 
 var containerListCmd = &cobra.Command{
-	Use:     "ls [flags]",
-	Aliases: []string{"lsc"},
-	Example: "dtools2 containers ls [-r|-a]]",
+	Use:     "lsc [flags]",
+	Example: "dtools2 containers lsc [-r|-a]]",
 	Short:   "Lists the containers",
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -41,9 +40,8 @@ var containerListCmd = &cobra.Command{
 
 var containerInfoCmd = &cobra.Command{
 	Use:     "info",
-	Aliases: []string{"lsc"},
-	Example: "dtools2 container ls [-r|-x]]",
-	Short:   "Lists the containers",
+	Example: "dtools2 container info CONTAINER_NAME",
+	Short:   "Shows extended info on a container",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -60,10 +58,9 @@ var containerInfoCmd = &cobra.Command{
 }
 
 var containerRemoveCmd = &cobra.Command{
-	Use:     "rm [flags]",
-	Aliases: []string{"remove", "del", "delete"},
-	Example: "dtools2 container rm [-f] [-k] [-r] container1 container2 .. containerN",
-	Short:   "Removes one or many containers",
+	Use:     "rmc [flags]",
+	Example: "dtools2 container rmc [-f] [-k] [-r]  container1 [container2..containerN]",
+	Short:   "Remove one or many containers",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -80,8 +77,8 @@ var containerRemoveCmd = &cobra.Command{
 
 var containerPauseCmd = &cobra.Command{
 	Use:     "pause",
-	Example: "dtools2 pause container1 container2 .. containerN",
-	Short:   "Pauses one or many containers",
+	Example: "dtools2 pause  container1 [container2..containerN]",
+	Short:   "Pause one or many containers",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -98,8 +95,8 @@ var containerPauseCmd = &cobra.Command{
 
 var containerUnpauseCmd = &cobra.Command{
 	Use:     "unpause",
-	Example: "dtools2 unpause container1 container2 .. containerN",
-	Short:   "Unpauses one or many containers",
+	Example: "dtools2 unpause  container1 [container2..containerN]",
+	Short:   "Unpause one or many containers",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -117,8 +114,8 @@ var containerUnpauseCmd = &cobra.Command{
 var containerStartCmd = &cobra.Command{
 	Use:     "start",
 	Aliases: []string{"up"},
-	Example: "dtools2 start container1 container2 .. containerN",
-	Short:   "Starts one or many containers",
+	Example: "dtools2 start  container1 [container2..containerN]",
+	Short:   "Start one or many containers",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -136,7 +133,7 @@ var containerStartCmd = &cobra.Command{
 var containerStartAllCmd = &cobra.Command{
 	Use:     "startall",
 	Example: "dtools2 startall",
-	Short:   "Starts all non-running containers",
+	Short:   "Start all non-running containers",
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
 			fmt.Println("REST client not initialized")
@@ -153,8 +150,8 @@ var containerStartAllCmd = &cobra.Command{
 var containerStopCmd = &cobra.Command{
 	Use:     "stop",
 	Aliases: []string{"down"},
-	Example: "dtools2 stop container1 container2 .. containerN",
-	Short:   "Stops one or many containers",
+	Example: "dtools2 stop  container1 [container2..containerN]",
+	Short:   "Stop one or many containers",
 	Long:    "Using a timeout of 0 (-t 0) will stop them concurrently, but conclusion is still dependent on the containers gracefully shut down",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -173,7 +170,7 @@ var containerStopCmd = &cobra.Command{
 var containerStopAllCmd = &cobra.Command{
 	Use:     "stopall",
 	Example: "dtools2 stopall",
-	Short:   "Stops all running containers",
+	Short:   "Stop all running containers",
 	Long:    "Using a timeout of 0 (-t 0) will stop them concurrently, but conclusion is still dependent on the containers gracefully shut down",
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -208,8 +205,8 @@ var containerRenameCmd = &cobra.Command{
 
 var containerKillCmd = &cobra.Command{
 	Use:     "kill",
-	Example: "dtools2 kill container1 container2 .. containerN",
-	Short:   "Kills one or many containers",
+	Example: "dtools2 kill  container1 [container2..containerN]",
+	Short:   "Kill one or many containers",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -227,7 +224,7 @@ var containerKillCmd = &cobra.Command{
 var containerKillAllCmd = &cobra.Command{
 	Use:     "killall",
 	Example: "dtools2 killall",
-	Short:   "Kills all running containers",
+	Short:   "Kill all running containers",
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
 			fmt.Println("REST client not initialized")
@@ -243,8 +240,8 @@ var containerKillAllCmd = &cobra.Command{
 
 var containerRestartCmd = &cobra.Command{
 	Use:     "restart",
-	Example: "dtools2 restart container1 container2 .. containerN",
-	Short:   "Restarts one or many containers",
+	Example: "dtools2 restart container1 [container2..containerN]",
+	Short:   "Restart one or many containers",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
