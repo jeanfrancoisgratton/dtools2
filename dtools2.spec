@@ -63,6 +63,14 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Sat Jan 03 2026 Binary package builder <builder@famillegratton.net> 0.80.00-0
+- Completed volume prune (jean-francois@famillegratton.net)
+- made ls/rm subcomments more consistent across the board (jean-
+  francois@famillegratton.net)
+- Completed volume rm (jean-francois@famillegratton.net)
+- Completed volume ls (jean-francois@famillegratton.net)
+- version bump (jean-francois@famillegratton.net)
+
 * Wed Dec 31 2025 Binary package builder <builder@famillegratton.net> 0.70.00-0
 - Completed sys catalog and sys tags (jean-francois@famillegratton.net)
 - Fixed behaviour of sys tags and sys catalog, needs fixing output now (jean-
