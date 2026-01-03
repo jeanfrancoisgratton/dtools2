@@ -37,11 +37,11 @@ func formatCreated(created string) string {
 	return tm.Format("2006.01.02 15:04:05")
 }
 
-func ListVolumes(client *rest.Client) *ce.CustomError {
+func ListVolumes(client *rest.Client, displayOutput bool) ([]Volume, *ce.CustomError) {
 	// 1) Fetch volumes
 	vols, verr := fetchVolumeList(client)
 	if verr != nil {
-		return verr
+		return nil, verr
 	}
 
 	// 2) Fetch containers (include stopped; they still reference volumes)
@@ -50,13 +50,23 @@ func ListVolumes(client *rest.Client) *ce.CustomError {
 	cs, cerr := containers.ListContainers(client, false)
 	containers.OnlyRunningContainers = oldOnlyRunning
 	if cerr != nil {
-		return &ce.CustomError{Title: cerr.Title, Message: cerr.Message}
+		return nil, &ce.CustomError{Title: cerr.Title, Message: cerr.Message}
 	}
 
 	// 3) Build volume -> containers lookup (O(vols + containers))
 	usedBy := computeVolumeUsage(cs)
 
-	// 4) Render output
+	// 4) add extra fields to the Volume struct; those 2 fields are not part of the official REST API structure
+	for _, v := range vols {
+		users := usedBy[v.Name]
+		v.UsedByStr = strings.Join(users, "\n")
+		v.RefCount = len(users)
+	}
+
+	// 5) Render output if displayOutput is set
+	if !displayOutput {
+		return vols, nil
+	}
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
 	t.AppendHeader(table.Row{"Name", "Driver", "Scope", "Created", "RefCount", "Used by"})
@@ -65,18 +75,7 @@ func ListVolumes(client *rest.Client) *ce.CustomError {
 		t.AppendRow(table.Row{"", "", "", "", "", ""})
 	} else {
 		for _, v := range vols {
-			users := usedBy[v.Name]
-			refCount := len(users) // computed from container mounts, not API UsageData
-			usedByStr := strings.Join(users, "\n")
-
-			t.AppendRow(table.Row{
-				v.Name,
-				v.Driver,
-				v.Scope,
-				formatCreated(v.CreatedAt),
-				refCount,
-				usedByStr,
-			})
+			t.AppendRow(table.Row{v.Name, v.Driver, v.Scope, formatCreated(v.CreatedAt), v.RefCount, v.UsedByStr})
 		}
 	}
 
@@ -95,5 +94,5 @@ func ListVolumes(client *rest.Client) *ce.CustomError {
 
 	t.Render()
 	fmt.Println()
-	return nil
+	return vols, nil
 }
