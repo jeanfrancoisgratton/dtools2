@@ -15,15 +15,14 @@ import (
 
 var networkCmd = &cobra.Command{
 	Use:     "network",
-	Aliases: []string{"net", "networks"},
+	Aliases: []string{"net"},
 	Short:   "Manage docker/podman networks",
 	Long:    "Manage docker networks via the Docker/Podman API.",
 }
 
 var networkListCmd = &cobra.Command{
-	Use:     "list",
-	Aliases: []string{"lsn", "ls"},
-	Short:   "List networks",
+	Use:   "lsn",
+	Short: "List networks",
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
 			fmt.Println("REST client not initialized")
@@ -61,10 +60,9 @@ var networkAddCmd = &cobra.Command{
 }
 
 var networkRmCmd = &cobra.Command{
-	Use:     "rm",
-	Aliases: []string{"remove", "rmn"},
-	Short:   "Remove a network",
-	Example: "dtools net rm NETWORK_NAME1 [NETWORK_NAME2..NETWORK_NAMEn]",
+	Use:     "rmn",
+	Short:   "Remove one or many networks",
+	Example: "dtools net rmn network_name1 [network_name2..network_nameN]",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -82,7 +80,7 @@ var networkRmCmd = &cobra.Command{
 
 var networkAttachCmd = &cobra.Command{
 	Use:     "connect",
-	Aliases: []string{"attach", "att"},
+	Aliases: []string{"attach", "att", "con"},
 	Short:   "Connect (attach) a network to a container",
 	Example: "dtools net connect NETWORK_NAME CONTAINER_NAME",
 	Args:    cobra.ExactArgs(2),
@@ -104,7 +102,7 @@ var networkAttachCmd = &cobra.Command{
 
 var networkDetachCmd = &cobra.Command{
 	Use:     "disconnect",
-	Aliases: []string{"detach", "det"},
+	Aliases: []string{"detach", "det", "disc"},
 	Short:   "Disconnect (detach) a network from a container",
 	Example: "dtools net disconnect NETWORK_NAME CONTAINER_NAME",
 	Args:    cobra.ExactArgs(2),

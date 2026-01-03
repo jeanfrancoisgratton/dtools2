@@ -5,6 +5,10 @@
 
 package volumes
 
+var RemoveEvenIfBlackListed = false
+var ForceRemoval = false
+var RemoveNamedVolumes = false
+
 type VolumeListResponse struct {
 	Volumes  []Volume `json:"Volumes"`
 	Warnings []string `json:"Warnings"`
@@ -27,6 +31,8 @@ type Volume struct {
 	Scope      string            `json:"Scope"`
 	Options    map[string]string `json:"Options"`
 	UsageData  *VolumeUsageData  `json:"UsageData,omitempty"`
+	RefCount   int               `json:"RefCount,omitempty"`  // internal use, not part of the REST API
+	UsedByStr  string            `json:"UserByStr,omitempty"` // internal use, not part of the REST API
 }
 
 type VolumeUsageData struct {

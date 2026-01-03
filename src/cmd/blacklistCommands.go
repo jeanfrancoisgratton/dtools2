@@ -27,8 +27,8 @@ var blCmd = &cobra.Command{
 }
 
 var blListCmd = &cobra.Command{
-	Use:     "ls [flags]",
-	Example: "dtools2 blacklist ls [{ -a | { volume | network | container | image } }]",
+	Use:     "lsb [flags]",
+	Example: "dtools2 blacklist lsb [{ -a | { volume | network | container | image } }]",
 	Short:   "Lists the black listed resources",
 	Run: func(cmd *cobra.Command, args []string) {
 		var err *ce.CustomError
@@ -57,9 +57,9 @@ var blListCmd = &cobra.Command{
 }
 
 var blAddCmd = &cobra.Command{
-	Use:     "add resource_name resource1..resourceN",
-	Example: "dtools2 blacklist add resource_name resource...",
-	Short:   "Add one or more resource to resource_name",
+	Use:     "add RESOURCE_TYPE RESOURCE_NAME",
+	Example: "dtools2 blacklist add resource_type resource_name1 [resource_name2..resource_nameN]",
+	Short:   "Add one or more resource_name to resource_type",
 	Args:    cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := blacklist.AddResource(args[0], args[1:]); err != nil {
@@ -70,10 +70,9 @@ var blAddCmd = &cobra.Command{
 }
 
 var blRemoveCmd = &cobra.Command{
-	Use:     "remove resource_name resource1..resourceN",
-	Aliases: []string{"rm", "del"},
-	Example: "dtools2 blacklist rm resource_name resource...",
-	Short:   "Add one or more resource to resource_name",
+	Use:     "rmb RESOURCE_TYPE RESOURCE_NAME",
+	Example: "dtools2 blacklist rmb resource_type resource_name1 [resource_name2..resource_nameN]",
+	Short:   "Remove one or more resource from resource_type",
 	Args:    cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if _, err := blacklist.DeleteResource(args[0], args[1:]); err != nil {
