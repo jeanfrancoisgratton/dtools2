@@ -90,7 +90,7 @@ var volumeCreateCmd = &cobra.Command{
 		}
 
 		rest.Context = cmd.Context()
-		if err := volumes.CreateVolumes(restClient, args[0]); err != nil {
+		if err := volumes.CreateVolume(restClient, args[0]); err != nil {
 			fmt.Println(err)
 		}
 		return
