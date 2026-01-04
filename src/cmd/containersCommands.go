@@ -22,7 +22,7 @@ var containerCmd = &cobra.Command{
 
 var containerListCmd = &cobra.Command{
 	Use:     "lsc [flags]",
-	Example: "dtools2 containers lsc [-r|-a]]",
+	Example: "dtools containers lsc [-r|-a]]",
 	Short:   "Lists the containers",
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -40,7 +40,7 @@ var containerListCmd = &cobra.Command{
 
 var containerInfoCmd = &cobra.Command{
 	Use:     "info",
-	Example: "dtools2 container info CONTAINER_NAME",
+	Example: "dtools container info CONTAINER_NAME",
 	Short:   "Shows extended info on a container",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -59,7 +59,7 @@ var containerInfoCmd = &cobra.Command{
 
 var containerRemoveCmd = &cobra.Command{
 	Use:     "rmc [flags]",
-	Example: "dtools2 container rmc [-f] [-k] [-r]  container1 [container2..containerN]",
+	Example: "dtools container rmc [-f] [-k] [-r]  container1 [container2..containerN]",
 	Short:   "Remove one or many containers",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -77,7 +77,7 @@ var containerRemoveCmd = &cobra.Command{
 
 var containerPauseCmd = &cobra.Command{
 	Use:     "pause",
-	Example: "dtools2 pause  container1 [container2..containerN]",
+	Example: "dtools pause container1 [container2..containerN]",
 	Short:   "Pause one or many containers",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -95,7 +95,7 @@ var containerPauseCmd = &cobra.Command{
 
 var containerUnpauseCmd = &cobra.Command{
 	Use:     "unpause",
-	Example: "dtools2 unpause  container1 [container2..containerN]",
+	Example: "dtools unpause container1 [container2..containerN]",
 	Short:   "Unpause one or many containers",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {

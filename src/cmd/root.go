@@ -13,10 +13,10 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:          "dtools2",
+	Use:          "dtools",
 	SilenceUsage: true,
 	Short:        "Docker / Podman client",
-	Version:      "0.90.00 (2026.01.03)",
+	Version:      "2.00.00 (2026.01.03)",
 	Long: `dtools2 is a lightweight Docker/Podman client that talks directly
 to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -52,7 +52,6 @@ to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 				fmt.Fprintf(os.Stderr, "Negotiated API version: v%s\n", v)
 			}
 		}
-
 		restClient = client
 		return
 	},
@@ -61,7 +60,7 @@ to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 var execCmd = &cobra.Command{
 	Use:     "exec [flags] CONTAINER COMMAND [ARG...]",
 	Short:   "Run a command in a running container",
-	Example: "dtools2 exec -it mycontainer /bin/sh",
+	Example: "dtools exec -it mycontainer /bin/sh",
 	Args:    cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -86,7 +85,7 @@ var logsCmd = &cobra.Command{
 	Use:     "logs [flags] CONTAINER",
 	Aliases: []string{"log"},
 	Short:   "Fetch the logs of a container",
-	Example: "dtools2 logs -t -n 200 -f mycontainer",
+	Example: "dtools logs -t -n 200 -f mycontainer",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -105,7 +104,7 @@ var logsCmd = &cobra.Command{
 var runCmd = &cobra.Command{
 	Use:     "run [flags] IMAGE [COMMAND] [ARG...]",
 	Short:   "Run a command in a new container",
-	Example: "dtools2 run -it --rm alpine:latest /bin/sh",
+	Example: "dtools run -it --rm alpine:latest /bin/sh",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -132,7 +131,6 @@ var runCmd = &cobra.Command{
 			}
 			return
 		}
-
 		return
 	},
 }

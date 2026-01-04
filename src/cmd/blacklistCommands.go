@@ -20,7 +20,7 @@ import (
 var blCmd = &cobra.Command{
 	Use:     "blacklist",
 	Aliases: []string{"bl"},
-	Example: "dtools2 blacklist {list | add | rm}",
+	Example: "dtools blacklist {list | add | rm}",
 	Short:   "Resource blacklist management",
 	Long: "A resource blacklist is a way to protect from removal a specific resource, " +
 		"such as volume, network, container or image.",
@@ -28,7 +28,7 @@ var blCmd = &cobra.Command{
 
 var blListCmd = &cobra.Command{
 	Use:     "lsb [flags]",
-	Example: "dtools2 blacklist lsb [{ -a | { volume | network | container | image } }]",
+	Example: "dtools blacklist lsb [{ -a | { volume | network | container | image } }]",
 	Short:   "Lists the black listed resources",
 	Run: func(cmd *cobra.Command, args []string) {
 		var err *ce.CustomError
@@ -58,7 +58,7 @@ var blListCmd = &cobra.Command{
 
 var blAddCmd = &cobra.Command{
 	Use:     "add RESOURCE_TYPE RESOURCE_NAME",
-	Example: "dtools2 blacklist add resource_type resource_name1 [resource_name2..resource_nameN]",
+	Example: "dtools blacklist add resource_type resource_name1 [resource_name2..resource_nameN]",
 	Short:   "Add one or more resource_name to resource_type",
 	Args:    cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -71,7 +71,7 @@ var blAddCmd = &cobra.Command{
 
 var blRemoveCmd = &cobra.Command{
 	Use:     "rmb RESOURCE_TYPE RESOURCE_NAME",
-	Example: "dtools2 blacklist rmb resource_type resource_name1 [resource_name2..resource_nameN]",
+	Example: "dtools blacklist rmb resource_type resource_name1 [resource_name2..resource_nameN]",
 	Short:   "Remove one or more resource from resource_type",
 	Args:    cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {

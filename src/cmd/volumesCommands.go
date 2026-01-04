@@ -39,7 +39,7 @@ var volumeListCmd = &cobra.Command{
 
 var volumeRmCmd = &cobra.Command{
 	Use:     "rmv",
-	Example: "docker volume rmv [flags] volume_name1 [volume_name2..volume_nameN]",
+	Example: "dtools volume rmv [flags] volume_name1 [volume_name2..volume_nameN]",
 	Short:   "Remove one or many volumes",
 	Long: `Remove docker volumes via the Docker/Podman API.
 		Blacklisted volumes will not be removed, unless the -B flag is passed.`,
@@ -60,7 +60,7 @@ var volumeRmCmd = &cobra.Command{
 
 var volumePruneCmd = &cobra.Command{
 	Use:     "prune",
-	Example: "docker volume prune [flags]",
+	Example: "dtools volume prune [flags]",
 	Short:   "Prune volumes",
 	Long: `Prune volumes via the Docker/Podman API.
 		Blacklisted volumes will not be removed, unless the -B flag is passed.`,

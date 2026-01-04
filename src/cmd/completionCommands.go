@@ -18,7 +18,7 @@ var completionCmd = &cobra.Command{
 	Long: `Generate completion scripts for your shell.
 
 Bash:
-  $ source <(dtools2 completion bash)
+  $ source <(dtools completion bash)
   # To persist:
   $ dtools2 completion bash | sudo tee /etc/bash_completion.d/dtools2 > /dev/null
 
@@ -27,7 +27,7 @@ Zsh:
   $ echo 'fpath=($HOME/.zsh $fpath)' >> ~/.zshrc
   $ echo 'autoload -Uz compinit && compinit' >> ~/.zshrc
   # Or, for current session:
-  $ source <(dtools2 completion zsh)
+  $ source <(dtools completion zsh)
 `,
 }
 

@@ -27,7 +27,7 @@ var envCmd = &cobra.Command{
 
 var envRemoveCmd = &cobra.Command{
 	Use:     "remove",
-	Example: "dtools2 env remove",
+	Example: "dtools env remove",
 	Aliases: []string{"rm"},
 	Short:   "Remove the default registry entry and leave a blank entry instead",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -48,7 +48,7 @@ var envRemoveCmd = &cobra.Command{
 
 var envAddCmd = &cobra.Command{
 	Use:     "add",
-	Example: "dtools2 env add REGISTRY_URL [-c comments] [-u username] [-p password]",
+	Example: "dtools env add REGISTRY_URL [-c comments] [-u username] [-p password]",
 	Short:   "Add a default registry entry",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
