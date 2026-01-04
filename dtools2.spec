@@ -12,7 +12,7 @@
 %define _build_id_links none
 %define _name dtools
 %define _prefix /opt
-%define _version 2.11.00
+%define _version 2.12.00
 %define _rel 0
 #%define _arch x86_64
 %define _binaryname dtools
@@ -63,6 +63,16 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Sun Jan 04 2026 Binary package builder <builder@famillegratton.net>
+- Fixed tito tag issue (builder@famillegratton.net)
+- Automatic commit of package [dtools] release [2.12.00-0].
+  (builder@famillegratton.net)
+- reverted partial tito build (jean-francois@famillegratton.net)
+- Fixed wrong function name (jean-francois@famillegratton.net)
+- Automatic commit of package [dtools] release [2.12.00-0].
+  (builder@famillegratton.net)
+- Added volume create (jean-francois@famillegratton.net)
+
 * Sun Jan 04 2026 Binary package builder <builder@famillegratton.net> 2.12.00-0
 - reverted partial tito build (jean-francois@famillegratton.net)
 - Fixed wrong function name (jean-francois@famillegratton.net)
