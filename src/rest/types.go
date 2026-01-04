@@ -6,7 +6,9 @@
 package rest
 
 import (
+	"bufio"
 	"context"
+	"net"
 	"net/http"
 	"net/url"
 	"time"
@@ -45,4 +47,13 @@ type Config struct {
 	InsecureSkipVerify bool
 
 	Timeout time.Duration // optional; if zero, a sane default is used.
+}
+
+// HijackedConn holds the underlying connection and a reader positioned right after the
+// HTTP response headers (i.e., ready to read the raw stream).
+type HijackedConn struct {
+	Conn   net.Conn
+	Reader *bufio.Reader
+	Header http.Header
+	Code   int
 }

@@ -12,7 +12,7 @@
 %define _build_id_links none
 %define _name dtools2
 %define _prefix /opt
-%define _version 0.80.00
+%define _version 0.90.00
 %define _rel 0
 #%define _arch x86_64
 %define _binaryname dtools
