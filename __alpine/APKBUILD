@@ -1,7 +1,7 @@
 # Maintainer: J.F.Gratton <jean-francois@famillegratton.net>
 # Packager: Package builder <builder@famillegratton.net>
 pkgname=dtools
-pkgver=2.00.01
+pkgver=2.10.00
 pkgrel=0
 pkgdir=/data/packages
 builddir="$startdir/src/BUILD"

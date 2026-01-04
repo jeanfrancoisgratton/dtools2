@@ -16,7 +16,7 @@ var rootCmd = &cobra.Command{
 	Use:          "dtools",
 	SilenceUsage: true,
 	Short:        "Docker / Podman client",
-	Version:      "2.00.01 (2026.01.03)",
+	Version:      "2.10.00 (2026.01.04)",
 	Long: `dtools is a lightweight Docker/Podman client that talks directly
 to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -49,7 +49,7 @@ to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 			}
 			client.SetAPIVersion(v)
 			if extras.Debug {
-				fmt.Fprintf(os.Stderr, "Negotiated API version: v%s\n", v)
+				fmt.Printf("Negotiated API version: v%s\n", v)
 			}
 		}
 		restClient = client

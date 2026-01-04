@@ -34,4 +34,5 @@
 | [x] `dockergetcatalog.sh`                       | 0.70.00     |                | porting my bash script to dtools   |
 | [x] rebranding `dtools2`<br>as `dtools 2.00.00` | 2.00.00     |                |                                    |
 | [x] default registry handling (registry subcmd) | 0.70.00     |                |                                    |
+| [x] build command                               | 2.10.00     |                |                                    |
 | [x] logs                                        | 0.90.00     |                |                                    |
