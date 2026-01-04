@@ -1,9 +1,9 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2026/01/03 22:19
-// Original filename: src/extras/run_pull.go
+// Original filename: src/extras/pull.go
 
-package extras
+package run
 
 import (
 	"fmt"

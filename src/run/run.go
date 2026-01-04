@@ -3,10 +3,11 @@
 // Original timestamp: 2026/01/03 22:00
 // Original filename: src/extras/run.go
 
-package extras
+package run
 
 import (
 	"bytes"
+	"dtools2/extras"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -137,7 +138,7 @@ func RunContainer(client *rest.Client, image string, cmd []string) (exitCode int
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			copyStdin(conn, stdinStop)
+			extras.CopyStdin(conn, stdinStop)
 			if cw, ok := conn.(interface{ CloseWrite() error }); ok {
 				_ = cw.CloseWrite()
 			}
@@ -250,7 +251,7 @@ func createContainer(client *rest.Client, image string, cmd []string) (string, b
 
 	if resp.StatusCode != http.StatusCreated {
 		b, _ := io.ReadAll(resp.Body)
-		msg := stringsTrim(string(b))
+		msg := extras.StringsTrim(string(b))
 		if msg == "" {
 			msg = resp.Status
 		}
@@ -278,7 +279,7 @@ func startContainer(client *rest.Client, id string) *ce.CustomError {
 
 	if resp.StatusCode != http.StatusNoContent {
 		b, _ := io.ReadAll(resp.Body)
-		msg := stringsTrim(string(b))
+		msg := extras.StringsTrim(string(b))
 		if msg == "" {
 			msg = resp.Status
 		}
@@ -320,7 +321,7 @@ func waitContainerExit(client *rest.Client, id string) (int, *ce.CustomError) {
 
 	if resp.StatusCode != http.StatusOK {
 		b, _ := io.ReadAll(resp.Body)
-		msg := stringsTrim(string(b))
+		msg := extras.StringsTrim(string(b))
 		if msg == "" {
 			msg = resp.Status
 		}

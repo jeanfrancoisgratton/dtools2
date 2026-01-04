@@ -7,9 +7,15 @@ package extras
 
 import (
 	"dtools2/env"
+	"dtools2/rest"
+	"io"
+	"os"
 	"strings"
+	"syscall"
+	"time"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
+	xterm "golang.org/x/term"
 )
 
 // SplitURI takes a RepoTag entry (e.g. "registry:5000/repo/img:tag")
@@ -47,4 +53,53 @@ func GetDefaultRegistry(regfile string) (string, *ce.CustomError) {
 		return "", err
 	}
 	return dre.RegistryName, nil
+}
+
+func CopyStdin(dst io.Writer, stop <-chan struct{}) {
+	fd := int(os.Stdin.Fd())
+
+	// If stdin isn't a terminal (pipe/file), a straight io.Copy is fine and won't hang.
+	if !xterm.IsTerminal(fd) {
+		_, _ = io.Copy(dst, os.Stdin)
+		return
+	}
+
+	// For terminal stdin, avoid blocking forever on Read() when the remote side exits.
+	// We set stdin non-blocking and poll.
+	_ = syscall.SetNonblock(fd, true)
+	defer func() { _ = syscall.SetNonblock(fd, false) }()
+
+	buf := make([]byte, 32*1024)
+	for {
+		select {
+		case <-stop:
+			return
+		case <-rest.Context.Done():
+			return
+		default:
+		}
+
+		n, err := os.Stdin.Read(buf)
+		if n > 0 {
+			_, _ = dst.Write(buf[:n])
+			continue
+		}
+		if err == nil {
+			continue
+		}
+		if err == io.EOF {
+			return
+		}
+		if errorsIsWouldBlock(err) {
+			time.Sleep(10 * time.Millisecond)
+			continue
+		}
+		return
+	}
+}
+
+func StringsTrim(s string) string {
+	s = strings.ReplaceAll(s, "\r", " ")
+	s = strings.ReplaceAll(s, "\n", " ")
+	return strings.TrimSpace(s)
 }

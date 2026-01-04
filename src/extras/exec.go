@@ -15,10 +15,8 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
-	"strings"
 	"sync"
 	"syscall"
-	"time"
 
 	"dtools2/rest"
 
@@ -96,7 +94,7 @@ func createExec(client *rest.Client, container string, cmd []string) (string, *c
 
 	if resp.StatusCode != http.StatusCreated {
 		b, _ := io.ReadAll(resp.Body)
-		msg := stringsTrim(string(b))
+		msg := StringsTrim(string(b))
 		if msg == "" {
 			msg = resp.Status
 		}
@@ -171,7 +169,7 @@ func startAndStream(client *rest.Client, execID string) *ce.CustomError {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			copyStdin(conn, stdinStop)
+			CopyStdin(conn, stdinStop)
 			if cw, ok := conn.(interface{ CloseWrite() error }); ok {
 				_ = cw.CloseWrite()
 			}
@@ -194,49 +192,6 @@ func startAndStream(client *rest.Client, execID string) *ce.CustomError {
 	return nil
 }
 
-func copyStdin(dst io.Writer, stop <-chan struct{}) {
-	fd := int(os.Stdin.Fd())
-
-	// If stdin isn't a terminal (pipe/file), a straight io.Copy is fine and won't hang.
-	if !xterm.IsTerminal(fd) {
-		_, _ = io.Copy(dst, os.Stdin)
-		return
-	}
-
-	// For terminal stdin, avoid blocking forever on Read() when the remote side exits.
-	// We set stdin non-blocking and poll.
-	_ = syscall.SetNonblock(fd, true)
-	defer func() { _ = syscall.SetNonblock(fd, false) }()
-
-	buf := make([]byte, 32*1024)
-	for {
-		select {
-		case <-stop:
-			return
-		case <-rest.Context.Done():
-			return
-		default:
-		}
-
-		n, err := os.Stdin.Read(buf)
-		if n > 0 {
-			_, _ = dst.Write(buf[:n])
-			continue
-		}
-		if err == nil {
-			continue
-		}
-		if err == io.EOF {
-			return
-		}
-		if errorsIsWouldBlock(err) {
-			time.Sleep(10 * time.Millisecond)
-			continue
-		}
-		return
-	}
-}
-
 func errorsIsWouldBlock(err error) bool {
 	// Go maps EAGAIN/EWOULDBLOCK to syscall.EAGAIN (and sometimes syscall.EWOULDBLOCK).
 	return errors.Is(err, syscall.EAGAIN) || errors.Is(err, syscall.EWOULDBLOCK)
@@ -253,7 +208,7 @@ func inspectExitCode(client *rest.Client, execID string) (int, *ce.CustomError) 
 
 	if resp.StatusCode != http.StatusOK {
 		b, _ := io.ReadAll(resp.Body)
-		msg := stringsTrim(string(b))
+		msg := StringsTrim(string(b))
 		if msg == "" {
 			msg = resp.Status
 		}
@@ -301,10 +256,4 @@ func setupResizeHandler(client *rest.Client, execID string) {
 			}
 		}
 	}()
-}
-
-func stringsTrim(s string) string {
-	s = strings.ReplaceAll(s, "\r", " ")
-	s = strings.ReplaceAll(s, "\n", " ")
-	return strings.TrimSpace(s)
 }

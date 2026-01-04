@@ -1,9 +1,9 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2026/01/03 21:59
-// Original filename: src/extras/run_types.go
+// Original filename: src/extras/types.go
 
-package extras
+package run
 
 var RunDetach bool       // -d
 var RunInteractive bool  // -i
