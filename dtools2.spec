@@ -63,9 +63,6 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
-* Sun Jan 04 2026 Binary package builder <builder@famillegratton.net> 2.12.00-0
-- Added volume create (jean-francois@famillegratton.net)
-
 * Sun Jan 04 2026 Binary package builder <builder@famillegratton.net> 2.11.00-0
 - Added the progress flag to the build command (jean-
   francois@famillegratton.net)
