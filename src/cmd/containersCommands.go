@@ -278,7 +278,7 @@ func init() {
 		containerUnpauseCmd, containerStartCmd, containerStartAllCmd, containerStopCmd, containerStopAllCmd,
 		containerRenameCmd, containerKillCmd, containerKillAllCmd, containerRestartCmd, containerRestartAllCmd)
 	containerCmd.AddCommand(containerListCmd, containerInfoCmd, containerRemoveCmd, containerPauseCmd,
-		containerUnpauseCmd, containerUnpauseCmd, containerStartCmd, containerStartAllCmd, containerStopCmd, containerStopAllCmd,
+		containerUnpauseCmd, containerStartCmd, containerStartAllCmd, containerStopCmd, containerStopAllCmd,
 		containerRenameCmd, containerKillCmd, containerKillAllCmd, containerRestartCmd, containerRestartAllCmd)
 
 	containerRestartCmd.Flags().BoolVarP(&containers.KillSwitch, "kill", "k", false, "force kill of container")

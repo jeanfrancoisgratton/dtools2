@@ -16,7 +16,7 @@ var rootCmd = &cobra.Command{
 	Use:          "dtools",
 	SilenceUsage: true,
 	Short:        "Docker / Podman client",
-	Version:      "2.11.00 (2026.01.04)",
+	Version:      "2.12.00 (2026.01.04)",
 	Long: `dtools is a lightweight Docker/Podman client that talks directly
 to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -68,7 +68,7 @@ func init() {
 	rootCmd.DisableAutoGenTag = true
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 
-	rootCmd.AddCommand(completionCmd, execCmd, logsCmd, runCmd)
+	rootCmd.AddCommand(completionCmd)
 
 	// Global flags.
 	rootCmd.PersistentFlags().BoolVarP(&extras.Debug, "debug", "D", false, "Enable debug output on stderr")

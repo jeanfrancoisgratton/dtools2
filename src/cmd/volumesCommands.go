@@ -78,18 +78,32 @@ var volumePruneCmd = &cobra.Command{
 	},
 }
 
+var volumeCreateCmd = &cobra.Command{
+	Use:     "create",
+	Example: "dtools volume create [crete flags]",
+	Short:   "Create volumes",
+	Args:    cobra.MinimumNArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+
+		rest.Context = cmd.Context()
+		if err := volumes.CreateVolumes(restClient, args[0]); err != nil {
+			fmt.Println(err)
+		}
+		return
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(volumeCmd, volumeListCmd, volumeRmCmd)
-	volumeCmd.AddCommand(volumeListCmd, volumeRmCmd, volumePruneCmd)
+	volumeCmd.AddCommand(volumeListCmd, volumeRmCmd, volumePruneCmd, volumeCreateCmd)
 
 	volumePruneCmd.Flags().BoolVarP(&volumes.RemoveEvenIfBlackListed, "blacklist", "B", false, "remove volume even if blacklisted")
 	volumePruneCmd.Flags().BoolVarP(&volumes.RemoveNamedVolumes, "all", "a", false, "remove anonymous AND non-anonymous volumes")
 	volumeRmCmd.Flags().BoolVarP(&volumes.RemoveEvenIfBlackListed, "blacklist", "B", false, "remove volume even if blacklisted")
 	volumeRmCmd.Flags().BoolVarP(&volumes.ForceRemoval, "force", "f", false, "force-remove volume")
-	//networkDetachCmd.Flags().BoolVarP(&networks.ForceNetworkDetach, "force", "f", false, "force-detach the network from the container")
-	//networkAddCmd.Flags().StringVarP(&networks.NetworkDriverName, "driver", "d", "bridge", "network driver network")
-	//networkAddCmd.Flags().BoolVarP(&networks.NetworkEnableIPv6, "ipv6", "6", false, "enable IPv6 on the network")
-	//networkAddCmd.Flags().BoolVarP(&networks.NetworkInternalUse, "internal", "i", false, "internal network only")
-	//networkAddCmd.Flags().BoolVarP(&networks.NetworkAttachable, "attachable", "a", false, "network is attachable (no effect on bridged networks)")
-	//networkRmCmd.Flags().BoolVarP(&networks.RemoveEvenIfBlackListed, "blacklist", "B", false, "remove network even if blacklisted")
+	volumeCreateCmd.Flags().StringVarP(&volumes.CreateVolDriver, "driver", "d", "local", "volume driver")
 }

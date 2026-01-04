@@ -37,14 +37,14 @@ var networkListCmd = &cobra.Command{
 	},
 }
 
-var networkAddCmd = &cobra.Command{
-	Use:     "add",
-	Aliases: []string{"create"},
-	Short:   "Add a network",
+var networkCreateCmd = &cobra.Command{
+	Use:     "create",
+	Aliases: []string{"add"},
+	Short:   "Create a network",
 	Long: `
-	Add a network to the daemon.
+	Create a network to the daemon.
 	You should note that a single daemon cannot have more than a single host or null network`,
-	Example: "dtools net add NETWORK_NAME [flags]",
+	Example: "dtools net create NETWORK_NAME [flags]",
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
 			fmt.Println("REST client not initialized")
@@ -124,12 +124,12 @@ var networkDetachCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(networkCmd, networkListCmd, networkRmCmd)
-	networkCmd.AddCommand(networkListCmd, networkAddCmd, networkRmCmd, networkAttachCmd, networkDetachCmd)
+	networkCmd.AddCommand(networkListCmd, networkCreateCmd, networkRmCmd, networkAttachCmd, networkDetachCmd)
 
 	networkDetachCmd.Flags().BoolVarP(&networks.ForceNetworkDetach, "force", "f", false, "force-detach the network from the container")
-	networkAddCmd.Flags().StringVarP(&networks.NetworkDriverName, "driver", "d", "bridge", "network driver network")
-	networkAddCmd.Flags().BoolVarP(&networks.NetworkEnableIPv6, "ipv6", "6", false, "enable IPv6 on the network")
-	networkAddCmd.Flags().BoolVarP(&networks.NetworkInternalUse, "internal", "i", false, "internal network only")
-	networkAddCmd.Flags().BoolVarP(&networks.NetworkAttachable, "attachable", "a", false, "network is attachable (no effect on bridged networks)")
+	networkCreateCmd.Flags().StringVarP(&networks.NetworkDriverName, "driver", "d", "bridge", "network driver network")
+	networkCreateCmd.Flags().BoolVarP(&networks.NetworkEnableIPv6, "ipv6", "6", false, "enable IPv6 on the network")
+	networkCreateCmd.Flags().BoolVarP(&networks.NetworkInternalUse, "internal", "i", false, "internal network only")
+	networkCreateCmd.Flags().BoolVarP(&networks.NetworkAttachable, "attachable", "a", false, "network is attachable (no effect on bridged networks)")
 	networkRmCmd.Flags().BoolVarP(&networks.RemoveEvenIfBlackListed, "blacklist", "B", false, "remove network even if blacklisted")
 }

@@ -59,7 +59,7 @@ var logsCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(execCmd, logsCmd, runCmd)
+	rootCmd.AddCommand(execCmd, logsCmd)
 
 	execCmd.Flags().BoolVarP(&extras.Interactive, "interactive", "i", false, "Keep STDIN open even if not attached")
 	execCmd.Flags().BoolVarP(&extras.AllocateTTY, "tty", "t", false, "Allocate a pseudo-TTY")

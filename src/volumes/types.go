@@ -8,6 +8,7 @@ package volumes
 var RemoveEvenIfBlackListed = false
 var ForceRemoval = false
 var RemoveNamedVolumes = false
+var CreateVolDriver = "local"
 
 type VolumeListResponse struct {
 	Volumes  []Volume `json:"Volumes"`

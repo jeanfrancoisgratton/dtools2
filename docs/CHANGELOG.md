@@ -1,8 +1,9 @@
-| Release | Date         | Comments                              |
-|---------|--------------|---------------------------------------|
-| 2.11.00 | 2026.01.04   | Added the (forgotten !) build command |
-| 2.00.00 | 2026.01.03   | Completed rewrite                     |
-| 0.10.00 | 2025.11.11   | Initial version                       |
+| Release | Date         | Comments                                   |
+|---------|--------------|--------------------------------------------|
+| 2.12.00 | 2026.01.04   | Added the forgotten volume create command  |
+| 2.11.00 | 2026.01.04   | Added the (forgotten !) build command      |
+| 2.00.00 | 2026.01.03   | Completed rewrite                          |
+| 0.10.00 | 2025.11.11   | Initial version                            |
 
 
 

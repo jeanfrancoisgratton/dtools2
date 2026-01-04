@@ -46,14 +46,8 @@ func AddNetwork(client *rest.Client, networkName string) *ce.CustomError {
 	headers := http.Header{}
 	headers.Set("Content-Type", "application/json")
 
-	resp, err := client.Do(
-		rest.Context,
-		http.MethodPost,
-		"/networks/create",
-		url.Values{},
-		bytes.NewReader(payload), // body (io.Reader)
-		headers,                  // headers (http.Header)
-	)
+	resp, err := client.Do(rest.Context, http.MethodPost, "/networks/create",
+		url.Values{}, bytes.NewReader(payload), headers)
 	if err != nil {
 		return &ce.CustomError{Title: "Unable to create the network", Message: err.Error()}
 	}
