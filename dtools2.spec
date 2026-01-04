@@ -63,6 +63,9 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Sat Jan 03 2026 Binary package builder <builder@famillegratton.net> 2.00.01-0
+- Fixed wrong path for config files (jean-francois@famillegratton.net)
+
 * Sat Jan 03 2026 Binary package builder <builder@famillegratton.net> 2.00.00-0
 - new package built with tito
 
