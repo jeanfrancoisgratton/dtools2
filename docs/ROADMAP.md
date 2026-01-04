@@ -22,7 +22,7 @@
 | [x] network / volume ls                         | 0.60.00     |                |                                    |
 | [x] volume prune / rm                           | 0.80.00     |                |                                    |
 | [x] volume ls / create                          | 0.80.00     |                |                                    |
-| [ ] exec (shell)                                |             |                |                                    |
+| [x] exec (shell)                                | 0.90.00     |                |                                    |
 | [ ] system info                                 |             |                |                                    |
 | [x] blacklist list [-a]                         | 0.20.00     | 0.30.00        | fixed regression in 0.50.00        |
 | [x] blacklist rm                                | 0.20.00     | 0.30.00        | fixed regression in 0.50.00        |
@@ -32,6 +32,6 @@
 | [ ] `dockerclean.sh`                            | ~~0.90.00~~ |                | will be implemented in 2.xx.yy     |
 | [x] `dockergettag.sh`                           | 0.70.00     |                | porting my bash script to dtools   |
 | [x] `dockergetcatalog.sh`                       | 0.70.00     |                | porting my bash script to dtools   |
-| [ ] rebranding `dtools2`<br>as `dtools 2.00.00` | 2.00.00     |                |                                    |
+| [x] rebranding `dtools2`<br>as `dtools 2.00.00` | 2.00.00     |                |                                    |
 | [x] default registry handling (registry subcmd) | 0.70.00     |                |                                    |
-| [ ] logs                                        |             |                |                                    |
+| [x] logs                                        | 0.90.00     |                |                                    |

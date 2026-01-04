@@ -10,14 +10,14 @@
 
 %define debug_package   %{nil}
 %define _build_id_links none
-%define _name dtools2
+%define _name dtools
 %define _prefix /opt
-%define _version 0.90.00
+%define _version 2.00.00
 %define _rel 0
 #%define _arch x86_64
 %define _binaryname dtools
 
-Name:       dtools2
+Name:       dtools
 Version:    %{_version}
 Release:    %{_rel}
 Summary:    docker/podman client
