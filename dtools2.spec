@@ -63,6 +63,17 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Sun Jan 04 2026 Binary package builder <builder@famillegratton.net> 2.12.00-0
+- bumped version number (builder@famillegratton.net)
+- Fixed tito tag issue (builder@famillegratton.net)
+- Automatic commit of package [dtools] release [2.12.00-0].
+  (builder@famillegratton.net)
+- reverted partial tito build (jean-francois@famillegratton.net)
+- Fixed wrong function name (jean-francois@famillegratton.net)
+- Automatic commit of package [dtools] release [2.12.00-0].
+  (builder@famillegratton.net)
+- Added volume create (jean-francois@famillegratton.net)
+
 * Sun Jan 04 2026 Binary package builder <builder@famillegratton.net>
 - Fixed tito tag issue (builder@famillegratton.net)
 - Automatic commit of package [dtools] release [2.12.00-0].
