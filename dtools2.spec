@@ -63,6 +63,9 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Sat Jan 03 2026 Binary package builder <builder@famillegratton.net> 2.00.00-0
+- new package built with tito
+
 * Sat Jan 03 2026 Binary package builder <builder@famillegratton.net> 0.80.00-0
 - Completed volume prune (jean-francois@famillegratton.net)
 - made ls/rm subcomments more consistent across the board (jean-
