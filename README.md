@@ -1,5 +1,4 @@
-!(https://github.com/jeanfrancoisgratton/dtools2/blob/develop/dtools2-logo_small.png)
-# dtools2
+# <img src="./dtools2-logo_small.png" alt="dtools2 logo" height="32" /> dtools2
 
 A drop-in client replacement for the official docker and podman clients
 ___
