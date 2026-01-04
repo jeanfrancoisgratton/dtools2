@@ -65,7 +65,7 @@ var execCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
-			fmt.Fprintln(os.Stderr, "REST client not initialized")
+			fmt.Println("REST client not initialized")
 			os.Exit(1)
 		}
 		rest.Context = cmd.Context()
@@ -75,10 +75,30 @@ var execCmd = &cobra.Command{
 
 		exitCode, cerr := extras.Run(restClient, container, command)
 		if cerr != nil {
-			fmt.Fprintln(os.Stderr, cerr)
+			fmt.Println(cerr)
 			os.Exit(1)
 		}
 		os.Exit(exitCode)
+	},
+}
+
+var logsCmd = &cobra.Command{
+	Use:     "logs [flags] CONTAINER",
+	Aliases: []string{"log"},
+	Short:   "Fetch the logs of a container",
+	Example: "dtools2 logs -t -n 200 -f mycontainer",
+	Args:    cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+		rest.Context = cmd.Context()
+
+		if cerr := extras.Logs(restClient, args[0]); cerr != nil {
+			fmt.Println(cerr)
+			return
+		}
 	},
 }
 
@@ -93,7 +113,7 @@ func init() {
 	rootCmd.DisableAutoGenTag = true
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 
-	rootCmd.AddCommand(completionCmd, execCmd)
+	rootCmd.AddCommand(completionCmd, execCmd, logsCmd)
 
 	// Global flags.
 	rootCmd.PersistentFlags().BoolVarP(&extras.Debug, "debug", "D", false, "Enable debug output on stderr")
@@ -101,8 +121,10 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&ConnectURI, "host", "H", "", "Docker daemon host (e.g. unix:///var/run/docker.sock, tcp://host:2376)")
 	rootCmd.PersistentFlags().StringVarP(&APIVersion, "api-version", "A", "", "Docker API version (e.g. 1.43); if empty, auto-negotiate with the daemon")
 	rootCmd.PersistentFlags().BoolVarP(&UseTLS, "tls", "T", false, "Use TLS when connecting to the daemon (for tcp:// hosts)")
-
 	execCmd.Flags().BoolVarP(&extras.Interactive, "interactive", "i", false, "Keep STDIN open even if not attached")
 	execCmd.Flags().BoolVarP(&extras.AllocateTTY, "tty", "t", false, "Allocate a pseudo-TTY")
 	execCmd.Flags().StringVarP(&extras.User, "user", "u", "", "Username or UID (format: <name|uid>[:<group|gid>])")
+	logsCmd.Flags().BoolVarP(&extras.LogTimestamps, "timestamps", "t", false, "Show timestamps")
+	logsCmd.Flags().IntVarP(&extras.LogTail, "tail", "n", -1, "Number of lines to show from the end of the logs (-1 means all)")
+	logsCmd.Flags().BoolVarP(&extras.LogFollow, "follow", "f", false, "Follow log output")
 }

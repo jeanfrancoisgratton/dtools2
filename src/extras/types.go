@@ -6,6 +6,9 @@
 package extras
 
 var Debug bool
+var LogTimestamps bool // -t
+var LogFollow bool     // -f
+var LogTail int        // -n (lines); -1 means "all"
 
 // Structures for the Docker/Podman exec API.
 //
