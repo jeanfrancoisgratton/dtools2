@@ -1,4 +1,4 @@
-# dtools2
+!(/dtools2-logo.png)# dtools2
 
 A drop-in client replacement for the official docker and podman clients
 ___
@@ -132,8 +132,8 @@ Here's how it'd look:
 ## Prettified output
 Most of the commands are prettified with colorized output. We're way past the era of VT220 terminals, might as well use that !<br>
 Also all lists are output as tables, for better readability
-
-# Summary of all commands, per component/resource
+<br><br>
+# Summary of all commands
 
 ## Container commands
 
@@ -158,8 +158,9 @@ Command             /entrypoint.sh
 ```
 
 ### kill/killall, start/startall, stop/stopall, restart/restartall, pause/unpause, rename
-You can skip the command name (`container`) from the subcommand.<br>
-Thus `dtools startall` and `dtools container startall` are both valid.<br>
+*Note:*
+You can skip the command name (`container`) from the subcommand, thus `dtools startall` and `dtools container startall` are both valid.<br><br>
+
 These commands do what the name implies, obviously. An extra touch is that you can pass multiple container names to<br>
 the kill/start/stop/restart commands:
 
@@ -177,7 +178,7 @@ the kill/start/stop/restart commands:
 Notice that `dtools up` is an alias to `dtools start`. Some commands have aliases set that way, explore with -`h`
 
 ### list containers
-`dtools container lsc [-r] [-x]`, `dtools lsc [-r] [-x]
+`dtools container lsc [-r] [-x]`, `dtools lsc [-r] [-x]`
 
 This lists all containers on the daemon
 - `-r` : only running containers
@@ -217,3 +218,9 @@ You can chain multiple network names to remove them all at once
 `dtools network attach NETWORK_NAME CONTAINER_NAME`, `dtools network detach NETWORK_NAME CONTAINER_NAME`
 
 ## Volume commands
+
+### create volumes
+`dtools volume create [-d DRIVER_NAME] VOLUME_NAME`<br>
+
+A very basic support is offered here. Basically, you should create a volume using the `local` driver.<br>
+If you have third-party drivers and those do not need any special treatment such as options, etc, you can use that with the `-d` flag
