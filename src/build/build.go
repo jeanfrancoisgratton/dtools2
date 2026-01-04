@@ -24,11 +24,19 @@ import (
 )
 
 // BuildImage emulates `docker build` using the daemon API: POST /build.
-// This works for both Docker Engine and Podman service when using the compat API. :contentReference[oaicite:1]{index=1}
+// This works for both Docker Engine and Podman service when using the compat API.
 func BuildImage(client *rest.Client, contextDir string) error {
 	ctx := rest.Context
 	if ctx == nil {
 		ctx = context.Background()
+	}
+
+	progressMode := strings.ToLower(strings.TrimSpace(Progress))
+	if progressMode == "" {
+		progressMode = "auto"
+	}
+	if progressMode != "auto" && progressMode != "plain" && progressMode != "tty" {
+		return fmt.Errorf("invalid --progress %q (supported: auto|plain|tty)", Progress)
 	}
 
 	dfRel, err := dockerfileRelative(contextDir)
@@ -93,7 +101,7 @@ func BuildImage(client *rest.Client, contextDir string) error {
 	headers := http.Header{}
 	headers.Set("Content-Type", "application/x-tar")
 
-	// If ~/.docker/config.json has auths, pass them in X-Registry-Config for private base images. :contentReference[oaicite:2]{index=2}
+	// If ~/.docker/config.json has auths, pass them in X-Registry-Config for private base images.
 	if h, err := buildRegistryConfigHeader(); err == nil && h != "" {
 		headers.Set("X-Registry-Config", h)
 	}
@@ -105,7 +113,33 @@ func BuildImage(client *rest.Client, contextDir string) error {
 	defer resp.Body.Close()
 
 	// Stream build output (Docker JSON message stream).
-	termFd, isTerm := term.GetFdInfo(os.Stdout)
+	termFd, autoIsTerm := term.GetFdInfo(os.Stdout)
+	isTerm := autoIsTerm
+
+	// `--progress=tty` is meaningful for BuildKit-style output.
+	// If the daemon doesn't recommend BuildKit, we ignore the request and fall
+	// back to the default (auto). If stdout isn't a TTY, we fall back to plain.
+	if progressMode == "tty" {
+		if !autoIsTerm {
+			progressMode = "plain"
+		} else {
+			ok, derr := DaemonRecommendsBuildKit(ctx, client)
+			if derr != nil {
+				// If we can't detect, don't fail the build; just fall back.
+				progressMode = "auto"
+			} else if !ok {
+				progressMode = "auto"
+			}
+		}
+	}
+
+	if progressMode == "plain" {
+		isTerm = false
+	}
+	if progressMode == "tty" {
+		isTerm = true
+	}
+
 	if derr := jsonmessage.DisplayJSONMessagesStream(resp.Body, os.Stdout, termFd, isTerm, nil); derr != nil {
 		// Fallback: if daemon doesn't speak exact docker JSONMessage stream.
 		// Still expose status code below.
@@ -229,7 +263,7 @@ func buildRegistryConfigHeader() (string, error) {
 		return "", err
 	}
 
-	// Docker expects URL-safe base64 for these auth headers. :contentReference[oaicite:3]{index=3}
+	// Docker expects URL-safe base64 for these auth headers.
 	return base64.URLEncoding.EncodeToString(b), nil
 }
 

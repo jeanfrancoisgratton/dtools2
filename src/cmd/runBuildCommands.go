@@ -92,4 +92,5 @@ func init() {
 	buildCmd.Flags().BoolVar(&build.ForceRemoveIntermediate, "force-rm", false, "Always remove intermediate containers, even upon failure")
 	buildCmd.Flags().StringVar(&build.Target, "target", "", "Set the target build stage to build")
 	buildCmd.Flags().StringVar(&build.Platform, "platform", "", "Set platform if supported by the daemon")
+	buildCmd.Flags().StringVar(&build.Progress, "progress", "auto", "Set type of progress output (auto|plain|tty)")
 }

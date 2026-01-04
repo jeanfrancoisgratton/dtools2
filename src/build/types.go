@@ -37,7 +37,12 @@ var Target string
 // Platform is an optional platform (BuildKit / compatible daemons). Wired to: --platform
 var Platform string
 
+// Progress controls how build output is rendered. Values: auto | plain | tty. Wired to: --progress
+var Progress string = "auto"
+
 // Other vars and structs
+//
+
 type registryAuthConfig struct {
 	Username      string `json:"username,omitempty"`
 	Password      string `json:"password,omitempty"`
