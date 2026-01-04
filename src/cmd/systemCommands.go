@@ -27,7 +27,7 @@ var sysGetCatalogCmd = &cobra.Command{
 	Short: "fetches the registry's full catalog, in JSON format",
 	Run: func(cmd *cobra.Command, args []string) {
 		if env.RegConfigFile == "" {
-			env.RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools2", "defaultRegistry.json")
+			env.RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools", "defaultRegistry.json")
 		}
 
 		if err := system.GetCatalog(); err != nil {
@@ -43,7 +43,7 @@ var sysGetTagsCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if env.RegConfigFile == "" {
-			env.RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools2", "defaultRegistry.json")
+			env.RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools", "defaultRegistry.json")
 		}
 		if err := system.GetTags(args[0]); err != nil {
 			fmt.Println(err)

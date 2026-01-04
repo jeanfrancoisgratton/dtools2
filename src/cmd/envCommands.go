@@ -33,7 +33,7 @@ var envRemoveCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		if env.RegConfigFile == "" {
-			env.RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools2", "defaultRegistry.json")
+			env.RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools", "defaultRegistry.json")
 		}
 		re := env.RegistryEntry{}
 		if err := re.RemoveReg(); err != nil {
@@ -54,7 +54,7 @@ var envAddCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		if env.RegConfigFile == "" {
-			env.RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools2", "defaultRegistry.json")
+			env.RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools", "defaultRegistry.json")
 		}
 		p := ""
 		if env.RegEntryPassword != "" {

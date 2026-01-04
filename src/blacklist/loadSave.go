@@ -18,7 +18,7 @@ import (
 // Load loads the blacklist file. If the file does not exist or is empty,
 // it returns an empty ResourceBlacklist without error.
 func Load() (*ResourceBlacklist, *ce.CustomError) {
-	path := filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools2", BlacklistFile)
+	path := filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools", BlacklistFile)
 
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -43,7 +43,7 @@ func Load() (*ResourceBlacklist, *ce.CustomError) {
 
 // Save writes the blacklist to disk, creating directories and file as needed.
 func (rb *ResourceBlacklist) Save() *ce.CustomError {
-	path := filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools2", BlacklistFile)
+	path := filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools", BlacklistFile)
 
 	data, err := json.MarshalIndent(rb, "", "  ")
 	if err != nil {

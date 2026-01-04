@@ -19,7 +19,7 @@ import (
 // an empty JSON struct
 func (re RegistryEntry) RemoveReg() *ce.CustomError {
 	//if RegConfigFile == "" {
-	//	RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools2", "defaultRegistry.json")
+	//	RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools", "defaultRegistry.json")
 	//}
 	err := os.Remove(RegConfigFile)
 	if err != nil {
@@ -35,7 +35,7 @@ func (re RegistryEntry) RemoveReg() *ce.CustomError {
 // AddReg : Create a new JSON file, overwriting the previous one
 func (re RegistryEntry) AddReg() *ce.CustomError {
 	//if RegConfigFile == "" {
-	//	RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools2", "defaultRegistry.json")
+	//	RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools", "defaultRegistry.json")
 	//}
 	payload, jerr := json.MarshalIndent(re, "", "  ")
 	if jerr != nil {

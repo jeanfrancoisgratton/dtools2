@@ -20,12 +20,20 @@ Also, the idea behind this tool is to make the TUI more attractive, verbose, inf
 - network list, creation, removal, attach, detach
 - volume list, creation, removal
 - execution (shell in the container)
-- system information
+- system information (in a future version)
 - multi-registry auth facilities
 - remote daemon connectivity
 - http/https aware
-- maybe more ? :-)
 
 
 ## Features not included
-- 
+- Advanced networking
+
+
+# New features
+
+## Blacklist
+If you wish to protect some resources (images, networks, volumes, containers) from accidental (or bulk) removal, you can add it in a blacklist, so unless you use the `-B` flag to force its removal, it will stay on the daemon
+
+## Environment
+You can define a default image registry so that commands that need fetching information from it

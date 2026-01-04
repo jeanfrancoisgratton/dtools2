@@ -20,10 +20,10 @@ var completionCmd = &cobra.Command{
 Bash:
   $ source <(dtools completion bash)
   # To persist:
-  $ dtools2 completion bash | sudo tee /etc/bash_completion.d/dtools2 > /dev/null
+  $ dtools completion bash | sudo tee /etc/bash_completion.d/dtools > /dev/null
 
 Zsh:
-  $ dtools2 completion zsh > ~/.zsh[.completion.d]/_dtools2
+  $ dtools completion zsh > ~/.zsh[.completion.d]/_dtools
   $ echo 'fpath=($HOME/.zsh $fpath)' >> ~/.zshrc
   $ echo 'autoload -Uz compinit && compinit' >> ~/.zshrc
   # Or, for current session:
