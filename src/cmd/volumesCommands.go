@@ -80,7 +80,7 @@ var volumePruneCmd = &cobra.Command{
 
 var volumeCreateCmd = &cobra.Command{
 	Use:     "create",
-	Example: "dtools volume create [crete flags]",
+	Example: "dtools volume create [create flags]",
 	Short:   "Create volumes",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {

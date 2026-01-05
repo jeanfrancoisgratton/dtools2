@@ -15,9 +15,11 @@ var RunWorkdir string    // -w
 var RunEnv []string      // -e
 var RunPublish []string  // -p
 var RunVolume []string   // -v
+var RunMount []string    // --mount
 var RunNetwork string    // --network
 var RunEntrypoint string // --entrypoint
 var RunHostname string   // --hostname
+
 // Minimal structures for the Docker/Podman "docker run" flow.
 //
 // Endpoints:
@@ -71,7 +73,7 @@ type HostConfig struct {
 
 // Mount is a minimal subset of the Docker API mount schema.
 type Mount struct {
-	Type     string `json:"Type"` // "bind" or "volume"
+	Type     string `json:"Type"` // "bind", "volume", or "tmpfs"
 	Source   string `json:"Source,omitempty"`
 	Target   string `json:"Target"`
 	ReadOnly bool   `json:"ReadOnly,omitempty"`

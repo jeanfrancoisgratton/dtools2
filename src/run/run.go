@@ -33,7 +33,7 @@ import (
 // Behaviour covered:
 //   - create + start
 //   - attach when not detached
-//   - optional: -t, -i, -u, -w, -e, -p, -v, --name, --rm, --network, --entrypoint, --hostname
+//   - optional: -t, -i, -u, -w, -e, -p, -v, --mount, --name, --rm, --network, --entrypoint, --hostname
 //   - auto-pull when image is missing
 //
 // Return values:
@@ -226,6 +226,10 @@ func createContainer(client *rest.Client, image string, cmd []string) (string, b
 		return "", false, cerr
 	}
 
+	if cerr := applyMounts(&req, RunMount); cerr != nil {
+		return "", false, cerr
+	}
+
 	if cerr := applyPublish(&req, RunPublish); cerr != nil {
 		return "", false, cerr
 	}
@@ -386,6 +390,162 @@ func applyVolumes(req *ContainerCreateRequest, vols []string) *ce.CustomError {
 		req.HostConfig.Mounts = append(req.HostConfig.Mounts, m)
 	}
 	return nil
+}
+
+func applyMounts(req *ContainerCreateRequest, mounts []string) *ce.CustomError {
+	if len(mounts) == 0 {
+		return nil
+	}
+	if req.HostConfig == nil {
+		req.HostConfig = &HostConfig{}
+	}
+
+	for _, m := range mounts {
+		mt, cerr := parseMountSpec(m)
+		if cerr != nil {
+			return cerr
+		}
+		req.HostConfig.Mounts = append(req.HostConfig.Mounts, mt)
+	}
+	return nil
+}
+
+// parseMountSpec supports a useful subset of Docker's --mount syntax.
+//
+// Examples:
+//
+//	--mount type=bind,src=/host/path,dst=/container/path[,ro]
+//	--mount type=volume,src=myvol,dst=/data[,ro]
+//	--mount type=volume,dst=/data            (anonymous volume)
+//
+// Accepted keys:
+//   - type: bind|volume|tmpfs (defaults to "volume" if omitted)
+//   - source|src
+//   - target|dst|destination
+//   - ro|readonly (boolean)
+//   - rw (boolean; sets ReadOnly=false)
+//
+// Notes:
+//   - For type=bind, source/src is required.
+//   - For type=tmpfs, source/src is not allowed.
+func parseMountSpec(spec string) (Mount, *ce.CustomError) {
+	spec = strings.TrimSpace(spec)
+	if spec == "" {
+		return Mount{}, &ce.CustomError{Title: "Invalid mount", Message: "empty --mount value"}
+	}
+
+	var (
+		typeVal  string
+		source   string
+		target   string
+		readOnly bool
+		roSet    bool
+	)
+
+	items := strings.Split(spec, ",")
+	for _, it := range items {
+		it = strings.TrimSpace(it)
+		if it == "" {
+			continue
+		}
+
+		k, v, hasEq := strings.Cut(it, "=")
+		k = strings.ToLower(strings.TrimSpace(k))
+		if !hasEq {
+			switch k {
+			case "ro", "readonly":
+				readOnly = true
+				roSet = true
+				continue
+			case "rw":
+				readOnly = false
+				roSet = true
+				continue
+			default:
+				return Mount{}, &ce.CustomError{Title: "Invalid mount", Message: fmt.Sprintf("unsupported --mount option %q", it)}
+			}
+		}
+
+		v = strings.TrimSpace(v)
+		switch k {
+		case "type":
+			typeVal = strings.ToLower(v)
+		case "src", "source":
+			source = v
+		case "dst", "destination", "target":
+			target = v
+		case "ro", "readonly":
+			b, perr := parseBoolish(v)
+			if perr != nil {
+				return Mount{}, &ce.CustomError{Title: "Invalid mount", Message: fmt.Sprintf("invalid %s value in --mount %q", k, spec)}
+			}
+			readOnly = b
+			roSet = true
+		case "rw":
+			b, perr := parseBoolish(v)
+			if perr != nil {
+				return Mount{}, &ce.CustomError{Title: "Invalid mount", Message: fmt.Sprintf("invalid rw value in --mount %q", spec)}
+			}
+			readOnly = !b
+			roSet = true
+		default:
+			return Mount{}, &ce.CustomError{Title: "Invalid mount", Message: fmt.Sprintf("unsupported --mount key %q", k)}
+		}
+	}
+
+	if target == "" {
+		return Mount{}, &ce.CustomError{Title: "Invalid mount", Message: fmt.Sprintf("missing target/dst in --mount %q", spec)}
+	}
+	if !strings.HasPrefix(target, "/") {
+		return Mount{}, &ce.CustomError{Title: "Invalid mount", Message: fmt.Sprintf("mount target must be absolute in --mount %q", spec)}
+	}
+
+	if typeVal == "" {
+		// Docker's --mount defaults to "volume". If the user provided a host-looking
+		// path, assume bind.
+		typeVal = "volume"
+		if source != "" && looksLikeHostPath(source) {
+			typeVal = "bind"
+		}
+	}
+
+	switch typeVal {
+	case "bind", "volume", "tmpfs":
+		// ok
+	default:
+		return Mount{}, &ce.CustomError{Title: "Invalid mount", Message: fmt.Sprintf("unsupported mount type %q in --mount %q", typeVal, spec)}
+	}
+
+	if typeVal == "bind" {
+		if source == "" {
+			return Mount{}, &ce.CustomError{Title: "Invalid mount", Message: fmt.Sprintf("missing source/src for type=bind in --mount %q", spec)}
+		}
+	}
+	if typeVal == "tmpfs" {
+		if source != "" {
+			return Mount{}, &ce.CustomError{Title: "Invalid mount", Message: fmt.Sprintf("source/src is not valid for type=tmpfs in --mount %q", spec)}
+		}
+	}
+
+	// If the user never specified ro/rw, ReadOnly remains false.
+	_ = roSet
+
+	return Mount{Type: typeVal, Source: source, Target: target, ReadOnly: readOnly}, nil
+}
+
+func parseBoolish(v string) (bool, error) {
+	v = strings.ToLower(strings.TrimSpace(v))
+	if v == "" {
+		return true, nil
+	}
+	switch v {
+	case "1", "t", "true", "y", "yes", "on":
+		return true, nil
+	case "0", "f", "false", "n", "no", "off":
+		return false, nil
+	default:
+		return false, fmt.Errorf("invalid boolean")
+	}
 }
 
 // parseVolumeSpec supports common docker forms:
