@@ -1,4 +1,4 @@
-# <img src="imagesd/dtools2-logo_small.png" alt="dtools2 logo" height="64" /> dtools2
+# <img src="./dtools2-logo_small.png" alt="dtools2 logo" height="48" /> dtools2
 
 A drop-in client replacement for the official docker and podman clients
 ___
