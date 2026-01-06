@@ -63,6 +63,13 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Tue Jan 06 2026 Binary package builder <builder@famillegratton.net> 2.13.00-0
+- Fixed clean() that was using the wrong variables (jean-
+  francois@famillegratton.net)
+- Fixed wrong field in candidates (jean-francois@famillegratton.net)
+- Completed systems commands: info, clean, rms (jean-
+  francois@famillegratton.net)
+
 * Mon Jan 05 2026 Binary package builder <builder@famillegratton.net> 2.12.01-0
 - Fixed volume list and prune (jean-francois@famillegratton.net)
 - interim sync (jean-francois@famillegratton.net)
