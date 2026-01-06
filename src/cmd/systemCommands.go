@@ -81,7 +81,7 @@ var systemCleanCmd = &cobra.Command{
 			return
 		}
 		rest.Context = cmd.Context()
-		if errCode := system.RmContainers(restClient); errCode != nil {
+		if errCode := system.Clean(restClient); errCode != nil {
 			fmt.Println(errCode)
 		}
 		return

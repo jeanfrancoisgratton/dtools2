@@ -10,14 +10,16 @@ import (
 	"dtools2/networks"
 	"dtools2/rest"
 	"dtools2/volumes"
+	"fmt"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 )
 
 // clean : removes all unused images
 // this will purge all unused images, volumes and networks
 
-func CleanImages(client *rest.Client) *ce.CustomError {
+func Clean(client *rest.Client) *ce.CustomError {
 	// Ensure that the Blacklisted policy is enforced across resources
 	images.RemoveBlacklisted = RemoveBlacklisted
 	volumes.RemoveBlackListed = RemoveBlacklisted
@@ -37,9 +39,13 @@ func CleanImages(client *rest.Client) *ce.CustomError {
 				imgCandidates = append(imgCandidates, i.ID)
 			}
 		}
+		q := rest.QuietOutput
+		rest.QuietOutput = true
 		if err := images.RemoveImage(client, imgCandidates); err != nil {
 			return err
 		}
+		fmt.Println(hftx.EnabledSign(fmt.Sprintf("Removed %d image(s)", len(imgCandidates))))
+		rest.QuietOutput = q
 	}
 
 	// Remove volumes
@@ -51,14 +57,19 @@ func CleanImages(client *rest.Client) *ce.CustomError {
 	if ns, err := networks.NetworkList(client, false); err != nil {
 		return err
 	} else {
-		for _, i := range ns {
-			if i.Name != "host" && i.Name != "none" && !i.InUse {
-				netCandidates = append(netCandidates, i.ID)
+		for _, n := range ns {
+			if n.Name != "host" && n.Name != "none" && n.Name != "bridge" && !n.InUse {
+
+				netCandidates = append(netCandidates, n.Name)
 			}
 		}
+		q := rest.QuietOutput
+		rest.QuietOutput = true
 		if err := networks.RemoveNetwork(client, netCandidates); err != nil {
 			return err
 		}
+		fmt.Println(hftx.EnabledSign(fmt.Sprintf("Removed %d network(s)", len(netCandidates))))
+		rest.QuietOutput = q
 	}
 	return nil
 }
