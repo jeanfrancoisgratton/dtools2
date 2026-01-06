@@ -74,7 +74,7 @@ var imageListCmd = &cobra.Command{
 		}
 
 		rest.Context = cmd.Context()
-		if err := images.ImagesList(restClient); err != nil {
+		if _, err := images.ImagesList(restClient, true); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -125,5 +125,4 @@ func init() {
 	imagePullCmd.Flags().StringVarP(&imagePullRegistry, "registry", "r", "", "registry hostname to use for auth (e.g. registry.example.com:5000); empty for anonymous")
 	imageRemoveCmd.Flags().BoolVarP(&images.ForceRemove, "force", "f", false, "Force remove image")
 	imageRemoveCmd.Flags().BoolVarP(&images.RemoveBlacklisted, "blacklist", "B", false, "remove image even if blacklisted")
-
 }

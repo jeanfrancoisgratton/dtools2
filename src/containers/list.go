@@ -13,12 +13,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/jeanfrancoisgratton/customError/v3"
+	ce "github.com/jeanfrancoisgratton/customError/v3"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 )
 
-func ListContainers(client *rest.Client, outputDisplay bool) ([]ContainerSummary, *customError.CustomError) {
+func ListContainers(client *rest.Client, outputDisplay bool) ([]ContainerSummary, *ce.CustomError) {
 	q := url.Values{}
 	if OnlyRunningContainers {
 		q.Set("all", "false")
@@ -34,18 +34,18 @@ func ListContainers(client *rest.Client, outputDisplay bool) ([]ContainerSummary
 
 	resp, err := client.Do(rest.Context, http.MethodGet, "/containers/json", q, nil, nil)
 	if err != nil {
-		return nil, &customError.CustomError{Title: "Unable to list containers", Message: err.Error()}
+		return nil, &ce.CustomError{Title: "Unable to list containers", Message: err.Error()}
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, &customError.CustomError{Title: "http request returned an error", Message: "GET /containers/json returned " + resp.Status}
+		return nil, &ce.CustomError{Title: "http request returned an error", Message: "GET /containers/json returned " + resp.Status}
 	}
 
 	var containers []ContainerSummary
 	if err := json.NewDecoder(resp.Body).Decode(&containers); err != nil {
 		return nil,
-			&customError.CustomError{Title: "Unable to decode JSON", Message: err.Error()}
+			&ce.CustomError{Title: "Unable to decode JSON", Message: err.Error()}
 	}
 	// If we're not supposed to display anything, just return an empty slice.
 	if !outputDisplay {

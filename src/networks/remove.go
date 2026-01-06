@@ -22,7 +22,7 @@ func RemoveNetwork(client *rest.Client, netList []string) *ce.CustomError {
 			if !rest.QuietOutput {
 				fmt.Println(hftx.WarningSign(" Network " + net + " is blacklisted"))
 			}
-			if RemoveEvenIfBlackListed {
+			if RemoveBlacklisted {
 				if !rest.QuietOutput {
 					fmt.Println(hftx.InfoSign("Force removal flag is present, continuing"))
 					if err := removeNet(client, net); err != nil {

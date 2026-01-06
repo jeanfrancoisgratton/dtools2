@@ -27,7 +27,7 @@ func RemoveVolumes(client *rest.Client, volList []string) *ce.CustomError {
 			if !rest.QuietOutput {
 				fmt.Println(hftx.WarningSign(" Volume " + vol + " is blacklisted"))
 			}
-			if RemoveEvenIfBlackListed {
+			if RemoveBlackListed {
 				if !rest.QuietOutput {
 					fmt.Println(hftx.InfoSign("Force removal flag is present, continuing"))
 					if err := removeVol(client, vol); err != nil {
@@ -50,7 +50,7 @@ func RemoveVolumes(client *rest.Client, volList []string) *ce.CustomError {
 
 func removeVol(client *rest.Client, volumeName string) *ce.CustomError {
 	q := url.Values{}
-	q.Set("force", strconv.FormatBool(ForceRemoval))
+	q.Set("force", strconv.FormatBool(ForceRemove))
 
 	path := "/volumes/" + volumeName
 	resp, derr := client.Do(rest.Context, http.MethodDelete, path, q, nil, nil)

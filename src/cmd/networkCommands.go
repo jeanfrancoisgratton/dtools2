@@ -30,7 +30,7 @@ var networkListCmd = &cobra.Command{
 		}
 
 		rest.Context = cmd.Context()
-		if err := networks.ListNetworks(restClient); err != nil {
+		if _, err := networks.NetworkList(restClient, true); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -131,5 +131,5 @@ func init() {
 	networkCreateCmd.Flags().BoolVarP(&networks.NetworkEnableIPv6, "ipv6", "6", false, "enable IPv6 on the network")
 	networkCreateCmd.Flags().BoolVarP(&networks.NetworkInternalUse, "internal", "i", false, "internal network only")
 	networkCreateCmd.Flags().BoolVarP(&networks.NetworkAttachable, "attachable", "a", false, "network is attachable (no effect on bridged networks)")
-	networkRmCmd.Flags().BoolVarP(&networks.RemoveEvenIfBlackListed, "blacklist", "B", false, "remove network even if blacklisted")
+	networkRmCmd.Flags().BoolVarP(&networks.RemoveBlacklisted, "blacklist", "B", false, "remove network even if blacklisted")
 }

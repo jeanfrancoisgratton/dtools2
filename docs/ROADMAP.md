@@ -23,16 +23,16 @@
 | [x] volume prune / rm                           | 0.80.00     |                |                                      |
 | [x] volume ls / create                          | 0.80.00     | 2.12.00        | create was actually added in 2.12.00 |
 | [x] exec (shell)                                | 0.90.00     |                |                                      |
-| [ ] system info                                 |             |                |                                      |
+| [ ] system info                                 | 2.20.00     |                |                                      |
 | [x] blacklist list [-a]                         | 0.20.00     | 0.30.00        | fixed regression in 0.50.00          |
 | [x] blacklist rm                                | 0.20.00     | 0.30.00        | fixed regression in 0.50.00          |
 | [x] blacklist add                               | 0.20.00     | 0.30.00        | fixed regression in 0.50.00          |
 | [x] container kill / killall                    | 0.50.00     |                |                                      | 
-| [ ] `dockerrm.sh`                               | ~~0.90.00~~ |                | will be implemented in 2.xx.yy       |
-| [ ] `dockerclean.sh`                            | ~~0.90.00~~ |                | will be implemented in 2.xx.yy       |
+| [ ] `dockerrm.sh`                               | ~~0.90.00~~ | 2.20.00        | will be implemented in 2.xx.yy       |
+| [ ] `dockerclean.sh`                            | ~~0.90.00~~ | 2.20.00        | will be implemented in 2.xx.yy       |
 | [x] `dockergettag.sh`                           | 0.70.00     |                | porting my bash script to dtools     |
 | [x] `dockergetcatalog.sh`                       | 0.70.00     |                | porting my bash script to dtools     |
 | [x] rebranding `dtools2`<br>as `dtools 2.00.00` | 2.00.00     |                |                                      |
 | [x] default registry handling (registry subcmd) | 0.70.00     |                |                                      |
-| [x] build command                               | 2.11.00      |                |                                      |
+| [x] build command                               | 2.11.00     |                |                                      |
 | [x] logs                                        | 0.90.00     |                |                                      |

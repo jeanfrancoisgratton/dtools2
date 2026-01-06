@@ -18,24 +18,24 @@ import (
 	"github.com/jedib0t/go-pretty/v6/text"
 )
 
-// ListNetworks lists all networks and marks each as "in use" by looking at
+// NetworkList lists all networks and marks each as "in use" by looking at
 // container network attachments. This keeps the operation to 2 API calls total:
 //   - GET /networks
 //   - GET /containers/json?all=1
 //
 // It avoids doing N calls to GET /networks/{id}.
-func ListNetworks(client *rest.Client) *ce.CustomError {
+func NetworkList(client *rest.Client, outputDisplay bool) ([]NetworkSummary, *ce.CustomError) {
 	// 1) Fetch networks
 	ns, cerr := fetchNetworkList(client)
 	if cerr != nil {
-		return cerr
+		return nil, cerr
 	}
 
 	// 2) Fetch containers (must include stopped containers; they still occupy networks)
 	containers.OnlyRunningContainers = false
 	cs, ccerr := containers.ListContainers(client, false)
 	if ccerr != nil {
-		return &ce.CustomError{Title: ccerr.Title, Message: ccerr.Message}
+		return nil, &ce.CustomError{Title: ccerr.Title, Message: ccerr.Message}
 	}
 
 	// 3) Compute network usage from container summaries (O(nets + containers))
@@ -50,6 +50,9 @@ func ListNetworks(client *rest.Client) *ce.CustomError {
 		fmt.Printf("Found %d networks; scanned %d containers\n", len(ns), len(cs))
 	}
 
+	if !outputDisplay {
+		return ns, nil
+	}
 	// 4) Render output
 	tw := table.NewWriter()
 	tw.SetOutputMirror(os.Stdout)
@@ -93,5 +96,5 @@ func ListNetworks(client *rest.Client) *ce.CustomError {
 	})
 
 	tw.Render()
-	return nil
+	return ns, nil
 }

@@ -23,7 +23,7 @@ var containerCmd = &cobra.Command{
 var containerListCmd = &cobra.Command{
 	Use:     "lsc [flags]",
 	Example: "dtools containers lsc [-r|-a]]",
-	Short:   "Lists the containers",
+	Short:   "List the containers",
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
 			fmt.Println("REST client not initialized")
@@ -114,7 +114,7 @@ var containerUnpauseCmd = &cobra.Command{
 var containerStartCmd = &cobra.Command{
 	Use:     "start",
 	Aliases: []string{"up"},
-	Example: "dtools2 start  container1 [container2..containerN]",
+	Example: "dtools start  container1 [container2..containerN]",
 	Short:   "Start one or many containers",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -132,7 +132,7 @@ var containerStartCmd = &cobra.Command{
 
 var containerStartAllCmd = &cobra.Command{
 	Use:     "startall",
-	Example: "dtools2 startall",
+	Example: "dtools startall",
 	Short:   "Start all non-running containers",
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -150,7 +150,7 @@ var containerStartAllCmd = &cobra.Command{
 var containerStopCmd = &cobra.Command{
 	Use:     "stop",
 	Aliases: []string{"down"},
-	Example: "dtools2 stop  container1 [container2..containerN]",
+	Example: "dtools stop  container1 [container2..containerN]",
 	Short:   "Stop one or many containers",
 	Long:    "Using a timeout of 0 (-t 0) will stop them concurrently, but conclusion is still dependent on the containers gracefully shut down",
 	Args:    cobra.MinimumNArgs(1),
@@ -169,7 +169,7 @@ var containerStopCmd = &cobra.Command{
 
 var containerStopAllCmd = &cobra.Command{
 	Use:     "stopall",
-	Example: "dtools2 stopall",
+	Example: "dtools stopall",
 	Short:   "Stop all running containers",
 	Long:    "Using a timeout of 0 (-t 0) will stop them concurrently, but conclusion is still dependent on the containers gracefully shut down",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -187,7 +187,7 @@ var containerStopAllCmd = &cobra.Command{
 
 var containerRenameCmd = &cobra.Command{
 	Use:     "rename",
-	Example: "dtools2 rename OLD_NAME NEW_NAME",
+	Example: "dtools rename OLD_NAME NEW_NAME",
 	Short:   "Rename a container",
 	Args:    cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -205,7 +205,7 @@ var containerRenameCmd = &cobra.Command{
 
 var containerKillCmd = &cobra.Command{
 	Use:     "kill",
-	Example: "dtools2 kill  container1 [container2..containerN]",
+	Example: "dtools kill  container1 [container2..containerN]",
 	Short:   "Kill one or many containers",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -223,7 +223,7 @@ var containerKillCmd = &cobra.Command{
 
 var containerKillAllCmd = &cobra.Command{
 	Use:     "killall",
-	Example: "dtools2 killall",
+	Example: "dtools killall",
 	Short:   "Kill all running containers",
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -240,7 +240,7 @@ var containerKillAllCmd = &cobra.Command{
 
 var containerRestartCmd = &cobra.Command{
 	Use:     "restart",
-	Example: "dtools2 restart container1 [container2..containerN]",
+	Example: "dtools restart container1 [container2..containerN]",
 	Short:   "Restart one or many containers",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -258,8 +258,8 @@ var containerRestartCmd = &cobra.Command{
 
 var containerRestartAllCmd = &cobra.Command{
 	Use:     "restartall",
-	Example: "dtools2 restartall",
-	Short:   "Restarts all running containers",
+	Example: "dtools restartall",
+	Short:   "Restart all running containers",
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
 			fmt.Println("REST client not initialized")
@@ -276,10 +276,12 @@ var containerRestartAllCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(containerCmd, containerListCmd, containerInfoCmd, containerRemoveCmd, containerPauseCmd,
 		containerUnpauseCmd, containerStartCmd, containerStartAllCmd, containerStopCmd, containerStopAllCmd,
-		containerRenameCmd, containerKillCmd, containerKillAllCmd, containerRestartCmd, containerRestartAllCmd)
+		containerRenameCmd, containerKillCmd, containerKillAllCmd, containerRestartCmd,
+		containerRestartAllCmd)
 	containerCmd.AddCommand(containerListCmd, containerInfoCmd, containerRemoveCmd, containerPauseCmd,
 		containerUnpauseCmd, containerStartCmd, containerStartAllCmd, containerStopCmd, containerStopAllCmd,
-		containerRenameCmd, containerKillCmd, containerKillAllCmd, containerRestartCmd, containerRestartAllCmd)
+		containerRenameCmd, containerKillCmd, containerKillAllCmd, containerRestartCmd,
+		containerRestartAllCmd)
 
 	containerRestartCmd.Flags().BoolVarP(&containers.KillSwitch, "kill", "k", false, "force kill of container")
 	containerRestartAllCmd.Flags().BoolVarP(&containers.KillSwitch, "kill", "k", false, "force kill of container")

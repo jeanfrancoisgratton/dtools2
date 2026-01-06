@@ -9,7 +9,7 @@ var NetworkDriverName = "bridge"
 var NetworkInternalUse = false
 var NetworkAttachable = false
 var NetworkEnableIPv6 = false
-var RemoveEvenIfBlackListed = false
+var RemoveBlacklisted = false
 var ForceNetworkDetach = false
 
 type IPAMConfig struct {

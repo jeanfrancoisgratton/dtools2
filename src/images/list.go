@@ -19,28 +19,31 @@ import (
 	"github.com/jedib0t/go-pretty/v6/text"
 )
 
-func ImagesList(client *rest.Client) *ce.CustomError {
+func ImagesList(client *rest.Client, displayOutput bool) ([]ImageSummary, *ce.CustomError) {
 	var iInfoSlice []ImageSummary
 
 	// Create & execute the http request
 	resp, err := client.Do(rest.Context, http.MethodGet, "/images/json", url.Values{}, nil, nil)
 	if err != nil {
-		return &ce.CustomError{Title: "Unable to list images", Message: err.Error()}
+		return nil, &ce.CustomError{Title: "Unable to list images", Message: err.Error()}
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		return &ce.CustomError{Title: "http request returned an error", Message: "GET /images/json returned " + resp.Status}
+		return nil, &ce.CustomError{Title: "http request returned an error", Message: "GET /images/json returned " + resp.Status}
 	}
 
 	// Decode JSON only if we actually have content
 	var images []ImageSummary
 	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusNoContent {
 		if err := json.NewDecoder(resp.Body).Decode(&images); err != nil {
-			return &ce.CustomError{Title: "Unable to decode JSON", Message: err.Error()}
+			return nil, &ce.CustomError{Title: "Unable to decode JSON", Message: err.Error()}
 		}
 	}
 
+	if !displayOutput {
+		return images, nil
+	}
 	// Now that we have the data in a JSON payload, we need to parse it
 	// 1. Parse all images
 	for _, img := range images {
@@ -114,5 +117,5 @@ func ImagesList(client *rest.Client) *ce.CustomError {
 	})
 
 	t.Render()
-	return nil
+	return images, nil
 }

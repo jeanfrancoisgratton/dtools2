@@ -5,8 +5,8 @@
 
 package volumes
 
-var RemoveEvenIfBlackListed = false
-var ForceRemoval = false
+var RemoveBlackListed = false
+var ForceRemove = false
 var RemoveNamedVolumes = false
 var CreateVolDriver = "local"
 
