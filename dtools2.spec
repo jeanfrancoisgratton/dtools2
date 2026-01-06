@@ -63,6 +63,16 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Mon Jan 05 2026 Binary package builder <builder@famillegratton.net> 2.12.01-0
+- Fixed volume list and prune (jean-francois@famillegratton.net)
+- interim sync (jean-francois@famillegratton.net)
+- Update README.md (jean-francois@famillegratton.net)
+- Updated doc to test image embedding 4 (jean-francois@famillegratton.net)
+- Updated doc to test image embedding 3 (jean-francois@famillegratton.net)
+- Updated doc to test image embedding 2 (jean-francois@famillegratton.net)
+- Updated doc to test image embedding (jean-francois@famillegratton.net)
+- doc update (jean-francois@famillegratton.net)
+
 * Sun Jan 04 2026 Binary package builder <builder@famillegratton.net> 2.12.00-0
 - bumped version number (builder@famillegratton.net)
 - Fixed tito tag issue (builder@famillegratton.net)
