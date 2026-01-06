@@ -6,65 +6,30 @@
 package volumes
 
 import (
-	"bytes"
 	"dtools2/containers"
-	"dtools2/rest"
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
-	"net/url"
 	"sort"
 	"strings"
-
-	ce "github.com/jeanfrancoisgratton/customError/v3"
+	"time"
 )
 
-// fetchVolumeList fetches the daemon's volumes.
-//
-// Docker typically returns an object shaped like VolumeListResponse:
-//   {"Volumes":[...],"Warnings":[...]}
-//
-// Some implementations (or older endpoints) may return a JSON array.
-func fetchVolumeList(client *rest.Client) ([]Volume, *ce.CustomError) {
-	resp, err := client.Do(rest.Context, http.MethodGet, "/volumes", url.Values{}, nil, nil)
+func formatCreated(created string) string {
+	created = strings.TrimSpace(created)
+	if created == "" {
+		return ""
+	}
+
+	// Docker/Podman commonly return RFC3339 timestamps; sometimes with fractional seconds.
+	tm, err := time.Parse(time.RFC3339Nano, created)
 	if err != nil {
-		return nil, &ce.CustomError{Title: "Unable to list volumes", Message: err.Error()}
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		return nil, &ce.CustomError{Title: "http request returned an error", Message: "GET /volumes returned " + resp.Status}
-	}
-	if resp.StatusCode == http.StatusNoContent {
-		return []Volume{}, nil
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, &ce.CustomError{Title: "Unable to read HTTP response", Message: err.Error()}
-	}
-	trim := bytes.TrimSpace(body)
-	if len(trim) == 0 {
-		return []Volume{}, nil
-	}
-
-	switch trim[0] {
-	case '{':
-		var r VolumeListResponse
-		if err := json.Unmarshal(trim, &r); err != nil {
-			return nil, &ce.CustomError{Title: "Unable to decode JSON", Message: err.Error()}
+		tm, err = time.Parse(time.RFC3339, created)
+		if err != nil {
+			// If parsing fails, keep original to avoid losing information.
+			return created
 		}
-		return r.Volumes, nil
-	case '[':
-		var vols []Volume
-		if err := json.Unmarshal(trim, &vols); err != nil {
-			return nil, &ce.CustomError{Title: "Unable to decode JSON", Message: err.Error()}
-		}
-		return vols, nil
-	default:
-		return nil, &ce.CustomError{Title: "Unexpected JSON payload", Message: "GET /volumes returned an unsupported JSON shape"}
 	}
+
+	return tm.Format("2006.01.02 15:04:05")
 }
 
 func containerDisplayName(c containers.ContainerSummary) string {
