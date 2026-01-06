@@ -21,14 +21,13 @@ func RmContainers(client *rest.Client) *ce.CustomError {
 	containers.RemoveUnamedVolumes = RemoveUnamedVolumes
 	containers.RemoveBlacklisted = RemoveBlacklisted
 
-	rest.QuietOutput = true
 	candidates := []string{}
 
 	if cs, err := containers.ListContainers(client, false); err != nil {
 		return err
 	} else {
 		for _, c := range cs {
-			a := strings.ToLower(c.Status)
+			a := strings.ToLower(c.State)
 			if a == "created" || a == "exited" {
 				candidates = append(candidates, c.Names[0][1:])
 			}
