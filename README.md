@@ -1,4 +1,4 @@
-# <img src="./dtools2-logo_small.png" alt="dtools2 logo" height="48" /> dtools2
+# <img src="./images/dtools2-logo_small.png" alt="dtools2 logo" height="48" /> dtools2
 
 A drop-in client replacement for the official docker and podman clients
 ___
@@ -140,22 +140,8 @@ Also all lists are output as tables, for better readability
 ### info
 `dtools container info CONTAINER_NAME`<br>
 `dtools info CONTAINER_NAME`
-gives extended information about a named container, like this:
-```bash
-[2:05:12|jfgratton@london:src]: dtools container info nexus           
-🛈 Connecting to: unix:///var/run/docker.sock
-
-Container name      nexus
-Image               nexus:9820/nexus:18.10.00
-Created             2026.01.04 01:56:57
-State               exited
-Status              exited (255) 7 minutes ago
-RW filesystem size  0.001 MB
-RootFS size         812.732 MB
-Exposed ports       
-Mount points        ✅  [nexus-data]:/opt/nexus3/sonatype-work/nexus3
-Command             /entrypoint.sh
-```
+gives extended information about a named container, like this:<br>
+<img src="./images/info.png" alt="dtools info nexus"/>
 
 ### kill/killall, start/startall, stop/stopall, restart/restartall, pause/unpause, rename
 *Note:*
@@ -178,21 +164,26 @@ the kill/start/stop/restart commands:
 Notice that `dtools up` is an alias to `dtools start`. Some commands have aliases set that way, explore with -`h`
 
 ### list containers
-`dtools container lsc [-r] [-x]`, `dtools lsc [-r] [-x]`
+`dtools lsc [-r] [-x]`
 
 This lists all containers on the daemon
 - `-r` : only running containers
-- `-x` : provides extended information
+- `-x` : provides extended information<br>
+
+
+<img src="./images/lsc.png" alt="dtools lsc"/>
 
 ### remove containers
 `dtools container rmc [flags] CONTAINER_NAME`, `dtools rmc [flags] CONTAINER_NAME`
 
-You can chain multiple containers like this: `dtools rmc [flags] CONTAINER1 CONTAINER2 CONTAINER3` etc
+You can chain multiple containers like this: `dtools rmc [flags] CONTAINER1 CONTAINER2 CONTAINER3` etc<br>
+The blacklist feature can be applied here<br>
 
 ## Image commands
 
 ### list images
-`dtools image lsi`, `dtools lsi`
+`dtools lsi`
+<img src="./images/lsi.png" alt="dtools lsi"/>
 
 ### pull/push image from/to a remote registry
 `dtools image pull REPO:IMAGE:TAG`, `dtools pull REPO:IMAGE:TAG`<br>
@@ -201,10 +192,16 @@ You can chain multiple containers like this: `dtools rmc [flags] CONTAINER1 CONT
 ### tag an image
 `dtools image tag IMAGE:TAG IMAGE:NEW_TAG`, `dtools tag IMAGE:TAG IMAGE:NEW_TAG`
 
+### remove an image
+`dtools rmi repository/image name:tag` or `dtools rmi image id`<br>
+The blacklist feature can be applied here<br>
+
 ## Network commands
 
 ### list networks
-`dtools network lsn`, `dtools lsn`
+`dtools lsn`<br>
+
+<img src="./images/lsn.png" alt="dtools lsn"/>
 
 ### create networks
 `dtools network create [flags] NETWORK_NAME`<br>
@@ -212,15 +209,43 @@ The flags are important, have a look at them : `dtools net add -h`
 
 ### remove networks
 `dtools net remove [flags] NETWORK_NAME`, `dtools net rmn NETWORK_NAME`, `dtools rmn NETWORK_NAME`<br>
-You can chain multiple network names to remove them all at once
+You can chain multiple network names to remove them all at once<br>
+The blacklist feature can be applied here<br>
 
 ### attach/detach a network from a container
 `dtools network attach NETWORK_NAME CONTAINER_NAME`, `dtools network detach NETWORK_NAME CONTAINER_NAME`
 
 ## Volume commands
 
+### list volumes
+`dtools lsv`<br>
+
+<img src="./images/lsv.png" alt="dtools lsv"/><br>
 ### create volumes
 `dtools volume create [-d DRIVER_NAME] VOLUME_NAME`<br>
 
 A very basic support is offered here. Basically, you should create a volume using the `local` driver.<br>
-If you have third-party drivers and those do not need any special treatment such as options, etc, you can use that with the `-d` flag
+If you have third-party drivers and those do not need any special treatment such as options, etc, you can use that with the `-d` flag<br>
+
+### volume prune
+`dtools volume prune`
+
+This will command will remove all unused volumes. A volume is defined as *unused* when its RefCount (ref: `dtools lsv`) is equal to 0<br>
+The blacklist feature can be applied here<br>
+
+### volume removal
+`dtools rmv VOLUME`
+
+Removes a volume, blacklist feature can be applied here.
+
+## Extra features, nice-to-add
+
+### JSON and file output to lists
+The commands `lsc`, `lsi`, `lsn`, `lsv` used to respectively list containers, images, networks and volumes can have extra
+flags to handle output:
+
+- the `--json` flag informs the client that the output should rendered as a JSON payload
+- additionally, if the above `--json` is set, a further `--format KEY_NAME` flag can be used to list only the keys of that name, in plaintext<br>
+if `--format` is empty, the flag is ignored
+- the `--file FILENAME` can be used to send the output to a file as JSON
+- if none of the above flags are present, the output is rendered in a table
