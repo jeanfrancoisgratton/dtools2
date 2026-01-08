@@ -63,6 +63,9 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Thu Jan 08 2026 Binary package builder <builder@famillegratton.net> 2.21.01-1
+- Bumped package version number (builder@famillegratton.net)
+
 * Thu Jan 08 2026 Binary package builder <builder@famillegratton.net> 2.21.01-0
 - Added the --format flag, used when the --json flag is set (jean-
   francois@famillegratton.net)
