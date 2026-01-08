@@ -13,6 +13,7 @@ import (
 	"os"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
+	hfjson "github.com/jeanfrancoisgratton/helperFunctions/v4/prettyjson"
 	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
@@ -53,6 +54,37 @@ func NetworkList(client *rest.Client, outputDisplay bool) ([]NetworkSummary, *ce
 	if !outputDisplay {
 		return ns, nil
 	}
+
+	// Optional: write JSON payload to a file and/or render JSON to stdout.
+	// This is only done when outputDisplay is true (i.e., list commands).
+	var payloadBytes []byte
+	if extras.OutputFile != "" {
+		b, cerr := extras.Send2File(ns, extras.OutputFile)
+		if cerr != nil {
+			return nil, cerr
+		}
+		payloadBytes = b
+	}
+
+	if extras.OutputJSON {
+		// Marshal once if we didn't already (for --file).
+		if payloadBytes == nil {
+			b, cerr := extras.MarshalJSON(ns)
+			if cerr != nil {
+				return nil, cerr
+			}
+			payloadBytes = b
+		}
+
+		hfjson.Print(payloadBytes)
+		return ns, nil
+	}
+
+	// JSON output not requested; if quiet, return data only.
+	if rest.QuietOutput {
+		return ns, nil
+	}
+
 	// 4) Render output
 	tw := table.NewWriter()
 	tw.SetOutputMirror(os.Stdout)

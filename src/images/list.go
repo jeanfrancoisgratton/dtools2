@@ -15,6 +15,7 @@ import (
 	"time"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
+	hfjson "github.com/jeanfrancoisgratton/helperFunctions/v4/prettyjson"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 )
@@ -41,9 +42,6 @@ func ImagesList(client *rest.Client, displayOutput bool) ([]ImageSummary, *ce.Cu
 		}
 	}
 
-	if !displayOutput {
-		return images, nil
-	}
 	// Now that we have the data in a JSON payload, we need to parse it
 	// 1. Parse all images
 	for _, img := range images {
@@ -64,6 +62,41 @@ func ImagesList(client *rest.Client, displayOutput bool) ([]ImageSummary, *ce.Cu
 
 			iInfoSlice = append(iInfoSlice, iInfo)
 		}
+	}
+
+	// If we're not supposed to display anything, return the parsed list.
+	if !displayOutput {
+		return iInfoSlice, nil
+	}
+
+	// Optional: write JSON payload to a file and/or render JSON to stdout.
+	// This is only done when displayOutput is true (i.e., list commands).
+	var payloadBytes []byte
+	if extras.OutputFile != "" {
+		b, cerr := extras.Send2File(iInfoSlice, extras.OutputFile)
+		if cerr != nil {
+			return nil, cerr
+		}
+		payloadBytes = b
+	}
+
+	if extras.OutputJSON {
+		// Marshal once if we didn't already (for --file).
+		if payloadBytes == nil {
+			b, cerr := extras.MarshalJSON(iInfoSlice)
+			if cerr != nil {
+				return nil, cerr
+			}
+			payloadBytes = b
+		}
+
+		hfjson.Print(payloadBytes)
+		return iInfoSlice, nil
+	}
+
+	// JSON output not requested; if quiet, return data only.
+	if rest.QuietOutput {
+		return iInfoSlice, nil
 	}
 
 	// Build and render the table ONCE
@@ -117,5 +150,5 @@ func ImagesList(client *rest.Client, displayOutput bool) ([]ImageSummary, *ce.Cu
 	})
 
 	t.Render()
-	return images, nil
+	return iInfoSlice, nil
 }

@@ -6,6 +6,7 @@
 package cmd
 
 import (
+	"dtools2/extras"
 	"dtools2/images"
 	"dtools2/rest"
 	"fmt"
@@ -125,4 +126,5 @@ func init() {
 	imagePullCmd.Flags().StringVarP(&imagePullRegistry, "registry", "r", "", "registry hostname to use for auth (e.g. registry.example.com:5000); empty for anonymous")
 	imageRemoveCmd.Flags().BoolVarP(&images.ForceRemove, "force", "f", false, "Force remove image")
 	imageRemoveCmd.Flags().BoolVarP(&images.RemoveBlacklisted, "blacklist", "B", false, "remove image even if blacklisted")
+	imageListCmd.Flags().StringVarP(&extras.OutputFile, "file", "F", "", "Write JSON output to a file")
 }

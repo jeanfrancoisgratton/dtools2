@@ -7,5 +7,6 @@
 - [ ] .... better quality control :p
 - [x] remove the `Code` member from all `ce.CustomError` structures
 - [x] `blacklist add` and `blacklist rm` are now more verbose
-- [ ] fix potential inconsistencies across parent/children commands (ex: `net ls/lsn`, `image ls/lsi`)
+- [x] fix potential inconsistencies across parent/children commands (ex: `net ls/lsn`, `image ls/lsi`)
 - [ ] make verbosity, warning/errors/etc more consistent
+- [ ] json/file output to `container info` and `system info`

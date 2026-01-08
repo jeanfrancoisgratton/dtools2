@@ -8,8 +8,7 @@ package cmd
 import "dtools2/rest"
 
 // Global flags used for option parsing by COBRA
-
-var ConnectURI string
+var OutputJSON bool
 var APIVersion string
 var UseTLS bool
 var TLSCACert string

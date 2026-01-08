@@ -16,7 +16,7 @@ var rootCmd = &cobra.Command{
 	Use:          "dtools",
 	SilenceUsage: true,
 	Short:        "Docker / Podman client",
-	Version:      "2.20.01 (2026.01.06)",
+	Version:      "2.21.00 (2026.01.07)",
 	Long: `dtools is a lightweight Docker/Podman client that talks directly
 to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -25,7 +25,7 @@ to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 		}
 
 		cfg := rest.Config{
-			Host:               ConnectURI,
+			Host:               rest.ConnectURI,
 			APIVersion:         APIVersion,
 			UseTLS:             UseTLS,
 			CACertPath:         TLSCACert,
@@ -76,8 +76,9 @@ func init() {
 
 	// Global flags.
 	rootCmd.PersistentFlags().BoolVarP(&extras.Debug, "debug", "D", false, "Enable debug output on stderr")
+	rootCmd.PersistentFlags().BoolVar(&extras.OutputJSON, "json", false, "Output JSON instead of formatted tables")
 	rootCmd.PersistentFlags().BoolVarP(&rest.QuietOutput, "quiet", "q", false, "Quiet output")
-	rootCmd.PersistentFlags().StringVarP(&ConnectURI, "host", "H", "", "Docker daemon host (e.g. unix:///var/run/docker.sock, tcp://host:2376)")
+	rootCmd.PersistentFlags().StringVarP(&rest.ConnectURI, "host", "H", "", "Docker daemon host (e.g. unix:///var/run/docker.sock, tcp://host:2376)")
 	rootCmd.PersistentFlags().StringVarP(&APIVersion, "api-version", "A", "", "Docker API version (e.g. 1.43); if empty, auto-negotiate with the daemon")
 	rootCmd.PersistentFlags().BoolVarP(&UseTLS, "tls", "T", false, "Use TLS when connecting to the daemon (for tcp:// hosts)")
 

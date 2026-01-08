@@ -6,6 +6,7 @@
 package cmd
 
 import (
+	"dtools2/extras"
 	"dtools2/rest"
 	"dtools2/volumes"
 	"fmt"
@@ -106,4 +107,5 @@ func init() {
 	volumeRmCmd.Flags().BoolVarP(&volumes.RemoveBlackListed, "blacklist", "B", false, "remove volume even if blacklisted")
 	volumeRmCmd.Flags().BoolVarP(&volumes.ForceRemove, "force", "f", false, "force-remove volume")
 	volumeCreateCmd.Flags().StringVarP(&volumes.CreateVolDriver, "driver", "d", "local", "volume driver")
+	volumeListCmd.Flags().StringVarP(&extras.OutputFile, "file", "F", "", "Write JSON output to a file")
 }

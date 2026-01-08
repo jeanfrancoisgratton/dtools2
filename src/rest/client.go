@@ -37,8 +37,8 @@ func NewClient(cfg Config) (*Client, error) {
 	if !isUnix && !strings.Contains(host, "://") {
 		host = "tcp://" + host
 	}
-	if !QuietOutput {
-		fmt.Println(fmt.Sprintf("%s: %s\n", hftx.InfoSign("Connecting to"), hftx.Blue(host)))
+	if !QuietOutput && ConnectURI != "" {
+		fmt.Println(fmt.Sprintf("%s: %s\n", hftx.InfoSign("Connected to"), hftx.Blue(host)))
 	}
 
 	var (

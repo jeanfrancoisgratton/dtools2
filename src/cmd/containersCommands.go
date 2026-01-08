@@ -7,6 +7,7 @@ package cmd
 
 import (
 	"dtools2/containers"
+	"dtools2/extras"
 	"dtools2/rest"
 	"fmt"
 
@@ -292,4 +293,5 @@ func init() {
 	containerRemoveCmd.Flags().BoolVarP(&containers.RemoveBlacklisted, "blacklist", "B", false, "remove container even if blacklisted")
 	containerListCmd.Flags().BoolVarP(&containers.OnlyRunningContainers, "running", "r", false, "List only the running containers")
 	containerListCmd.Flags().BoolVarP(&containers.ExtendedContainerInfo, "extended", "x", false, "Show extended container info")
+	containerListCmd.Flags().StringVarP(&extras.OutputFile, "file", "F", "", "Write JSON output to a file")
 }

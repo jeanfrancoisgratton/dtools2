@@ -6,6 +6,7 @@
 package cmd
 
 import (
+	"dtools2/extras"
 	"dtools2/networks"
 	"dtools2/rest"
 	"fmt"
@@ -132,4 +133,5 @@ func init() {
 	networkCreateCmd.Flags().BoolVarP(&networks.NetworkInternalUse, "internal", "i", false, "internal network only")
 	networkCreateCmd.Flags().BoolVarP(&networks.NetworkAttachable, "attachable", "a", false, "network is attachable (no effect on bridged networks)")
 	networkRmCmd.Flags().BoolVarP(&networks.RemoveBlacklisted, "blacklist", "B", false, "remove network even if blacklisted")
+	networkListCmd.Flags().StringVarP(&extras.OutputFile, "file", "F", "", "Write JSON output to a file")
 }

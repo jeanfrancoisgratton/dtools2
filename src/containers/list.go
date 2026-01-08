@@ -6,6 +6,7 @@
 package containers
 
 import (
+	"dtools2/extras"
 	"dtools2/rest"
 	"encoding/json"
 	"net/http"
@@ -14,6 +15,7 @@ import (
 	"time"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
+	hfjson "github.com/jeanfrancoisgratton/helperFunctions/v4/prettyjson"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 )
@@ -47,8 +49,39 @@ func ListContainers(client *rest.Client, outputDisplay bool) ([]ContainerSummary
 		return nil,
 			&ce.CustomError{Title: "Unable to decode JSON", Message: err.Error()}
 	}
-	// If we're not supposed to display anything, just return an empty slice.
+
+	// If we're not supposed to display anything, return data only.
 	if !outputDisplay {
+		return containers, nil
+	}
+
+	// Optional: write JSON payload to a file and/or render JSON to stdout.
+	// This is only done when outputDisplay is true (i.e., list commands).
+	var payloadBytes []byte
+	if extras.OutputFile != "" {
+		b, cerr := extras.Send2File(containers, extras.OutputFile)
+		if cerr != nil {
+			return nil, cerr
+		}
+		payloadBytes = b
+	}
+
+	if extras.OutputJSON {
+		// Marshal once if we didn't already (for --file).
+		if payloadBytes == nil {
+			b, cerr := extras.MarshalJSON(containers)
+			if cerr != nil {
+				return nil, cerr
+			}
+			payloadBytes = b
+		}
+
+		hfjson.Print(payloadBytes)
+		return containers, nil
+	}
+
+	// JSON output not requested; if quiet, return data only.
+	if rest.QuietOutput {
 		return containers, nil
 	}
 
@@ -125,5 +158,5 @@ func ListContainers(client *rest.Client, outputDisplay bool) ([]ContainerSummary
 	})
 
 	t.Render()
-	return nil, nil
+	return containers, nil
 }
