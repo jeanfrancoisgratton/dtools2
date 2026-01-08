@@ -182,7 +182,7 @@ The blacklist feature can be applied here<br>
 ## Image commands
 
 ### list images
-`dtools lsi`
+`dtools lsi`<br>
 <img src="./images/lsi.png" alt="dtools lsi"/>
 
 ### pull/push image from/to a remote registry
