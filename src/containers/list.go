@@ -1,3 +1,4 @@
+// containers/list.go
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2025/11/24 20:29
@@ -64,6 +65,18 @@ func ListContainers(client *rest.Client, outputDisplay bool) ([]ContainerSummary
 			return nil, cerr
 		}
 		payloadBytes = b
+	}
+
+	// --format takes precedence over --json, tables and ignores --quiet.
+	if extras.OutputFormat != "" {
+		rows, cerr := extras.ExtractFormatRows(containers, extras.OutputFormat)
+		if cerr != nil {
+			return nil, cerr
+		}
+		if cerr := extras.PrintFormatRows(rows); cerr != nil {
+			return nil, cerr
+		}
+		return containers, nil
 	}
 
 	if extras.OutputJSON {

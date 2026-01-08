@@ -1,3 +1,4 @@
+// extras/types.go
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2025/12/15 18:23
@@ -11,6 +12,7 @@ var LogFollow bool     // -f
 var LogTail int        // -n (lines); -1 means "all"
 var OutputJSON bool    // render output in JSON
 var OutputFile = ""
+var OutputFormat = "" // when non-empty, output only this field (or comma-separated fields) as plaintext
 
 // Structures for the Docker/Podman exec API.
 //

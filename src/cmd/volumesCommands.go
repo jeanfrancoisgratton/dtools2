@@ -1,3 +1,4 @@
+// cmd/volumesCommands.go
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2025/12/31 13:42
@@ -108,4 +109,5 @@ func init() {
 	volumeRmCmd.Flags().BoolVarP(&volumes.ForceRemove, "force", "f", false, "force-remove volume")
 	volumeCreateCmd.Flags().StringVarP(&volumes.CreateVolDriver, "driver", "d", "local", "volume driver")
 	volumeListCmd.Flags().StringVarP(&extras.OutputFile, "file", "F", "", "Write JSON output to a file")
+	volumeListCmd.Flags().StringVar(&extras.OutputFormat, "format", "", "Output only the values for the given field (or comma-separated fields) as plaintext")
 }

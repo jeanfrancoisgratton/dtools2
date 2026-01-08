@@ -1,3 +1,4 @@
+// cmd/containersCommands.go
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2025/11/24 20:20
@@ -294,4 +295,5 @@ func init() {
 	containerListCmd.Flags().BoolVarP(&containers.OnlyRunningContainers, "running", "r", false, "List only the running containers")
 	containerListCmd.Flags().BoolVarP(&containers.ExtendedContainerInfo, "extended", "x", false, "Show extended container info")
 	containerListCmd.Flags().StringVarP(&extras.OutputFile, "file", "F", "", "Write JSON output to a file")
+	containerListCmd.Flags().StringVar(&extras.OutputFormat, "format", "", "Output only the values for the given field (or comma-separated fields) as plaintext")
 }

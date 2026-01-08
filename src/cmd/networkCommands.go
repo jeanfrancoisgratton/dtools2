@@ -1,3 +1,4 @@
+// cmd/networkCommands.go
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2025/12/14 20:22
@@ -134,4 +135,5 @@ func init() {
 	networkCreateCmd.Flags().BoolVarP(&networks.NetworkAttachable, "attachable", "a", false, "network is attachable (no effect on bridged networks)")
 	networkRmCmd.Flags().BoolVarP(&networks.RemoveBlacklisted, "blacklist", "B", false, "remove network even if blacklisted")
 	networkListCmd.Flags().StringVarP(&extras.OutputFile, "file", "F", "", "Write JSON output to a file")
+	networkListCmd.Flags().StringVar(&extras.OutputFormat, "format", "", "Output only the values for the given field (or comma-separated fields) as plaintext")
 }

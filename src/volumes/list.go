@@ -1,3 +1,4 @@
+// volumes/list.go
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2025/12/31 13:49
@@ -65,6 +66,18 @@ func ListVolumes(client *rest.Client, displayOutput bool) ([]Volume, *ce.CustomE
 			return nil, cerr
 		}
 		payloadBytes = b
+	}
+
+	// --format takes precedence over --json, tables and ignores --quiet.
+	if extras.OutputFormat != "" {
+		rows, cerr := extras.ExtractFormatRows(vols, extras.OutputFormat)
+		if cerr != nil {
+			return nil, cerr
+		}
+		if cerr := extras.PrintFormatRows(rows); cerr != nil {
+			return nil, cerr
+		}
+		return vols, nil
 	}
 
 	if extras.OutputJSON {
