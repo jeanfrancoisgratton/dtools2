@@ -63,6 +63,10 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Wed Jan 07 2026 Binary package builder <builder@famillegratton.net> 2.21.00-0
+- completed json formatting (jean-francois@famillegratton.net)
+- version bump (jean-francois@famillegratton.net)
+
 * Tue Jan 06 2026 Binary package builder <builder@famillegratton.net> 2.20.00-0
 - fixed tito tag numbering (jean-francois@famillegratton.net)
 - Fixed version/tag number for RPMs (jean-francois@famillegratton.net)
