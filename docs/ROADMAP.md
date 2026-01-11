@@ -36,3 +36,6 @@
 | [x] default registry handling (registry subcmd) | 0.70.00     |                |                                      |
 | [x] build command                               | 2.11.00     |                |                                      |
 | [x] logs                                        | 0.90.00     |                |                                      |
+| [ ] cp                                          | 2.30.00     |                |                                      |
+| [ ] load / save                                 | 2.30.00     |                |                                      |
+| [ ] import / export                             | 2.30.00     |                |                                      |
