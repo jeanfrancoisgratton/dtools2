@@ -80,3 +80,18 @@ type RegistryConfig struct {
 	Mirrors               []string `json:"Mirrors"`
 	InsecureRegistryCIDRs []string `json:"InsecureRegistryCIDRs"`
 }
+
+// CP STRUCTS
+type dockerErrorResponse struct {
+	Message string `json:"message"`
+}
+
+// containerPathStat matches the decoded JSON inside X-Docker-Container-Path-Stat.
+// Mode uses Go's FileMode bit layout (e.g. os.ModeDir == 1<<31).
+type containerPathStat struct {
+	Name       string `json:"name"`
+	Size       int64  `json:"size"`
+	Mode       int64  `json:"mode"`
+	Mtime      string `json:"mtime"`
+	LinkTarget string `json:"linkTarget"`
+}
