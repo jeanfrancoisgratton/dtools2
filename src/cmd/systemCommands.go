@@ -111,7 +111,7 @@ func init() {
 	sysGetCatalogCmd.Flags().StringVarP(&env.RegConfigFile, "registryfile", "r", "", "registry config file")
 	sysGetCatalogCmd.Flags().StringVarP(&system.JSONoutputfile, "output", "o", "", "send output to file")
 	sysGetTagsCmd.Flags().StringVarP(&env.RegConfigFile, "registryfile", "r", "", "registry config file")
-	sysGetTagsCmd.Flags().StringVarP(&system.JSONoutputfile, "output", "o", "", "send output to file")
+	sysGetTagsCmd.Flags().StringVarP(&system.JSONoutputfile, "file", "f", "", "send output to file")
 	systemRmCmd.Flags().BoolVarP(&system.ForceRemove, "force", "f", false, "force removal of container")
 	systemRmCmd.Flags().BoolVarP(&system.RemoveUnamedVolumes, "remove-vols", "r", true, "remove non-named volume")
 	systemRmCmd.Flags().BoolVarP(&system.RemoveBlacklisted, "blacklist", "B", false, "remove container even if blacklisted")

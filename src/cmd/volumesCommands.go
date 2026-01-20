@@ -104,7 +104,7 @@ func init() {
 	volumeCmd.AddCommand(volumeListCmd, volumeRmCmd, volumePruneCmd, volumeCreateCmd)
 
 	volumePruneCmd.Flags().BoolVarP(&volumes.RemoveBlackListed, "blacklist", "B", false, "remove volume even if blacklisted")
-	volumePruneCmd.Flags().BoolVarP(&volumes.RemoveNamedVolumes, "all", "a", false, "remove anonymous AND non-anonymous volumes")
+	volumePruneCmd.Flags().BoolVarP(&volumes.RemoveNamedVolumes, "all", "a", true, "remove anonymous AND non-anonymous volumes")
 	volumeRmCmd.Flags().BoolVarP(&volumes.RemoveBlackListed, "blacklist", "B", false, "remove volume even if blacklisted")
 	volumeRmCmd.Flags().BoolVarP(&volumes.ForceRemove, "force", "f", false, "force-remove volume")
 	volumeCreateCmd.Flags().StringVarP(&volumes.CreateVolDriver, "driver", "d", "local", "volume driver")

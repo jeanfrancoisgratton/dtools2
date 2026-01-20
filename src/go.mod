@@ -9,7 +9,7 @@ require (
 	github.com/jedib0t/go-pretty/v6 v6.7.8
 	github.com/moby/term v0.5.2
 	github.com/spf13/cobra v1.10.2
-	golang.org/x/crypto v0.46.0
+	golang.org/x/crypto v0.47.0
 )
 
 require (
@@ -23,8 +23,8 @@ require (
 	github.com/mattn/go-runewidth v0.0.19 // indirect
 	github.com/morikuni/aec v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
-	golang.org/x/sys v0.39.0 // indirect
-	golang.org/x/term v0.38.0 // indirect
-	golang.org/x/text v0.32.0 // indirect
+	golang.org/x/sys v0.40.0 // indirect
+	golang.org/x/term v0.39.0 // indirect
+	golang.org/x/text v0.33.0 // indirect
 	gotest.tools/v3 v3.5.2 // indirect
 )

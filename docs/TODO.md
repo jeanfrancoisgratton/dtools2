@@ -10,4 +10,7 @@
 - [x] fix potential inconsistencies across parent/children commands (ex: `net ls/lsn`, `image ls/lsi`)
 - [x] make verbosity, warning/errors/etc more consistent
 - [x] json/file output to `container info` and `system info`
-- [ ] add a `dtools cp` copy command
+- [x] add a `dtools cp` copy command
+- [ ] `load` / `save` / `import` / `export` / `commit` commands
+- [ ] `-e` support to `dtools run`
+- [ ] add an http timeout, useful for long push/pull actions
