@@ -36,8 +36,8 @@ dtools version 2.30.00 (2026.01.11)
 | [x] blacklist rm                                    | 0.20.00     | 0.30.00        | fixed regression in 0.50.00          |
 | [x] blacklist add                                   | 0.20.00     | 0.30.00        | fixed regression in 0.50.00          |
 | [x] container kill / killall                        | 0.50.00     |                |                                      | 
-| [ ] `dockerrm.sh`                                   | ~~0.90.00~~ | 2.20.00        | will be implemented in 2.xx.yy       |
-| [ ] `dockerclean.sh`                                | ~~0.90.00~~ | 2.20.00        | will be implemented in 2.xx.yy       |
+| [x] `dockerrm.sh`                                   | ~~0.90.00~~ | 2.20.00        | will be implemented in 2.xx.yy       |
+| [x] `dockerclean.sh`                                | ~~0.90.00~~ | 2.20.00        | will be implemented in 2.xx.yy       |
 | [x] `dockergettag.sh`                               | 0.70.00     |                | porting my bash script to dtools     |
 | [x] `dockergetcatalog.sh`                           | 0.70.00     |                | porting my bash script to dtools     |
 | [x] rebranding `dtools2`<br>as `dtools 2.00.00`     | 2.00.00     |                |                                      |
