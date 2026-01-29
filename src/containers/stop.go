@@ -53,6 +53,9 @@ func StopContainers(client *rest.Client, containers []string) *ce.CustomError {
 	}
 
 	if len(targets) == 0 {
+		if !rest.QuietOutput {
+			fmt.Println(hftx.WarningSign("No containers to stop"))
+		}
 		return nil
 	}
 

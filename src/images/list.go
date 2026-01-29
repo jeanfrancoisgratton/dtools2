@@ -155,10 +155,10 @@ func ImagesList(client *rest.Client, displayOutput bool) ([]ImageSummary, *ce.Cu
 	t.SetRowPainter(func(row table.Row) text.Colors {
 		switch row[5] {
 		case 0:
-			return text.Colors{text.FgBlack, text.BgHiWhite}
+			return text.Colors{text.FgHiWhite}
 		default:
 			//return text.Colors{text.FgHiGreen}
-			return text.Colors{text.FgHiGreen, text.BgWhite}
+			return text.Colors{text.FgHiGreen}
 		}
 	})
 

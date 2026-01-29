@@ -6,9 +6,12 @@ package cmd
 import (
 	"dtools2/extras"
 	"dtools2/rest"
+	"dtools2/system"
 	"fmt"
 	"os"
+	"strings"
 
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +19,7 @@ var rootCmd = &cobra.Command{
 	Use:          "dtools",
 	SilenceUsage: true,
 	Short:        "Docker / Podman client",
-	Version:      "2.21.01 (2026.01.08)",
+	Version:      "feature/2.30.00 (2026.01.11)",
 	Long: `dtools is a lightweight Docker/Podman client that talks directly
 to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -57,6 +60,38 @@ to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 	},
 }
 
+var copyCmd = &cobra.Command{
+	Use:     "cp",
+	Aliases: []string{"copy"},
+	Short:   "Copy a file to or from a container",
+	Example: "dtools cp { container_name:path host_path | host_path container:path }",
+	Args:    cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+		nContainers := 0
+		if strings.Contains(args[0], ":") {
+			nContainers++
+		}
+		if strings.Contains(args[1], ":") {
+			nContainers++
+		}
+
+		if nContainers == 0 || nContainers == 2 {
+			fmt.Println(hftx.ErrorSign("You must specify a container name:path in one of the arguments"))
+			return
+		}
+
+		rest.Context = cmd.Context()
+		if err := system.CopyFile(restClient, args[0], args[1]); err != nil {
+			fmt.Println(err)
+		}
+		return
+	},
+}
+
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
@@ -68,7 +103,7 @@ func init() {
 	rootCmd.DisableAutoGenTag = true
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 
-	rootCmd.AddCommand(completionCmd)
+	rootCmd.AddCommand(copyCmd, completionCmd)
 
 	// Override Cobra's default version shorthand (-v) to free it for future use.
 	// Cobra will not register its own version flag if it already exists.
