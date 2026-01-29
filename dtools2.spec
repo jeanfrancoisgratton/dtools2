@@ -63,6 +63,20 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Thu Jan 29 2026 Binary package builder <builder@famillegratton.net> 2.30.00-1
+- added GO version in version name (jean-francois@famillegratton.net)
+- moved system catalog and system tags to the new 'get' subcommand (jean-
+  francois@famillegratton.net)
+- build deps update (jean-francois@famillegratton.net)
+- updated to go v1.25.6 (jean-francois@famillegratton.net)
+- interim commit (jean-francois@famillegratton.net)
+- Reverted colour on dtools lsi (jean-francois@famillegratton.net)
+- Completed cp (jean-francois@famillegratton.net)
+- preparing v2.30.00 : version bump (jean-francois@famillegratton.net)
+- Updated README.md (jean-francois@famillegratton.net)
+- Completed the documentation (jean-francois@famillegratton.net)
+- Updated CHANGELOG (jean-francois@famillegratton.net)
+
 * Thu Jan 08 2026 Binary package builder <builder@famillegratton.net> 2.21.01-1
 - Bumped package version number (builder@famillegratton.net)
 
