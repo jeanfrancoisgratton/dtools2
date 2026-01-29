@@ -45,8 +45,8 @@ dtools version 2.30.00 (2026.01.11)
 | [x] build command                                   | 2.11.00     |                |                                      |
 | [x] logs                                            | 0.90.00     |                |                                      |
 | [x] cp                                              | 2.30.00     |                |                                      |
-| [ ] load / save                                     | 2.30.00     |                |                                      |
-| [ ] import / export                                 | 2.31.00     |                |                                      |
-| [ ] commit                                          | 2.31.00     |                |                                      |
-| [ ] environment support (`-e` flag) to `dtools run` | 2.30.00     |                |                                      |
+| [ ] load / save                                     | 2.32.00     |                |                                      |
+| [ ] import / export                                 | 2.33.00     |                |                                      |
+| [ ] commit                                          | 2.33.00     |                |                                      |
+| [ ] environment support (`-e` flag) to `dtools run` | 2.31.00     |                |                                      |
 | [ ] container attach                                | 2.31.00     |                |                                      |
