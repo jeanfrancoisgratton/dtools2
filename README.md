@@ -79,8 +79,8 @@ The default registry is used `dtools system catalog` and `dtools system tags`, w
 
 ## List images (catalog) in a remote registry
 
-This is one of the commands that needs the default registry mentioned above. You use it this way:`dtools system catalog`<br>
-The output is in JSON, prettified just like `jq` would do:
+`dtools get catalog`<br>
+This is one of the commands that needs the default registry mentioned above. The output is in JSON, prettified just like `jq` would do:
 
 ```json
 [2:00:21|jfgratton@london:src]: dtools get catalog
@@ -128,6 +128,7 @@ Here's how it'd look:
   ]
 }
 ```
+This command also needs a defined default registry, as outlined above
 
 ## Prettified output
 Most of the commands are prettified with colorized output. We're way past the era of VT220 terminals, might as well use that !<br>
