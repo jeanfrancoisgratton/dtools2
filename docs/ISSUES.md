@@ -11,3 +11,4 @@
 - [ ] blacklist rm image not removing image from JSON if the `latest` tag is assumed
 - [ ] `dtools clean` might not be working every time (why ?)
 - [ ] `dtools prune` sometimes reports success when nothing was done
+- [ ] long image pulls or pushes might time out.. Need to add an http timeout value

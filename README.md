@@ -83,7 +83,7 @@ This is one of the commands that needs the default registry mentioned above. You
 The output is in JSON, prettified just like `jq` would do:
 
 ```json
-[2:00:21|jfgratton@london:src]: dtools sys catalog
+[2:00:21|jfgratton@london:src]: dtools get catalog
 🛈 Connecting to: unix:///var/run/docker.sock
 
 {
@@ -110,7 +110,7 @@ The output is in JSON, prettified just like `jq` would do:
 Here's how it'd look:
 
 ```bash
-[2:00:28|jfgratton@london:src]: dtools sys tags nexus
+[2:00:28|jfgratton@london:src]: dtools get tags nexus
 🛈 Connecting to: unix:///var/run/docker.sock
 
 {
@@ -238,6 +238,20 @@ The blacklist feature can be applied here<br>
 
 Removes a volume, blacklist feature can be applied here.
 
+## Other commands
+
+### file copy from/to a container
+`dtools cp CONTAINER:PATH LOCALPATH`, `dtools cp LOCALPATH CONTAINER:PATH`<br>
+... it does what is says :-)
+
+### run a container from an image
+`dtools run ARGS`<br>
+Runs a container off an image. Mostly like `docker run` does, albeit with a more limited feature set
+
+### build an image
+`dtools build ARGS`<br>
+Builds an image from the directory (build context) you launch the command from. Limited feature subset for now.<br>
+_Podman support is not fully tested_
 ## Extra features, nice-to-add
 
 ### JSON and file output to lists
@@ -249,3 +263,12 @@ flags to handle output:
 if `--format` is empty, the flag is ignored
 - the `--file FILENAME` can be used to send the output to a file as JSON
 - if none of the above flags are present, the output is rendered in a table
+
+## Coming soon
+
+### dtools load/save/export/import
+
+### dtools commit
+
+### support for environment variables (`-e`) in `dtools run`
+This really is an oversight of mine. Forgot to include it !

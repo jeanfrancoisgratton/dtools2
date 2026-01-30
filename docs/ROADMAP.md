@@ -31,7 +31,7 @@ dtools version 2.30.00 (2026.01.11)
 | [x] volume prune / rm                               | 0.80.00     |                |                                      |
 | [x] volume ls / create                              | 0.80.00     | 2.12.00        | create was actually added in 2.12.00 |
 | [x] exec (shell)                                    | 0.90.00     |                |                                      |
-| [ ] system info                                     | 2.20.00     |                |                                      |
+| [x] system info                                     | 2.20.00     |                |                                      |
 | [x] blacklist list [-a]                             | 0.20.00     | 0.30.00        | fixed regression in 0.50.00          |
 | [x] blacklist rm                                    | 0.20.00     | 0.30.00        | fixed regression in 0.50.00          |
 | [x] blacklist add                                   | 0.20.00     | 0.30.00        | fixed regression in 0.50.00          |
