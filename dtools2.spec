@@ -63,6 +63,9 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Fri Jan 30 2026 Binary package builder <builder@famillegratton.net> 2.40.01-0
+- Fixed embarassing version numbering snafu (jean-francois@famillegratton.net)
+
 * Fri Jan 30 2026 Binary package builder <builder@famillegratton.net> 2.40.00-0
 - Aligned all return codes with ce.CustomError (jean-
   francois@famillegratton.net)
