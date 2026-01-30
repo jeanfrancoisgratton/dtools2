@@ -7,6 +7,7 @@ package rest
 
 import (
 	"os"
+	"time"
 )
 
 // ConfigFromEnv is a helper if later I eventually want to mirror DOCKER_* envs more closely.
@@ -16,7 +17,10 @@ func ConfigFromEnv() Config {
 	if host == "" {
 		host = "unix:///var/run/docker.sock"
 	}
+
 	return Config{
-		Host: host,
+		Host:            host,
+		FastFailTimeout: time.Duration(FastFailTimeoutSeconds) * time.Second,
+		SessionTimeout:  time.Duration(SessionTimeoutMinutes) * time.Minute,
 	}
 }

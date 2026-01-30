@@ -18,12 +18,25 @@ var QuietOutput = false
 var Context context.Context
 var ConnectURI string
 
+// Global timeout defaults.
+//
+// fast-fail: protects connect / TLS handshake / header waits (seconds)
+// session-timeout: protects long-running operations that should complete (minutes)
+//
+// NOTE: a session timeout is intentionally NOT applied to operations that are
+// meant to run indefinitely (e.g. logs -f, events, stats streaming, wait).
+var FastFailTimeoutSeconds = 30
+var SessionTimeoutMinutes = 60
+
 // Client wraps an http.Client and knows how to talk to the Docker daemon
 // via TCP (http/https) or a Unix socket, with an optional API version prefix.
 type Client struct {
 	httpClient *http.Client
 	baseURL    *url.URL
 	apiVersion string
+
+	fastFailTimeout time.Duration
+	sessionTimeout  time.Duration
 
 	isUnix   bool
 	unixPath string
@@ -47,7 +60,15 @@ type Config struct {
 	KeyPath            string
 	InsecureSkipVerify bool
 
-	Timeout time.Duration // optional; if zero, a sane default is used.
+	// FastFailTimeout is used to quickly fail when the daemon is unreachable or
+	// stalls before responding (dial/TLS handshake/headers).
+	// If <= 0, a default is applied.
+	FastFailTimeout time.Duration
+
+	// SessionTimeout is applied as a *per-request* timeout for operations that
+	// are expected to complete (pull/build/cp/save/load/etc).
+	// If 0, session timeouts are disabled (caller can still cancel via context).
+	SessionTimeout time.Duration
 }
 
 // HijackedConn holds the underlying connection and a reader positioned right after the
