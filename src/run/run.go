@@ -69,7 +69,7 @@ func RunContainer(client *rest.Client, image string, cmd []string) (exitCode int
 	}
 
 	// Attach BEFORE start (docker behaviour).
-	hj, cerr := attachContainer(client, id)
+	hj, cerr := AttachContainer(client, id)
 	if cerr != nil {
 		return 1, "", cerr
 	}
@@ -292,7 +292,7 @@ func startContainer(client *rest.Client, id string) *ce.CustomError {
 	return nil
 }
 
-func attachContainer(client *rest.Client, id string) (*rest.HijackedConn, *ce.CustomError) {
+func AttachContainer(client *rest.Client, id string) (*rest.HijackedConn, *ce.CustomError) {
 	q := url.Values{}
 	q.Set("stream", "1")
 	q.Set("stdout", "1")

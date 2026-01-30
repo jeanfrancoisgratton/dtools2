@@ -10,6 +10,7 @@ import (
 	"dtools2/containers"
 	"dtools2/extras"
 	"dtools2/rest"
+	"dtools2/run"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -43,7 +44,7 @@ var containerListCmd = &cobra.Command{
 var containerInfoCmd = &cobra.Command{
 	Use:     "info",
 	Example: "dtools container info CONTAINER_NAME",
-	Short:   "Shows extended info on a container",
+	Short:   "Show extended info on a container",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -275,15 +276,34 @@ var containerRestartAllCmd = &cobra.Command{
 	},
 }
 
+var containerAttachCmd = &cobra.Command{
+	Use:     "attach",
+	Example: "dtools container attach CONTAINER_NAME",
+	Short:   "Attach a tty to CONTAINER_NAME",
+	Args:    cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+		rest.Context = cmd.Context()
+
+		if _, errCode := run.AttachContainer(restClient, args[0]); errCode != nil {
+			fmt.Println(errCode)
+		}
+		return
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(containerCmd, containerListCmd, containerInfoCmd, containerRemoveCmd, containerPauseCmd,
 		containerUnpauseCmd, containerStartCmd, containerStartAllCmd, containerStopCmd, containerStopAllCmd,
 		containerRenameCmd, containerKillCmd, containerKillAllCmd, containerRestartCmd,
-		containerRestartAllCmd)
+		containerRestartAllCmd, containerAttachCmd)
 	containerCmd.AddCommand(containerListCmd, containerInfoCmd, containerRemoveCmd, containerPauseCmd,
 		containerUnpauseCmd, containerStartCmd, containerStartAllCmd, containerStopCmd, containerStopAllCmd,
 		containerRenameCmd, containerKillCmd, containerKillAllCmd, containerRestartCmd,
-		containerRestartAllCmd)
+		containerRestartAllCmd, containerAttachCmd)
 
 	containerRestartCmd.Flags().BoolVarP(&containers.KillSwitch, "kill", "k", false, "force kill of container")
 	containerRestartAllCmd.Flags().BoolVarP(&containers.KillSwitch, "kill", "k", false, "force kill of container")
