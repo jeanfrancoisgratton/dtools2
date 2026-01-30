@@ -1,5 +1,6 @@
 | Release | Date        | Comments                                                                                       |
 |---------|-------------|------------------------------------------------------------------------------------------------|
+| 2.31.00 | 2026.01.30  | environment support (`-e` flag) in `dtools run`<br>new feature: `dtools attach`
 | 2.30.00 | 2026.01.29  | Completed the `cp` command<br>Moved `sys catalog` and `sys tags` to the new `get` subcommand   |
 | 2.21.01 | 2025.01.07  | Added the --json [--format] --file output handlers                                             |
 | 2.20.00 | 2025.01.06  | New features: rm, clean and sys info                                                           |
