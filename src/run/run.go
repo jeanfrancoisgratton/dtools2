@@ -7,6 +7,7 @@ package run
 
 import (
 	"bytes"
+	"dtools2/containers"
 	"dtools2/extras"
 	"encoding/json"
 	"fmt"
@@ -274,22 +275,30 @@ func createContainer(client *rest.Client, image string, cmd []string) (string, b
 }
 
 func startContainer(client *rest.Client, id string) *ce.CustomError {
-	path := "/containers/" + id + "/start"
-	resp, err := client.Do(rest.Context, http.MethodPost, path, nil, nil, nil)
-	if err != nil {
+	q := rest.QuietOutput
+	rest.QuietOutput = false
+	if err := containers.StartContainers(client, []string{id}); err != nil {
 		return &ce.CustomError{Title: "Unable to start container", Message: err.Error()}
 	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusNoContent {
-		b, _ := io.ReadAll(resp.Body)
-		msg := extras.StringsTrim(string(b))
-		if msg == "" {
-			msg = resp.Status
-		}
-		return &ce.CustomError{Title: "Container start failed", Message: fmt.Sprintf("POST %s returned %s", path, msg)}
-	}
+	rest.QuietOutput = q
 	return nil
+
+	//path := "/containers/" + id + "/start"
+	//resp, err := client.Do(rest.Context, http.MethodPost, path, nil, nil, nil)
+	//if err != nil {
+	//	return &ce.CustomError{Title: "Unable to start container", Message: err.Error()}
+	//}
+	//defer resp.Body.Close()
+	//
+	//if resp.StatusCode != http.StatusNoContent {
+	//	b, _ := io.ReadAll(resp.Body)
+	//	msg := extras.StringsTrim(string(b))
+	//	if msg == "" {
+	//		msg = resp.Status
+	//	}
+	//	return &ce.CustomError{Title: "Container start failed", Message: fmt.Sprintf("POST %s returned %s", path, msg)}
+	//}
+	//return nil
 }
 
 func AttachContainer(client *rest.Client, id string) (*rest.HijackedConn, *ce.CustomError) {

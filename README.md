@@ -28,6 +28,7 @@ Also, the idea behind this tool is to make the TUI more attractive, verbose, inf
 
 ## Features not included
 - Advanced networking
+- import and export commands : they were slated to be onboarded in v2.33.00, but I've decided that their addition would not bring much extra value to the tool.
 
 # New features
 

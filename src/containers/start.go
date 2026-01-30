@@ -24,6 +24,8 @@ func StartContainers(client *rest.Client, containers []string) *ce.CustomError {
 	var cs []ContainerSummary
 	OnlyRunningContainers = false
 
+	// TODO: this might not be optimal, listing all containers if len(containers) == 1..
+	// TODO: needs optimizing at some point
 	// Fetch the list of containers currently present on the daemon, regardless of their state
 	if cs, cerr = ListContainers(client, false); cerr != nil {
 		return cerr

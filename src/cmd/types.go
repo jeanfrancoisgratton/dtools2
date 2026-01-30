@@ -29,3 +29,9 @@ var loginCACertPath string
 // Image-related flags.
 
 var imagePullRegistry string
+
+// docker commit-like flags.
+
+var commitAuthor string
+var commitMessage string
+var commitChanges []string

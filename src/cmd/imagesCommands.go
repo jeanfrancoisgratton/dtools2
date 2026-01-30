@@ -120,13 +120,85 @@ var imageRemoveCmd = &cobra.Command{
 	},
 }
 
+// imageLoadCmd implements `dtools load`, wiring through to images.ImageLoad().
+
+var imageLoadCmd = &cobra.Command{
+	Use:   "load TARFILE",
+	Short: "Load image(s) from a tar archive",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+
+		rest.Context = cmd.Context()
+		if err := images.ImageLoad(restClient, args[0]); err != nil {
+			fmt.Println(err)
+		}
+		return
+	},
+}
+
+// imageSaveCmd implements `dtools save`, wiring through to images.ImageSave().
+
+var imageSaveCmd = &cobra.Command{
+	Use:     "save TARFILE IMAGE [IMAGE...]",
+	Short:   "Save one or more images to a tar archive",
+	Args:    cobra.MinimumNArgs(2),
+	Example: "dtools save images.tar.gz alpine:latest busybox:latest",
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+
+		outFile := args[0]
+		imgs := args[1:]
+
+		rest.Context = cmd.Context()
+		if err := images.ImageSave(restClient, imgs, outFile); err != nil {
+			fmt.Println(err)
+		}
+		return
+	},
+}
+
+// imageCommitCmd implements `dtools commit`, wiring through to images.ImageCommit().
+
+var imageCommitCmd = &cobra.Command{
+	Use:     "commit [OPTIONS] CONTAINER REPOSITORY:TAG",
+	Short:   "Create a new image from a container's changes",
+	Args:    cobra.ExactArgs(2),
+	Example: "dtools commit -a \"J.F. Gratton\" -m \"snapshot\" -c 'CMD [\"/bin/sh\"]' myctr myrepo/myimg:debug",
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+
+		containerRef := args[0]
+		repoTag := args[1]
+
+		rest.Context = cmd.Context()
+		if err := images.ImageCommit(restClient, containerRef, repoTag, commitAuthor, commitMessage, commitChanges); err != nil {
+			fmt.Println(err)
+		}
+		return
+	},
+}
+
 func init() {
-	rootCmd.AddCommand(imgCmd, imagePullCmd, imagePushCmd, imageListCmd, imageTagCmd, imageRemoveCmd)
-	imgCmd.AddCommand(imagePullCmd, imagePushCmd, imageListCmd, imageTagCmd, imageRemoveCmd)
+	rootCmd.AddCommand(imgCmd, imagePullCmd, imagePushCmd, imageListCmd, imageTagCmd, imageRemoveCmd, imageLoadCmd, imageSaveCmd, imageCommitCmd)
+	imgCmd.AddCommand(imagePullCmd, imagePushCmd, imageListCmd, imageTagCmd, imageRemoveCmd, imageLoadCmd, imageSaveCmd, imageCommitCmd)
 
 	imagePullCmd.Flags().StringVarP(&imagePullRegistry, "registry", "r", "", "registry hostname to use for auth (e.g. registry.example.com:5000); empty for anonymous")
 	imageRemoveCmd.Flags().BoolVarP(&images.ForceRemove, "force", "f", false, "Force remove image")
 	imageRemoveCmd.Flags().BoolVarP(&images.RemoveBlacklisted, "blacklist", "B", false, "remove image even if blacklisted")
 	imageListCmd.Flags().StringVarP(&extras.OutputFile, "file", "F", "", "Write JSON output to a file")
 	imageListCmd.Flags().StringVar(&extras.OutputFormat, "format", "", "Output only the values for the given field (or comma-separated fields) as plaintext")
+
+	imageCommitCmd.Flags().StringVarP(&commitAuthor, "author", "a", "", "Author (equivalent to docker commit -a)")
+	imageCommitCmd.Flags().StringVarP(&commitMessage, "message", "m", "", "Commit message (equivalent to docker commit -m)")
+	imageCommitCmd.Flags().StringArrayVarP(&commitChanges, "change", "c", nil, "Apply Dockerfile instruction to the created image (equivalent to docker commit -c). Can be specified multiple times")
 }

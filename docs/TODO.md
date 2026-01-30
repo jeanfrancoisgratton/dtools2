@@ -12,6 +12,5 @@
 - [x] json/file output to `container info` and `system info`
 - [x] add a `dtools cp` copy command
 - [ ] `load` / `save` / `import` / `export` / `commit` commands
-- [ ] `-e` support to `dtools run`
 - [ ] add an http timeout, useful for long push/pull actions
 - [ ] add filter support to `lsc`, `lsv`, `lsn` and `lsi` commands

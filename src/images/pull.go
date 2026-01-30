@@ -22,21 +22,31 @@ import (
 	"github.com/moby/term"
 )
 
-// Simple CLI helper for Cobra.
-
+// ImagePull is the Cobra-facing helper used by `dtools2 images pull`.
 func ImagePull(client *rest.Client, ref string) error {
+	return PullRef(client, ref, os.Stdout)
+}
+
+// PullRef pulls an image reference (eg: "alpine:latest") via the daemon,
+// streaming progress (same output as `docker pull`).
+//
+// The caller controls output (e.g. pass io.Discard for quiet mode).
+func PullRef(client *rest.Client, ref string, out io.Writer) error {
 	opts := PullOptions{
 		ImageTag: ref,
 		Registry: registryFromImageRef(ref),
 	}
-	return pull(client, opts, os.Stdout)
+	return Pull(client, opts, out)
 }
 
-// pull pulls an image from a registry via the daemon, streaming progress
+// Pull pulls an image from a registry via the daemon, streaming progress
 // using Docker's own jsonmessage renderer (same output as `docker pull`).
-func pull(client *rest.Client, opts PullOptions, out io.Writer) error {
+func Pull(client *rest.Client, opts PullOptions, out io.Writer) error {
 	if opts.ImageTag == "" {
 		return fmt.Errorf("image reference is required")
+	}
+	if out == nil {
+		out = os.Stdout
 	}
 
 	repo, tag := splitRepoTag(opts.ImageTag)

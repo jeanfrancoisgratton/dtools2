@@ -5,6 +5,8 @@
 
 package images
 
+import "io"
+
 var ForceRemove = false
 var RemoveBlacklisted = false
 
@@ -27,4 +29,18 @@ type ImageSummary struct {
 	Containers  int               `json:"Containers"`
 	RepoImgName string            `json:"RepoImgName"`
 	ImgTag      string            `json:"ImgTag"`
+}
+
+type archiveCompression int
+
+const (
+	compNone archiveCompression = iota
+	compGzip
+	compBzip2
+	compXz
+)
+
+type readerWithClose struct {
+	io.Reader
+	closeFn func() error
 }
