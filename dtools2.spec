@@ -63,6 +63,21 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Fri Jan 30 2026 Binary package builder <builder@famillegratton.net> 2.40.00-0
+- Aligned all return codes with ce.CustomError (jean-
+  francois@famillegratton.net)
+- Completed commit (jean-francois@famillegratton.net)
+- Completed load (jean-francois@famillegratton.net)
+- Completed save (jean-francois@famillegratton.net)
+- Code-reuse : container attach (jean-francois@famillegratton.net)
+- Preparing 2.31.00 : version bump and doc update (jean-
+  francois@famillegratton.net)
+- README.md clarifications (jean-francois@famillegratton.net)
+- Doc update (jean-francois@famillegratton.net)
+- yet another forgotten file update (jean-francois@famillegratton.net)
+- updated CHANGELOG (jean-francois@famillegratton.net)
+- closing 2.30.00 with current feature set (jean-francois@famillegratton.net)
+
 * Thu Jan 29 2026 Binary package builder <builder@famillegratton.net> 2.30.00-0
 - reverted tag as specfile had the wrong release number
   (builder@famillegratton.net)
