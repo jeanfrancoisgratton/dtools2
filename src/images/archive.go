@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	ds_bzip2 "github.com/dsnet/compress/bzip2"
+	ce "github.com/jeanfrancoisgratton/customError/v3"
 	"github.com/ulikunitz/xz"
 )
 
@@ -22,11 +23,6 @@ func (r *readerWithClose) Close() error {
 		return nil
 	}
 	return r.closeFn()
-}
-
-type writerWithClose struct {
-	io.Writer
-	closeFn func() error
 }
 
 func (w *writerWithClose) Close() error {
@@ -107,10 +103,10 @@ func openArchiveReader(filename string) (io.ReadCloser, error) {
 	}
 }
 
-func openArchiveWriter(filename string) (io.WriteCloser, error) {
+func openArchiveWriter(filename string) (io.WriteCloser, *ce.CustomError) {
 	f, err := os.Create(filename)
 	if err != nil {
-		return nil, err
+		return nil, &ce.CustomError{Title: "Error creating the archive", Message: err.Error()}
 	}
 
 	switch detectCompression(filename) {
@@ -135,7 +131,7 @@ func openArchiveWriter(filename string) (io.WriteCloser, error) {
 		zw, err := ds_bzip2.NewWriter(f, &ds_bzip2.WriterConfig{Level: ds_bzip2.DefaultCompression})
 		if err != nil {
 			_ = f.Close()
-			return nil, err
+			return nil, &ce.CustomError{Title: "Error creating the archive", Message: err.Error()}
 		}
 		return &writerWithClose{
 			Writer: zw,
@@ -151,10 +147,10 @@ func openArchiveWriter(filename string) (io.WriteCloser, error) {
 
 	case compXz:
 		_ = f.Close()
-		return nil, fmt.Errorf("xz compression is not supported for save (output: %s)", filename)
+		return nil, &ce.CustomError{Title: "Error creating the archive", Message: "xz compression is not supported for save"}
 
 	default:
 		_ = f.Close()
-		return nil, fmt.Errorf("unsupported archive format: %s", filename)
+		return nil, &ce.CustomError{Title: "Error creating the archive", Message: "unsupported archive format"}
 	}
 }

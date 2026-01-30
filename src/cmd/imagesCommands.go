@@ -120,11 +120,10 @@ var imageRemoveCmd = &cobra.Command{
 	},
 }
 
-// imageLoadCmd implements `dtools load`, wiring through to images.ImageLoad().
-
 var imageLoadCmd = &cobra.Command{
 	Use:   "load TARFILE",
 	Short: "Load image(s) from a tar archive",
+	Long:  `Note: the tarball may be xz, gzip or bzip2 compressed`,
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -140,11 +139,10 @@ var imageLoadCmd = &cobra.Command{
 	},
 }
 
-// imageSaveCmd implements `dtools save`, wiring through to images.ImageSave().
-
 var imageSaveCmd = &cobra.Command{
 	Use:     "save TARFILE IMAGE [IMAGE...]",
 	Short:   "Save one or more images to a tar archive",
+	Long:    `Note: the tarball may be gzip or bzip2 compressed (xz compression not supported)`,
 	Args:    cobra.MinimumNArgs(2),
 	Example: "dtools save images.tar.gz alpine:latest busybox:latest",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -163,8 +161,6 @@ var imageSaveCmd = &cobra.Command{
 		return
 	},
 }
-
-// imageCommitCmd implements `dtools commit`, wiring through to images.ImageCommit().
 
 var imageCommitCmd = &cobra.Command{
 	Use:     "commit [OPTIONS] CONTAINER REPOSITORY:TAG",

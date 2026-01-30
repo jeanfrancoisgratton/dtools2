@@ -11,6 +11,6 @@
 - [x] make verbosity, warning/errors/etc more consistent
 - [x] json/file output to `container info` and `system info`
 - [x] add a `dtools cp` copy command
-- [ ] `load` / `save` / `import` / `export` / `commit` commands
+- [x] `load` / `save` / `import` / `export` / `commit` commands
 - [ ] add an http timeout, useful for long push/pull actions
 - [ ] add filter support to `lsc`, `lsv`, `lsn` and `lsi` commands

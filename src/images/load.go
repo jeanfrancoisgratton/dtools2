@@ -6,7 +6,6 @@
 package images
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -16,20 +15,17 @@ import (
 	"dtools2/rest"
 
 	"github.com/docker/docker/pkg/jsonmessage"
+	ce "github.com/jeanfrancoisgratton/customError/v3"
 	"github.com/moby/term"
 )
 
 // ImageLoad loads image(s) from a tar archive (optionally compressed) into the daemon.
 // This emulates `docker load` / `docker image load` behavior by locally decompressing
 // based on file extension and streaming the uncompressed tar to POST /images/load.
-func ImageLoad(client *rest.Client, tarball string) error {
-	if tarball == "" {
-		return fmt.Errorf("tar archive path is required")
-	}
-
+func ImageLoad(client *rest.Client, tarball string) *ce.CustomError {
 	r, err := openArchiveReader(tarball)
 	if err != nil {
-		return fmt.Errorf("opening archive %q: %w", tarball, err)
+		return &ce.CustomError{Title: "error opening archive", Message: err.Error()}
 	}
 	defer r.Close()
 
@@ -39,18 +35,18 @@ func ImageLoad(client *rest.Client, tarball string) error {
 	headers := http.Header{}
 	headers.Set("Content-Type", "application/x-tar")
 
-	resp, err := client.Do(rest.Context, http.MethodPost, "/images/load", q, r, headers)
-	if err != nil {
-		return err
+	resp, derr := client.Do(rest.Context, http.MethodGet, "/images/get", q, nil, nil)
+	if derr != nil {
+		return &ce.CustomError{Title: "Error fetching images list", Message: derr.Error()}
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
+	if resp.StatusCode != http.StatusOK {
 		msg, _ := readSmallBody(resp.Body, 8192)
 		if msg != "" {
-			return fmt.Errorf("image load failed: %s: %s", resp.Status, msg)
+			return &ce.CustomError{Title: "image load failed", Message: "http response is " + resp.Status + " (" + msg + ")"}
 		}
-		return fmt.Errorf("image load failed: %s", resp.Status)
+		return &ce.CustomError{Title: "image load failed", Message: "http response is " + resp.Status}
 	}
 
 	if rest.QuietOutput {
@@ -62,9 +58,9 @@ func ImageLoad(client *rest.Client, tarball string) error {
 	termFd, isTerm := term.GetFdInfo(os.Stdout)
 	if err := jsonmessage.DisplayJSONMessagesStream(resp.Body, os.Stdout, termFd, isTerm, nil); err != nil {
 		if jerr, ok := err.(*jsonmessage.JSONError); ok {
-			return fmt.Errorf("image load failed: %s", jerr.Message)
+			return &ce.CustomError{Title: "image load failed", Message: jerr.Error()}
 		}
-		return err
+		return &ce.CustomError{Title: "image load failed", Message: err.Error()}
 	}
 
 	return nil

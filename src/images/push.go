@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"github.com/docker/docker/pkg/jsonmessage"
+	ce "github.com/jeanfrancoisgratton/customError/v3"
 	"github.com/moby/term"
 
 	"dtools2/auth"
@@ -20,7 +21,7 @@ import (
 
 // ImagePush uses the daemon to push the image to its registry,
 // streaming output EXACTLY like `docker push`.
-func ImagePush(client *rest.Client, ref string) error {
+func ImagePush(client *rest.Client, ref string) *ce.CustomError {
 	repo, tag := splitRepoTag(ref)
 	if tag == "" {
 		tag = "latest"
@@ -32,7 +33,7 @@ func ImagePush(client *rest.Client, ref string) error {
 	if registry != "" {
 		h, err := auth.BuildRegistryAuthHeader(registry)
 		if err != nil {
-			return fmt.Errorf("building auth header: %w", err)
+			return &ce.CustomError{Title: "error building auth header", Message: err.Error()}
 		}
 		headers.Set("X-Registry-Auth", h)
 	}
@@ -44,17 +45,17 @@ func ImagePush(client *rest.Client, ref string) error {
 
 	resp, err := client.Do(rest.Context, http.MethodPost, path, q, nil, headers)
 	if err != nil {
-		return err
+		return &ce.CustomError{Title: "error pushing image", Message: err.Error()}
 	}
 	defer resp.Body.Close()
 
 	termFd, isTerm := term.GetFdInfo(os.Stdout)
 	if err := jsonmessage.DisplayJSONMessagesStream(resp.Body, os.Stdout, termFd, isTerm, nil); err != nil {
-		return err
+		return &ce.CustomError{Title: "error displaying json messages", Message: err.Error()}
 	}
 
 	if resp.StatusCode >= 400 {
-		return fmt.Errorf("push failed: %s", resp.Status)
+		return &ce.CustomError{Title: "http request error", Message: resp.Status}
 	}
 
 	return nil

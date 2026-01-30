@@ -6,14 +6,15 @@
 package images
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 
 	"dtools2/rest"
+
+	ce "github.com/jeanfrancoisgratton/customError/v3"
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 )
 
 type commitResponse struct {
@@ -26,17 +27,10 @@ type commitResponse struct {
 //   - author (docker commit -a) -> query param "author"
 //   - message (docker commit -m) -> query param "comment"
 //   - changes (docker commit -c) -> query param "changes" (repeatable)
-func ImageCommit(client *rest.Client, containerRef, repoTag, author, message string, changes []string) error {
-	if containerRef == "" {
-		return fmt.Errorf("container name or ID is required")
-	}
-	if repoTag == "" {
-		return fmt.Errorf("repository:tag is required")
-	}
-
+func ImageCommit(client *rest.Client, containerRef, repoTag, author, message string, changes []string) *ce.CustomError {
 	repo, tag := splitRepoTag(repoTag)
 	if repo == "" || tag == "" {
-		return fmt.Errorf("repository:tag is required (got %q)", repoTag)
+		return &ce.CustomError{Title: "image commit error", Message: "repository:tag is required (got " + repoTag + ")"}
 	}
 
 	q := url.Values{}
@@ -60,28 +54,20 @@ func ImageCommit(client *rest.Client, containerRef, repoTag, author, message str
 
 	resp, err := client.Do(rest.Context, http.MethodPost, "/commit", q, nil, nil)
 	if err != nil {
-		return err
+		return &ce.CustomError{Title: "image commit error", Message: err.Error()}
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK {
 		msg, _ := readSmallBody(resp.Body, 8192)
 		if msg != "" {
-			return fmt.Errorf("image commit failed: %s: %s", resp.Status, msg)
+			return &ce.CustomError{Title: "image commit failed", Message: "http response is " + resp.Status + " (" + msg + ")"}
 		}
-		return fmt.Errorf("image commit failed: %s", resp.Status)
-	}
-
-	var cr commitResponse
-	if err := json.NewDecoder(resp.Body).Decode(&cr); err != nil {
-		return fmt.Errorf("unable to decode commit response: %w", err)
-	}
-	if cr.ID == "" {
-		return fmt.Errorf("commit returned success, but response did not include an image id")
+		return &ce.CustomError{Title: "image commit failed", Message: "http response is " + resp.Status}
 	}
 
 	if !rest.QuietOutput {
-		fmt.Fprintln(os.Stdout, cr.ID)
+		fmt.Println(hftx.GreenGoSign("Commited container " + containerRef + " to image " + repoTag))
 	}
 
 	return nil

@@ -44,3 +44,8 @@ type readerWithClose struct {
 	io.Reader
 	closeFn func() error
 }
+
+type writerWithClose struct {
+	io.Writer
+	closeFn func() error
+}
