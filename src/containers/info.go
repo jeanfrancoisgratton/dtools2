@@ -13,10 +13,11 @@ import (
 	"text/tabwriter"
 	"time"
 
+	ce "github.com/jeanfrancoisgratton/customError/v3"
 	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 )
 
-func InfoContainers(client *rest.Client, container string) error {
+func InfoContainers(client *rest.Client, container string) *ce.CustomError {
 	// Preserve the current flag. For now, it might not be useful to do so, but might be, eventually
 	currentRunningContainersFlag := OnlyRunningContainers
 	currentExtendedContainersFlag := ExtendedContainerInfo

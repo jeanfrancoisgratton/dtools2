@@ -295,11 +295,30 @@ var containerAttachCmd = &cobra.Command{
 	},
 }
 
+var containerInspectCmd = &cobra.Command{
+	Use:     "insc CONTAINER",
+	Example: "dtools insc my-container",
+	Short:   "Display detailed information about a container",
+	Args:    cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+		rest.Context = cmd.Context()
+
+		if errCode := containers.InspectContainer(restClient, args[0]); errCode != nil {
+			fmt.Println(errCode)
+		}
+		return
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(containerCmd, containerListCmd, containerInfoCmd, containerRemoveCmd, containerPauseCmd,
 		containerUnpauseCmd, containerStartCmd, containerStartAllCmd, containerStopCmd, containerStopAllCmd,
 		containerRenameCmd, containerKillCmd, containerKillAllCmd, containerRestartCmd,
-		containerRestartAllCmd, containerAttachCmd)
+		containerRestartAllCmd, containerAttachCmd, containerInspectCmd)
 	containerCmd.AddCommand(containerListCmd, containerInfoCmd, containerRemoveCmd, containerPauseCmd,
 		containerUnpauseCmd, containerStartCmd, containerStartAllCmd, containerStopCmd, containerStopAllCmd,
 		containerRenameCmd, containerKillCmd, containerKillAllCmd, containerRestartCmd,
