@@ -26,7 +26,7 @@ var ConnectURI string
 // NOTE: a session timeout is intentionally NOT applied to operations that are
 // meant to run indefinitely (e.g. logs -f, events, stats streaming, wait).
 var FastFailTimeoutSeconds = 30
-var SessionTimeoutMinutes = 60
+var SessionTimeoutMinutes = 30
 
 // Client wraps an http.Client and knows how to talk to the Docker daemon
 // via TCP (http/https) or a Unix socket, with an optional API version prefix.
