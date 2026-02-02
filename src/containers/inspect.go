@@ -24,7 +24,7 @@ import (
 // If rest.QuietOutput is true, it returns the raw JSON object.
 // If extras.OutputJSON is true, it outputs JSON to stdout.
 // Otherwise, it outputs formatted text.
-func InspectContainer(client *rest.Client, containerID string) *ce.CustomError {
+func InspectContainer(client *rest.Client, containerID string) (ContainerInspect, *ce.CustomError) {
 	ctx := rest.Context
 	if ctx == nil {
 		ctx = context.Background()
@@ -39,7 +39,7 @@ func InspectContainer(client *rest.Client, containerID string) *ce.CustomError {
 
 	resp, err := client.Do(ctx, http.MethodGet, path, query, nil, nil)
 	if err != nil {
-		return &ce.CustomError{
+		return ContainerInspect{}, &ce.CustomError{
 			Title:   "Failed to inspect container",
 			Message: err.Error(),
 		}
@@ -48,7 +48,7 @@ func InspectContainer(client *rest.Client, containerID string) *ce.CustomError {
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return &ce.CustomError{
+		return ContainerInspect{}, &ce.CustomError{
 			Title:   fmt.Sprintf("Container inspect failed (HTTP %d)", resp.StatusCode),
 			Message: string(body),
 		}
@@ -57,7 +57,7 @@ func InspectContainer(client *rest.Client, containerID string) *ce.CustomError {
 	// Read response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return &ce.CustomError{
+		return ContainerInspect{}, &ce.CustomError{
 			Title:   "Failed to read inspect response",
 			Message: err.Error(),
 		}
@@ -66,7 +66,7 @@ func InspectContainer(client *rest.Client, containerID string) *ce.CustomError {
 	// Parse into ContainerInspect structure
 	var inspectData ContainerInspect
 	if err := json.Unmarshal(body, &inspectData); err != nil {
-		return &ce.CustomError{
+		return ContainerInspect{}, &ce.CustomError{
 			Title:   "Failed to parse inspect response",
 			Message: err.Error(),
 		}
@@ -75,25 +75,25 @@ func InspectContainer(client *rest.Client, containerID string) *ce.CustomError {
 	// Handle quiet output (return raw JSON)
 	if rest.QuietOutput {
 		fmt.Println(string(body))
-		return nil
+		return inspectData, nil
 	}
 
 	// Handle JSON output
 	if extras.OutputJSON {
 		jsonBytes, cerr := extras.MarshalJSON(inspectData)
 		if cerr != nil {
-			return cerr
+			return ContainerInspect{}, cerr
 		}
 		if cerr := extras.PrintJSONBytes(jsonBytes); cerr != nil {
-			return cerr
+			return ContainerInspect{}, cerr
 		}
-		return nil
+		return ContainerInspect{}, nil
 	}
 
 	// Handle formatted text output
 	printFormattedInspect(&inspectData)
 
-	return nil
+	return ContainerInspect{}, nil
 }
 
 // printFormattedInspect displays container inspect data in a formatted text output

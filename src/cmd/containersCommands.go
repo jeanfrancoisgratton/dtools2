@@ -307,7 +307,7 @@ var containerInspectCmd = &cobra.Command{
 		}
 		rest.Context = cmd.Context()
 
-		if errCode := containers.InspectContainer(restClient, args[0]); errCode != nil {
+		if _, errCode := containers.InspectContainer(restClient, args[0]); errCode != nil {
 			fmt.Println(errCode)
 		}
 		return
