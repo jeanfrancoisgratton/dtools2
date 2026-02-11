@@ -67,3 +67,7 @@ type EndpointSummary struct {
 	GlobalIPv6PrefixLen int    `json:"GlobalIPv6PrefixLen,omitempty"`
 	MacAddress          string `json:"MacAddress,omitempty"`
 }
+
+type commitResponse struct {
+	ID string `json:"Id"`
+}

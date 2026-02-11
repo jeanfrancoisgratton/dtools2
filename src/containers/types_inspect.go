@@ -1,7 +1,7 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2026/02/03 15:54
-// Original filename: src/containers/inspect_types.go
+// Original filename: src/containers/types_inspect.go
 
 package containers
 

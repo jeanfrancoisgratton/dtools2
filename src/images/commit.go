@@ -17,10 +17,6 @@ import (
 	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 )
 
-type commitResponse struct {
-	ID string `json:"Id"`
-}
-
 // ImageCommit emulates `docker commit` using the daemon's /commit endpoint.
 // Unlike docker, repository:tag is mandatory.
 //

@@ -13,3 +13,4 @@
 - [ ] `dtools prune` sometimes reports success when nothing was done
 - [x] long image pulls or pushes might time out.. Need to add an http timeout value
 - [ ] `dtools kill` returns an http 409 when killing a container
+- [ ] `dtools vol create` returbs success even if volume already exists

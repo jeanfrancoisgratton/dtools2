@@ -2,11 +2,13 @@
 
 set -e
 
-BRANCH=`git rev-parse --abbrev-ref HEAD`
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
 BRANCH=$(echo "$BRANCH" | tr '/' '_')
+
 BINARY=dtools
 OUTPUT=/opt/bin
 COMPLETION=false
+BINARY_OVERRIDE=false
 
 # Parse arguments
 while [ "$#" -gt 0 ]; do
@@ -14,6 +16,7 @@ while [ "$#" -gt 0 ]; do
         -b|--binary)
             shift
             BINARY="$1"
+            BINARY_OVERRIDE=true
             ;;
         *)
             OUTPUT="$1"
@@ -22,15 +25,17 @@ while [ "$#" -gt 0 ]; do
     shift
 done
 
-if [ "$BRANCH" = "master" ] || [ "$BRANCH" = "main" ] || [ "$BRANCH" = "develop" ]; then
+if [ "$BINARY_OVERRIDE" = true ]; then
     FULLNAME="$BINARY"
 else
-    FULLNAME="$BINARY-$BRANCH"
+    if [ "$BRANCH" = "master" ] || [ "$BRANCH" = "main" ] || [ "$BRANCH" = "develop" ]; then
+        FULLNAME="$BINARY"
+    else
+        FULLNAME="$BINARY-$BRANCH"
+    fi
 fi
 
 echo "Building ${OUTPUT}/${FULLNAME}"
-CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -buildid=" -o ${OUTPUT}/${FULLNAME} .
-
+CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -buildid=" -o "${OUTPUT}/${FULLNAME}" .
 
 # Enable tab completion
-
