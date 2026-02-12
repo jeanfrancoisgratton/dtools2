@@ -1,4 +1,3 @@
-// images/remove.go
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2025/12/11 13:01
@@ -55,9 +54,7 @@ func remove(client *rest.Client, imagename string) *ce.CustomError {
 	q := url.Values{}
 	q.Set("force", strconv.FormatBool(ForceRemove))
 
-	// Image names can contain '/' and ':', so they must be path-escaped.
-	// (IDs also work fine with escaping, so this is safe for both cases.)
-	path := "/images/" + url.PathEscape(imagename)
+	path := "/images/" + imagename
 	resp, derr := client.Do(rest.Context, http.MethodDelete, path, q, nil, nil)
 	if derr != nil {
 		return &ce.CustomError{Title: "Unable to post DELETE", Message: derr.Error()}
