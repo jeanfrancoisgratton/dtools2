@@ -9,7 +9,7 @@
 - [x] revisit `rm` for running containers
 - [ ] restart -k does not restart all containers <-- _not reproduced yet_
 - [ ] blacklist rm image not removing image from JSON if the `latest` tag is assumed
-- [ ] `dtools clean` might not be working every time (why ?)
+- [x] `dtools clean` might not be working every time (why ?)
 - [ ] `dtools prune` sometimes reports success when nothing was done
 - [x] long image pulls or pushes might time out.. Need to add an http timeout value
 - [ ] `dtools kill` returns an http 409 when killing a container
