@@ -1,6 +1,6 @@
 | Release | Date       | Comments                                                                                    |
 |---------|------------|---------------------------------------------------------------------------------------------|
-| 2.50.00 | 2026.02.01 | Bugfixes/enhancements to:<br> - added an `inspect` feature on containers (more objects to come)<br>- http timeouts on long http transactions<br>- http 409 on dtools kill<br>-                 
+| 2.50.00 | 2026.02.01 | Bugfixes/enhancements to:<br> - added an `inspect` feature on containers (more objects to come)<br>- http timeouts on long http transactions<br>- http 409 on dtools kill<br>- updated to GO 1.26                 
 | 2.40.01 | 2025.01.30 | Completed the `commit`, `load`, and `save` commands.<br>Removed duplicate code.             |
 | 2.31.00 | 2026.01.30 | environment support (`-e` flag) in `dtools run`<br>new feature: `dtools attach`             
 | 2.30.00 | 2026.01.29 | Completed the `cp` command<br>Moved `sys catalog` and `sys tags` to the new `get` subcommand |
