@@ -10,6 +10,8 @@ import (
 	"dtools2/rest"
 	"io"
 	"os"
+	"slices"
+	"sort"
 	"strings"
 	"syscall"
 	"time"
@@ -102,4 +104,20 @@ func StringsTrim(s string) string {
 	s = strings.ReplaceAll(s, "\r", " ")
 	s = strings.ReplaceAll(s, "\n", " ")
 	return strings.TrimSpace(s)
+}
+
+// Unique returns a sorted copy of the input slice, with duplicates removed.
+// Equivalent to: sort | uniq
+func Unique(in []string) []string {
+	if len(in) == 0 {
+		return nil
+	}
+
+	out := make([]string, len(in))
+	copy(out, in)
+
+	sort.Strings(out)
+	out = slices.Compact(out)
+
+	return out
 }
