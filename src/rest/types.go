@@ -1,7 +1,7 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2025/11/22 14:04
-// Original filename: src/rest/run_types.go
+// Original filename: src/rest/types.go
 
 package rest
 
@@ -24,7 +24,7 @@ var ConnectURI string
 // session-timeout: protects long-running operations that should complete (minutes)
 //
 // NOTE: a session timeout is intentionally NOT applied to operations that are
-// meant to run_build indefinitely (e.g. logs -f, events, stats streaming, wait).
+// meant to run indefinitely (e.g. logs -f, events, stats streaming, wait).
 var FastFailTimeoutSeconds = 30
 var SessionTimeoutMinutes = 30
 
@@ -51,7 +51,7 @@ type versionInfo struct {
 
 // Config holds the connection parameters for the REST client.
 type Config struct {
-	Host       string // e.g. "", unix:///var/run_build/docker.sock, tcp://host:2376, https://host:2376
+	Host       string // e.g. "", unix:///var/run/docker.sock, tcp://host:2376, https://host:2376
 	APIVersion string // e.g. "1.43"; empty means "negotiate"
 
 	UseTLS             bool

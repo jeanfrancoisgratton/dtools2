@@ -1,7 +1,7 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2025/12/14 20:15
-// Original filename: src/networks/run_types.go
+// Original filename: src/networks/types.go
 
 package networks
 

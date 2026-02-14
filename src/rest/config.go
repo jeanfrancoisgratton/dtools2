@@ -15,7 +15,7 @@ func ConfigFromEnv() Config {
 	// This is intentionally minimal for now. You can extend it later.
 	host := os.Getenv("DOCKER_HOST")
 	if host == "" {
-		host = "unix:///var/run_build/docker.sock"
+		host = "unix:///var/run/docker.sock"
 	}
 
 	return Config{

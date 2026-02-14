@@ -27,7 +27,7 @@ func NewClient(cfg Config) (*Client, error) {
 		host = os.Getenv("DOCKER_HOST")
 		if host == "" {
 			// Standard default for local Docker.
-			host = "unix:///var/run_build/docker.sock"
+			host = "unix:///var/run/docker.sock"
 		}
 	}
 
@@ -277,7 +277,7 @@ func (c *Client) isNoTimeoutEndpoint(path string, query url.Values) bool {
 		}
 	}
 
-	// Wait can legitimately run_build as long as the container runs.
+	// Wait can legitimately run as long as the container runs.
 	if strings.HasSuffix(path, "/wait") {
 		return true
 	}

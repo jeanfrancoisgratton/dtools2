@@ -1,7 +1,7 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2025/11/14 12:55
-// Original filename: src/auth/run_types.go
+// Original filename: src/auth/types.go
 
 package auth
 

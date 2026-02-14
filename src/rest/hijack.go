@@ -31,7 +31,7 @@ import (
 //   - Dial + TLS handshake + initial HTTP response headers are bounded by the client's
 //     fast-fail timeout.
 //   - Once the headers are read and the call succeeds, deadlines are cleared so the
-//     hijacked stream can run_build indefinitely (until the caller closes the connection or
+//     hijacked stream can run indefinitely (until the caller closes the connection or
 //     the provided context is canceled).
 //
 // If expectUpgrade is true, Hijack automatically adds the standard Docker upgrade headers
