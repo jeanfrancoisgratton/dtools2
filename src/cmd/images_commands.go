@@ -184,9 +184,29 @@ var imageCommitCmd = &cobra.Command{
 	},
 }
 
+var imageInspectCmd = &cobra.Command{
+	Use:     "inspect IMAGE",
+	Aliases: []string{"inspi"},
+	Example: "dtools insi alpine:latest",
+	Short:   "Display detailed information about an image",
+	Args:    cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+
+		rest.Context = cmd.Context()
+		if _, err := images.InspectImage(restClient, args[0]); err != nil {
+			fmt.Println(err)
+		}
+		return
+	},
+}
+
 func init() {
-	rootCmd.AddCommand(imgCmd, imagePullCmd, imagePushCmd, imageListCmd, imageTagCmd, imageRemoveCmd, imageLoadCmd, imageSaveCmd, imageCommitCmd)
-	imgCmd.AddCommand(imagePullCmd, imagePushCmd, imageListCmd, imageTagCmd, imageRemoveCmd, imageLoadCmd, imageSaveCmd, imageCommitCmd)
+	rootCmd.AddCommand(imgCmd, imagePullCmd, imagePushCmd, imageListCmd, imageTagCmd, imageRemoveCmd, imageLoadCmd, imageSaveCmd, imageCommitCmd, imageInspectCmd)
+	imgCmd.AddCommand(imagePullCmd, imagePushCmd, imageListCmd, imageTagCmd, imageRemoveCmd, imageLoadCmd, imageSaveCmd, imageCommitCmd, imageInspectCmd)
 
 	imagePullCmd.Flags().StringVarP(&imagePullRegistry, "registry", "r", "", "registry hostname to use for auth (e.g. registry.example.com:5000); empty for anonymous")
 	imageRemoveCmd.Flags().BoolVarP(&images.ForceRemove, "force", "f", false, "Force remove image")

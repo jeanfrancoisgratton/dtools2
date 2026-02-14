@@ -297,7 +297,7 @@ var containerAttachCmd = &cobra.Command{
 
 var containerInspectCmd = &cobra.Command{
 	Use:     "inspect CONTAINER",
-	Aliases: []string{"insc"},
+	Aliases: []string{"inspc"},
 	Example: "dtools insc my-container",
 	Short:   "Display detailed information about a container",
 	Args:    cobra.ExactArgs(1),

@@ -484,3 +484,130 @@ func PrintVolumeInspectData(w *tabwriter.Writer, v interface{}) {
 		}
 	}
 }
+
+// PrintImageInspectData prints a human-friendly "image inspect" output.
+// This is called from images.InspectImage.
+func PrintImageInspectData(w *tabwriter.Writer, img interface{}) {
+	if img == nil {
+		return
+	}
+
+	// Convert to map for flexible access (Docker/Podman may differ a bit).
+	jsonBytes, err := json.Marshal(img)
+	if err != nil {
+		return
+	}
+	var m map[string]interface{}
+	if err := json.Unmarshal(jsonBytes, &m); err != nil {
+		return
+	}
+
+	FormatInspectSection(w, "Image Information")
+	if v, ok := m["Id"].(string); ok {
+		FormatInspectField(w, "ID", v)
+	}
+	if v, ok := m["Created"].(string); ok {
+		FormatInspectField(w, "Created", FormatTimestamp(v))
+	}
+	if v, ok := m["Author"].(string); ok && v != "" {
+		FormatInspectField(w, "Author", v)
+	}
+	if v, ok := m["Architecture"].(string); ok && v != "" {
+		FormatInspectField(w, "Architecture", v)
+	}
+	if v, ok := m["Os"].(string); ok && v != "" {
+		FormatInspectField(w, "OS", v)
+	}
+	if v, ok := m["Variant"].(string); ok && v != "" {
+		FormatInspectField(w, "Variant", v)
+	}
+	if v, ok := m["Size"].(float64); ok && v > 0 {
+		FormatInspectField(w, "Size", FormatSize(int64(v)))
+	}
+	if v, ok := m["VirtualSize"].(float64); ok && v > 0 {
+		FormatInspectField(w, "VirtualSize", FormatSize(int64(v)))
+	}
+
+	if tags, ok := m["RepoTags"].([]interface{}); ok && len(tags) > 0 {
+		FormatInspectSection(w, "RepoTags")
+		for _, t := range tags {
+			if s, ok := t.(string); ok && s != "" {
+				fmt.Fprintf(w, "  - %s\n", s)
+			}
+		}
+	}
+	if digs, ok := m["RepoDigests"].([]interface{}); ok && len(digs) > 0 {
+		FormatInspectSection(w, "RepoDigests")
+		for _, d := range digs {
+			if s, ok := d.(string); ok && s != "" {
+				fmt.Fprintf(w, "  - %s\n", s)
+			}
+		}
+	}
+
+	// Config (best-effort subset)
+	if cfg, ok := m["Config"].(map[string]interface{}); ok && len(cfg) > 0 {
+		FormatInspectSection(w, "Config")
+
+		if v, ok := cfg["WorkingDir"].(string); ok && v != "" {
+			FormatInspectField(w, "WorkingDir", v)
+		}
+		if v, ok := cfg["User"].(string); ok && v != "" {
+			FormatInspectField(w, "User", v)
+		}
+		if v, ok := cfg["Entrypoint"].([]interface{}); ok && len(v) > 0 {
+			var parts []string
+			for _, p := range v {
+				if s, ok := p.(string); ok {
+					parts = append(parts, s)
+				}
+			}
+			if len(parts) > 0 {
+				FormatInspectField(w, "Entrypoint", strings.Join(parts, " "))
+			}
+		}
+		if v, ok := cfg["Cmd"].([]interface{}); ok && len(v) > 0 {
+			var parts []string
+			for _, p := range v {
+				if s, ok := p.(string); ok {
+					parts = append(parts, s)
+				}
+			}
+			if len(parts) > 0 {
+				FormatInspectField(w, "Cmd", strings.Join(parts, " "))
+			}
+		}
+		if v, ok := cfg["Env"].([]interface{}); ok && len(v) > 0 {
+			FormatInspectSection(w, "Environment")
+			for _, e := range v {
+				if s, ok := e.(string); ok && s != "" {
+					fmt.Fprintf(w, "  - %s\n", s)
+				}
+			}
+		}
+		if v, ok := cfg["Labels"].(map[string]interface{}); ok && len(v) > 0 {
+			FormatInspectSection(w, "Labels")
+			for k, vv := range v {
+				FormatInspectField(w, k, fmt.Sprint(vv))
+			}
+		}
+	}
+
+	// RootFS (best-effort)
+	if rootfs, ok := m["RootFS"].(map[string]interface{}); ok && len(rootfs) > 0 {
+		FormatInspectSection(w, "RootFS")
+		if t, ok := rootfs["Type"].(string); ok && t != "" {
+			FormatInspectField(w, "Type", t)
+		}
+		if layers, ok := rootfs["Layers"].([]interface{}); ok && len(layers) > 0 {
+			fmt.Fprintf(w, "  %s:\n", hftx.Blue("Layers"))
+			for _, l := range layers {
+				if s, ok := l.(string); ok && s != "" {
+					fmt.Fprintf(w, "    - %s\n", s)
+				}
+			}
+		}
+	}
+
+	w.Flush()
+}

@@ -126,7 +126,7 @@ var networkDetachCmd = &cobra.Command{
 
 var networkInspectCmd = &cobra.Command{
 	Use:     "inspect NETWORK",
-	Aliases: []string{"insn"},
+	Aliases: []string{"inspn"},
 	Example: "dtools insn my-network",
 	Short:   "Display detailed information about a network",
 	Args:    cobra.ExactArgs(1),

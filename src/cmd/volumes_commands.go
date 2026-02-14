@@ -101,7 +101,7 @@ var volumeCreateCmd = &cobra.Command{
 
 var volumeInspectCmd = &cobra.Command{
 	Use:     "inspect VOLUME",
-	Aliases: []string{"insv"},
+	Aliases: []string{"inspv"},
 	Example: "dtools insv my-volume",
 	Short:   "Display detailed information about a volume",
 	Args:    cobra.ExactArgs(1),
