@@ -63,6 +63,25 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Fri Feb 13 2026 Binary package builder <builder@famillegratton.net> 2.50.00-0
+- completed image inspect (jean-francois@famillegratton.net)
+- completed network inspect and volume inspect (jean-
+  francois@famillegratton.net)
+- go version bump (jean-francois@famillegratton.net)
+- doc update (jean-francois@famillegratton.net)
+- completed dtools clean fix (jean-francois@famillegratton.net)
+- imagespecs are now sorted (sort -u) (jean-francois@famillegratton.net)
+- builddeps updates (jean-francois@famillegratton.net)
+- refactored filenames to ensure no issue if running on NTFS (jean-
+  francois@famillegratton.net)
+- moved inspect-related types in their own file (jean-
+  francois@famillegratton.net)
+- Changed error type in inspect (jean-francois@famillegratton.net)
+- completed container inspect (jean-francois@famillegratton.net)
+- doc update (jean-francois@famillegratton.net)
+- version bump (jean-francois@famillegratton.net)
+- Fixed http timeout issue (jean-francois@famillegratton.net)
+
 * Fri Jan 30 2026 Binary package builder <builder@famillegratton.net> 2.40.01-0
 - Fixed embarassing version numbering snafu (jean-francois@famillegratton.net)
 
