@@ -64,6 +64,75 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 %changelog
 * Fri Feb 13 2026 Binary package builder <builder@famillegratton.net> 2.50.00-0
+- fixed perms on shell script (builder@famillegratton.net)
+- Automatic commit of package [dtools] release [2.50.00-0].
+  (builder@famillegratton.net)
+- completed image inspect (jean-francois@famillegratton.net)
+- completed network inspect and volume inspect (jean-
+  francois@famillegratton.net)
+- go version bump (jean-francois@famillegratton.net)
+- doc update (jean-francois@famillegratton.net)
+- completed dtools clean fix (jean-francois@famillegratton.net)
+- imagespecs are now sorted (sort -u) (jean-francois@famillegratton.net)
+- builddeps updates (jean-francois@famillegratton.net)
+- refactored filenames to ensure no issue if running on NTFS (jean-
+  francois@famillegratton.net)
+- moved inspect-related types in their own file (jean-
+  francois@famillegratton.net)
+- Changed error type in inspect (jean-francois@famillegratton.net)
+- completed container inspect (jean-francois@famillegratton.net)
+- doc update (jean-francois@famillegratton.net)
+- version bump (jean-francois@famillegratton.net)
+- Fixed http timeout issue (jean-francois@famillegratton.net)
+- Automatic commit of package [dtools] release [2.40.01-0].
+  (builder@famillegratton.net)
+- Fixed embarassing version numbering snafu (jean-francois@famillegratton.net)
+- Automatic commit of package [dtools] release [2.40.00-0].
+  (builder@famillegratton.net)
+- Aligned all return codes with ce.CustomError (jean-
+  francois@famillegratton.net)
+- Completed commit (jean-francois@famillegratton.net)
+- Completed load (jean-francois@famillegratton.net)
+- Completed save (jean-francois@famillegratton.net)
+- Code-reuse : container attach (jean-francois@famillegratton.net)
+- Preparing 2.31.00 : version bump and doc update (jean-
+  francois@famillegratton.net)
+- README.md clarifications (jean-francois@famillegratton.net)
+- Doc update (jean-francois@famillegratton.net)
+- yet another forgotten file update (jean-francois@famillegratton.net)
+- updated CHANGELOG (jean-francois@famillegratton.net)
+- Automatic commit of package [dtools] release [2.30.00-0].
+  (builder@famillegratton.net)
+- reverted tag as specfile had the wrong release number
+  (builder@famillegratton.net)
+- Automatic commit of package [dtools] release [2.30.00-1].
+  (builder@famillegratton.net)
+- closing 2.30.00 with current feature set (jean-francois@famillegratton.net)
+- added GO version in version name (jean-francois@famillegratton.net)
+- moved system catalog and system tags to the new 'get' subcommand (jean-
+  francois@famillegratton.net)
+- build deps update (jean-francois@famillegratton.net)
+- updated to go v1.25.6 (jean-francois@famillegratton.net)
+- interim commit (jean-francois@famillegratton.net)
+- Reverted colour on dtools lsi (jean-francois@famillegratton.net)
+- Completed cp (jean-francois@famillegratton.net)
+- preparing v2.30.00 : version bump (jean-francois@famillegratton.net)
+- Updated README.md (jean-francois@famillegratton.net)
+- Completed the documentation (jean-francois@famillegratton.net)
+- Updated CHANGELOG (jean-francois@famillegratton.net)
+- Automatic commit of package [dtools] release [2.21.01-1].
+  (builder@famillegratton.net)
+- Bumped package version number (builder@famillegratton.net)
+- Automatic commit of package [dtools] release [2.21.01-0].
+  (builder@famillegratton.net)
+- Added the --format flag, used when the --json flag is set (jean-
+  francois@famillegratton.net)
+- Automatic commit of package [dtools] release [2.21.00-0].
+  (builder@famillegratton.net)
+- completed json formatting (jean-francois@famillegratton.net)
+- version bump (jean-francois@famillegratton.net)
+
+* Fri Feb 13 2026 Binary package builder <builder@famillegratton.net> 2.50.00-0
 - completed image inspect (jean-francois@famillegratton.net)
 - completed network inspect and volume inspect (jean-
   francois@famillegratton.net)
