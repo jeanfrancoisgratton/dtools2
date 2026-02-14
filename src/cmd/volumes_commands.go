@@ -99,9 +99,29 @@ var volumeCreateCmd = &cobra.Command{
 	},
 }
 
+var volumeInspectCmd = &cobra.Command{
+	Use:     "inspect VOLUME",
+	Aliases: []string{"insv"},
+	Example: "dtools insv my-volume",
+	Short:   "Display detailed information about a volume",
+	Args:    cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+
+		rest.Context = cmd.Context()
+		if _, err := volumes.InspectVolume(restClient, args[0]); err != nil {
+			fmt.Println(err)
+		}
+		return
+	},
+}
+
 func init() {
-	rootCmd.AddCommand(volumeCmd, volumeListCmd, volumeRmCmd)
-	volumeCmd.AddCommand(volumeListCmd, volumeRmCmd, volumePruneCmd, volumeCreateCmd)
+	rootCmd.AddCommand(volumeCmd, volumeListCmd, volumeRmCmd, volumeInspectCmd)
+	volumeCmd.AddCommand(volumeListCmd, volumeRmCmd, volumePruneCmd, volumeCreateCmd, volumeInspectCmd)
 
 	volumePruneCmd.Flags().BoolVarP(&volumes.RemoveBlackListed, "blacklist", "B", false, "remove volume even if blacklisted")
 	volumePruneCmd.Flags().BoolVarP(&volumes.RemoveNamedVolumes, "all", "a", true, "remove anonymous AND non-anonymous volumes")

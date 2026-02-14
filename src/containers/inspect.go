@@ -107,22 +107,8 @@ func printFormattedInspect(data *ContainerInspect) {
 	networkSettingsMap := structToMap(data.NetworkSettings)
 	mountsSlice := structToSliceMap(data.Mounts)
 
-	extras.PrintContainerInspectData(
-		w,
-		data.ID,
-		data.Name,
-		data.Created,
-		stateMap,
-		data.Image,
-		data.Platform,
-		data.Driver,
-		data.SizeRw,
-		data.SizeRootFs,
-		configMap,
-		hostConfigMap,
-		networkSettingsMap,
-		mountsSlice,
-	)
+	extras.PrintContainerInspectData(w, data.ID, data.Name, data.Created, stateMap, data.Image, data.Platform,
+		data.Driver, data.SizeRw, data.SizeRootFs, configMap, hostConfigMap, networkSettingsMap, mountsSlice)
 }
 
 // structToMap converts a struct to map[string]interface{} using JSON marshaling

@@ -6,6 +6,7 @@
 package extras
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"text/tabwriter"
@@ -198,160 +199,80 @@ func PrintContainerInspectData(
 			if v, ok := s["StartedAt"].(string); ok && v != "" {
 				FormatInspectField(w, "Started At", FormatTimestamp(v))
 			}
-			if v, ok := s["FinishedAt"].(string); ok && v != "" && v != "0001-01-01T00:00:00Z" {
+			if v, ok := s["FinishedAt"].(string); ok && v != "" {
 				FormatInspectField(w, "Finished At", FormatTimestamp(v))
 			}
 		}
 	}
 
-	// SIZE
+	// SIZES
 	if sizeRw > 0 || sizeRootFs > 0 {
 		FormatInspectSection(w, "Size")
 		if sizeRw > 0 {
-			FormatInspectField(w, "Read/Write Layer", FormatSize(sizeRw))
+			FormatInspectField(w, "RW Layer", FormatSize(sizeRw))
 		}
 		if sizeRootFs > 0 {
-			FormatInspectField(w, "Root Filesystem", FormatSize(sizeRootFs))
+			FormatInspectField(w, "Root FS", FormatSize(sizeRootFs))
 		}
 	}
 
 	// CONFIG
 	if config != nil {
 		if c, ok := config.(map[string]interface{}); ok {
-			FormatInspectSection(w, "Configuration")
+			FormatInspectSection(w, "Config")
 
 			if v, ok := c["Hostname"].(string); ok && v != "" {
 				FormatInspectField(w, "Hostname", v)
+			}
+			if v, ok := c["Domainname"].(string); ok && v != "" {
+				FormatInspectField(w, "Domainname", v)
 			}
 			if v, ok := c["User"].(string); ok && v != "" {
 				FormatInspectField(w, "User", v)
 			}
 			if v, ok := c["WorkingDir"].(string); ok && v != "" {
-				FormatInspectField(w, "Working Directory", v)
+				FormatInspectField(w, "WorkingDir", v)
 			}
-
-			if v, ok := c["Env"].([]interface{}); ok && len(v) > 0 {
-				envStrs := make([]string, 0, len(v))
-				for _, e := range v {
-					if s, ok := e.(string); ok {
-						envStrs = append(envStrs, s)
-					}
-				}
-				if len(envStrs) > 0 {
-					FormatInspectList(w, "Environment", envStrs)
-				}
-			}
-
-			if v, ok := c["Cmd"].([]interface{}); ok && len(v) > 0 {
-				cmdStrs := make([]string, 0, len(v))
-				for _, e := range v {
-					if s, ok := e.(string); ok {
-						cmdStrs = append(cmdStrs, s)
-					}
-				}
-				if len(cmdStrs) > 0 {
-					FormatInspectField(w, "Command", strings.Join(cmdStrs, " "))
-				}
-			}
-
 			if v, ok := c["Entrypoint"].([]interface{}); ok && len(v) > 0 {
-				epStrs := make([]string, 0, len(v))
+				var parts []string
+				for _, p := range v {
+					if s, ok := p.(string); ok {
+						parts = append(parts, s)
+					}
+				}
+				FormatInspectField(w, "Entrypoint", strings.Join(parts, " "))
+			}
+			if v, ok := c["Cmd"].([]interface{}); ok && len(v) > 0 {
+				var parts []string
+				for _, p := range v {
+					if s, ok := p.(string); ok {
+						parts = append(parts, s)
+					}
+				}
+				FormatInspectField(w, "Cmd", strings.Join(parts, " "))
+			}
+			if v, ok := c["Env"].([]interface{}); ok && len(v) > 0 {
+				FormatInspectSection(w, "Environment")
 				for _, e := range v {
-					if s, ok := e.(string); ok {
-						epStrs = append(epStrs, s)
+					if s, ok := e.(string); ok && s != "" {
+						fmt.Fprintf(w, "  - %s\n", s)
 					}
 				}
-				if len(epStrs) > 0 {
-					FormatInspectField(w, "Entrypoint", strings.Join(epStrs, " "))
-				}
 			}
-
 			if v, ok := c["Labels"].(map[string]interface{}); ok && len(v) > 0 {
-				labels := make(map[string]string)
-				for k, val := range v {
-					if s, ok := val.(string); ok {
-						labels[k] = s
-					}
-				}
-				if len(labels) > 0 {
-					FormatInspectMap(w, "Labels", labels)
+				FormatInspectSection(w, "Labels")
+				for k, vv := range v {
+					FormatInspectField(w, k, fmt.Sprint(vv))
 				}
 			}
 		}
 	}
 
-	// NETWORK
-	if networkSettings != nil {
-		if n, ok := networkSettings.(map[string]interface{}); ok {
-			networks, hasNetworks := n["Networks"].(map[string]interface{})
-			ipAddr, hasIP := n["IPAddress"].(string)
-			gateway, hasGateway := n["Gateway"].(string)
-
-			if hasNetworks || hasIP || hasGateway {
-				FormatInspectSection(w, "Network")
-
-				if hasIP && ipAddr != "" {
-					FormatInspectField(w, "IP Address", ipAddr)
-				}
-				if hasGateway && gateway != "" {
-					FormatInspectField(w, "Gateway", gateway)
-				}
-
-				if hasNetworks && len(networks) > 0 {
-					fmt.Fprintf(w, "  %s:\n", hftx.Blue("Networks"))
-					for netName, netData := range networks {
-						if nd, ok := netData.(map[string]interface{}); ok {
-							fmt.Fprintf(w, "    %s:\n", hftx.Yellow(netName))
-							if ip, ok := nd["IPAddress"].(string); ok && ip != "" {
-								fmt.Fprintf(w, "      IP Address: %s\n", ip)
-							}
-							if gw, ok := nd["Gateway"].(string); ok && gw != "" {
-								fmt.Fprintf(w, "      Gateway: %s\n", gw)
-							}
-							if mac, ok := nd["MacAddress"].(string); ok && mac != "" {
-								fmt.Fprintf(w, "      MAC Address: %s\n", mac)
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// MOUNTS
-	if mounts != nil {
-		if m, ok := mounts.([]interface{}); ok && len(m) > 0 {
-			FormatInspectSection(w, "Mounts")
-			for i, mount := range m {
-				if md, ok := mount.(map[string]interface{}); ok {
-					fmt.Fprintf(w, "  Mount %d:\n", i+1)
-					if v, ok := md["Type"].(string); ok {
-						fmt.Fprintf(w, "    Type: %s\n", v)
-					}
-					if v, ok := md["Source"].(string); ok {
-						fmt.Fprintf(w, "    Source: %s\n", v)
-					}
-					if v, ok := md["Destination"].(string); ok {
-						fmt.Fprintf(w, "    Destination: %s\n", v)
-					}
-					if v, ok := md["RW"].(bool); ok {
-						mode := "read-only"
-						if v {
-							mode = "read-write"
-						}
-						fmt.Fprintf(w, "    Mode: %s\n", mode)
-					}
-				}
-			}
-		}
-	}
-
-	// HOST CONFIG highlights
+	// HOST CONFIG (best-effort subset)
 	if hostConfig != nil {
 		if h, ok := hostConfig.(map[string]interface{}); ok {
 			hasContent := false
 
-			// Check if we have any interesting host config to show
 			if v, ok := h["NetworkMode"].(string); ok && v != "" && v != "default" {
 				if !hasContent {
 					FormatInspectSection(w, "Host Configuration")
@@ -382,4 +303,184 @@ func PrintContainerInspectData(
 	}
 
 	w.Flush()
+}
+
+// PrintNetworkInspectData prints a human-friendly "network inspect" output.
+// This is called from networks.InspectNetwork.
+func PrintNetworkInspectData(w *tabwriter.Writer, n interface{}) {
+	if n == nil {
+		return
+	}
+
+	// Convert to map for flexible access (Docker/Podman may differ a bit).
+	jsonBytes, err := json.Marshal(n)
+	if err != nil {
+		return
+	}
+	var m map[string]interface{}
+	if err := json.Unmarshal(jsonBytes, &m); err != nil {
+		return
+	}
+
+	FormatInspectSection(w, "Network Information")
+	if v, ok := m["Name"].(string); ok {
+		FormatInspectField(w, "Name", v)
+	}
+	if v, ok := m["Id"].(string); ok {
+		FormatInspectField(w, "ID", v)
+	}
+	if v, ok := m["Created"].(string); ok {
+		FormatInspectField(w, "Created", FormatTimestamp(v))
+	}
+	if v, ok := m["Scope"].(string); ok {
+		FormatInspectField(w, "Scope", v)
+	}
+	if v, ok := m["Driver"].(string); ok {
+		FormatInspectField(w, "Driver", v)
+	}
+	if v, ok := m["Internal"].(bool); ok {
+		FormatInspectFieldBool(w, "Internal", v)
+	}
+	if v, ok := m["Attachable"].(bool); ok {
+		FormatInspectFieldBool(w, "Attachable", v)
+	}
+	if v, ok := m["Ingress"].(bool); ok {
+		FormatInspectFieldBool(w, "Ingress", v)
+	}
+	if v, ok := m["EnableIPv6"].(bool); ok {
+		FormatInspectFieldBool(w, "EnableIPv6", v)
+	}
+	if v, ok := m["ConfigOnly"].(bool); ok && v {
+		FormatInspectFieldBool(w, "ConfigOnly", v)
+	}
+	if v, ok := m["ConfigFrom"].(map[string]interface{}); ok {
+		if netName, ok := v["Network"].(string); ok && netName != "" {
+			FormatInspectField(w, "ConfigFrom", netName)
+		}
+	}
+
+	// IPAM
+	if ipam, ok := m["IPAM"].(map[string]interface{}); ok {
+		FormatInspectSection(w, "IPAM")
+		if drv, ok := ipam["Driver"].(string); ok {
+			FormatInspectField(w, "Driver", drv)
+		}
+		if cfg, ok := ipam["Config"].([]interface{}); ok && len(cfg) > 0 {
+			for i, c := range cfg {
+				cm, _ := c.(map[string]interface{})
+				if cm == nil {
+					continue
+				}
+				FormatInspectField(w, fmt.Sprintf("Config %d", i+1), "")
+				if v, ok := cm["Subnet"].(string); ok && v != "" {
+					FormatInspectField(w, "Subnet", v)
+				}
+				if v, ok := cm["IPRange"].(string); ok && v != "" {
+					FormatInspectField(w, "IPRange", v)
+				}
+				if v, ok := cm["Gateway"].(string); ok && v != "" {
+					FormatInspectField(w, "Gateway", v)
+				}
+			}
+		}
+	}
+
+	// Options/Labels
+	if opts, ok := m["Options"].(map[string]interface{}); ok && len(opts) > 0 {
+		FormatInspectSection(w, "Options")
+		for k, v := range opts {
+			FormatInspectField(w, k, fmt.Sprint(v))
+		}
+	}
+	if labels, ok := m["Labels"].(map[string]interface{}); ok && len(labels) > 0 {
+		FormatInspectSection(w, "Labels")
+		for k, v := range labels {
+			FormatInspectField(w, k, fmt.Sprint(v))
+		}
+	}
+
+	// Attached containers
+	if containers, ok := m["Containers"].(map[string]interface{}); ok && len(containers) > 0 {
+		FormatInspectSection(w, "Attached Containers")
+		for id, raw := range containers {
+			cm, _ := raw.(map[string]interface{})
+			name, _ := cm["Name"].(string)
+			ipv4, _ := cm["IPv4Address"].(string)
+			ipv6, _ := cm["IPv6Address"].(string)
+
+			line := id
+			if name != "" {
+				line = fmt.Sprintf("%s (%s)", id, name)
+			}
+			if ipv4 != "" {
+				line = fmt.Sprintf("%s  IPv4=%s", line, ipv4)
+			}
+			if ipv6 != "" {
+				line = fmt.Sprintf("%s  IPv6=%s", line, ipv6)
+			}
+			fmt.Fprintf(w, "  - %s\n", line)
+		}
+	}
+}
+
+// PrintVolumeInspectData prints a human-friendly "volume inspect" output.
+// This is called from volumes.InspectVolume.
+func PrintVolumeInspectData(w *tabwriter.Writer, v interface{}) {
+	if v == nil {
+		return
+	}
+
+	jsonBytes, err := json.Marshal(v)
+	if err != nil {
+		return
+	}
+	var m map[string]interface{}
+	if err := json.Unmarshal(jsonBytes, &m); err != nil {
+		return
+	}
+
+	FormatInspectSection(w, "Volume Information")
+	if s, ok := m["Name"].(string); ok {
+		FormatInspectField(w, "Name", s)
+	}
+	if s, ok := m["Driver"].(string); ok {
+		FormatInspectField(w, "Driver", s)
+	}
+	if s, ok := m["Mountpoint"].(string); ok {
+		FormatInspectField(w, "Mountpoint", s)
+	}
+	if s, ok := m["Scope"].(string); ok {
+		FormatInspectField(w, "Scope", s)
+	}
+	if s, ok := m["CreatedAt"].(string); ok {
+		FormatInspectField(w, "CreatedAt", s)
+	}
+
+	if opts, ok := m["Options"].(map[string]interface{}); ok && len(opts) > 0 {
+		FormatInspectSection(w, "Options")
+		for k, val := range opts {
+			FormatInspectField(w, k, fmt.Sprint(val))
+		}
+	}
+	if labels, ok := m["Labels"].(map[string]interface{}); ok && len(labels) > 0 {
+		FormatInspectSection(w, "Labels")
+		for k, val := range labels {
+			FormatInspectField(w, k, fmt.Sprint(val))
+		}
+	}
+	if status, ok := m["Status"].(map[string]interface{}); ok && len(status) > 0 {
+		FormatInspectSection(w, "Status")
+		for k, val := range status {
+			FormatInspectField(w, k, fmt.Sprint(val))
+		}
+	}
+	if usage, ok := m["UsageData"].(map[string]interface{}); ok && len(usage) > 0 {
+		FormatInspectSection(w, "Usage")
+		if sz, ok := usage["Size"].(float64); ok {
+			FormatInspectField(w, "Size", FormatSize(int64(sz)))
+		}
+		if rc, ok := usage["RefCount"].(float64); ok {
+			FormatInspectFieldInt64(w, "RefCount", int64(rc))
+		}
+	}
 }

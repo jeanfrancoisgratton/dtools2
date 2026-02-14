@@ -296,7 +296,8 @@ var containerAttachCmd = &cobra.Command{
 }
 
 var containerInspectCmd = &cobra.Command{
-	Use:     "insc CONTAINER",
+	Use:     "inspect CONTAINER",
+	Aliases: []string{"insc"},
 	Example: "dtools insc my-container",
 	Short:   "Display detailed information about a container",
 	Args:    cobra.ExactArgs(1),
@@ -322,7 +323,7 @@ func init() {
 	containerCmd.AddCommand(containerListCmd, containerInfoCmd, containerRemoveCmd, containerPauseCmd,
 		containerUnpauseCmd, containerStartCmd, containerStartAllCmd, containerStopCmd, containerStopAllCmd,
 		containerRenameCmd, containerKillCmd, containerKillAllCmd, containerRestartCmd,
-		containerRestartAllCmd, containerAttachCmd)
+		containerRestartAllCmd, containerAttachCmd, containerInspectCmd)
 
 	containerRestartCmd.Flags().BoolVarP(&containers.KillSwitch, "kill", "k", false, "force kill of container")
 	containerRestartAllCmd.Flags().BoolVarP(&containers.KillSwitch, "kill", "k", false, "force kill of container")

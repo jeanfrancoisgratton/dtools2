@@ -124,9 +124,28 @@ var networkDetachCmd = &cobra.Command{
 	},
 }
 
+var networkInspectCmd = &cobra.Command{
+	Use:     "inspect NETWORK",
+	Aliases: []string{"insn"},
+	Example: "dtools insn my-network",
+	Short:   "Display detailed information about a network",
+	Args:    cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+		rest.Context = cmd.Context()
+		if _, err := networks.InspectNetwork(restClient, args[0]); err != nil {
+			fmt.Println(err)
+		}
+		return
+	},
+}
+
 func init() {
-	rootCmd.AddCommand(networkCmd, networkListCmd, networkRmCmd)
-	networkCmd.AddCommand(networkListCmd, networkCreateCmd, networkRmCmd, networkAttachCmd, networkDetachCmd)
+	rootCmd.AddCommand(networkCmd, networkListCmd, networkRmCmd, networkInspectCmd)
+	networkCmd.AddCommand(networkListCmd, networkCreateCmd, networkRmCmd, networkAttachCmd, networkDetachCmd, networkInspectCmd)
 
 	networkDetachCmd.Flags().BoolVarP(&networks.ForceNetworkDetach, "force", "f", false, "force-detach the network from the container")
 	networkCreateCmd.Flags().StringVarP(&networks.NetworkDriverName, "driver", "d", "bridge", "network driver network")
