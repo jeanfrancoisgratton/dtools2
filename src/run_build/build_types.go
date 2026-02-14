@@ -3,7 +3,7 @@
 // Original timestamp: 2026/01/04 00:00
 // Original filename: src/build/buildFlags.go
 
-package build
+package run_build
 
 import "regexp"
 

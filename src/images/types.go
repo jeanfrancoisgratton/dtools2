@@ -1,7 +1,7 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2025/11/18 16:38
-// Original filename: src/images/types.go
+// Original filename: src/images/run_types.go
 
 package images
 

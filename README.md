@@ -85,7 +85,7 @@ This is one of the commands that needs the default registry mentioned above. The
 
 ```json
 [2:00:21|jfgratton@london:src]: dtools get catalog
-🛈 Connecting to: unix:///var/run/docker.sock
+🛈 Connecting to: unix:///var/run_build/docker.sock
 
 {
   "repositories": [
@@ -112,7 +112,7 @@ Here's how it'd look:
 
 ```bash
 [2:00:28|jfgratton@london:src]: dtools get tags nexus
-🛈 Connecting to: unix:///var/run/docker.sock
+🛈 Connecting to: unix:///var/run_build/docker.sock
 
 {
   "name": "nexus",
@@ -154,11 +154,11 @@ the kill/start/stop/restart commands:
 
 ```bash
 [2:08:59|jfgratton@london:src]: dtools kill bareAlpine nexus;dtools up bareAlpine nexus
-🛈 Connecting to: unix:///var/run/docker.sock
+🛈 Connecting to: unix:///var/run_build/docker.sock
 
 ⏳ Container bareAlpine STOPPED
 ⏳ Container nexus STOPPED
-🛈 Connecting to: unix:///var/run/docker.sock
+🛈 Connecting to: unix:///var/run_build/docker.sock
 
 ⏳ Container bareAlpine STARTED
 ⏳ Container nexus STARTED

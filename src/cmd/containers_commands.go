@@ -10,7 +10,7 @@ import (
 	"dtools2/containers"
 	"dtools2/extras"
 	"dtools2/rest"
-	"dtools2/run"
+	"dtools2/run_build"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -288,7 +288,7 @@ var containerAttachCmd = &cobra.Command{
 		}
 		rest.Context = cmd.Context()
 
-		if _, errCode := run.AttachContainer(restClient, args[0]); errCode != nil {
+		if _, errCode := run_build.AttachContainer(restClient, args[0]); errCode != nil {
 			fmt.Println(errCode)
 		}
 		return

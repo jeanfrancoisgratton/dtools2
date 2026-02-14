@@ -3,7 +3,7 @@
 // Original timestamp: 2026/01/04 00:02
 // Original filename: src/build/dockerignore.go
 
-package build
+package run_build
 
 import (
 	"bufio"

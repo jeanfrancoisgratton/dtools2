@@ -3,7 +3,7 @@
 // Original timestamp: 2026/01/03 22:19
 // Original filename: src/extras/pull.go
 
-package run
+package run_build
 
 import (
 	"dtools2/images"
@@ -15,7 +15,7 @@ import (
 // pullImageViaDaemon pulls an image through the daemon (same endpoint as `docker pull`).
 //
 // The actual pull implementation lives in images/pull.go; this wrapper exists so the
-// run package can:
+// run_build package can:
 //   - keep its existing call sites unchanged
 //   - control output (quiet mode) without baking rest.QuietOutput into images
 func pullImageViaDaemon(client *rest.Client, ref string) error {

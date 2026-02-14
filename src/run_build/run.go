@@ -1,9 +1,9 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2026/01/03 22:00
-// Original filename: src/extras/run.go
+// Original filename: src/extras/run_build.go
 
-package run
+package run_build
 
 import (
 	"bytes"
@@ -29,7 +29,7 @@ import (
 	xterm "golang.org/x/term"
 )
 
-// RunContainer emulates `docker run` (subset).
+// RunContainer emulates `docker run_build` (subset).
 //
 // Behaviour covered:
 //   - create + start
@@ -310,7 +310,7 @@ func AttachContainer(client *rest.Client, id string) (*rest.HijackedConn, *ce.Cu
 		q.Set("stdin", "1")
 	}
 
-	// No logs replay; `docker run` does not include previous logs.
+	// No logs replay; `docker run_build` does not include previous logs.
 	q.Set("logs", "0")
 
 	headers := http.Header{}

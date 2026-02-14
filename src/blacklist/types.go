@@ -1,7 +1,7 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2025/11/26 01:15
-// Original filename: src/blacklist/types.go
+// Original filename: src/blacklist/run_types.go
 
 package blacklist
 

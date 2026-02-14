@@ -1,9 +1,9 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2026/01/03 21:59
-// Original filename: src/extras/types.go
+// Original filename: src/extras/run_types.go
 
-package run
+package run_build
 
 var RunDetach bool       // -d
 var RunInteractive bool  // -i
@@ -20,7 +20,7 @@ var RunNetwork string    // --network
 var RunEntrypoint string // --entrypoint
 var RunHostname string   // --hostname
 
-// Minimal structures for the Docker/Podman "docker run" flow.
+// Minimal structures for the Docker/Podman "docker run_build" flow.
 //
 // Endpoints:
 //   - POST /containers/create
@@ -61,7 +61,7 @@ type ContainerCreateRequest struct {
 	HostConfig *HostConfig `json:"HostConfig,omitempty"`
 }
 
-// HostConfig is a subset used by dtools2 for run.
+// HostConfig is a subset used by dtools2 for run_build.
 type HostConfig struct {
 	AutoRemove bool `json:"AutoRemove,omitempty"`
 	// Prefer Mounts over Binds so we can support both bind mounts and named volumes.
