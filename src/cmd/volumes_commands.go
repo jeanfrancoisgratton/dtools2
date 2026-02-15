@@ -120,7 +120,7 @@ var volumeInspectCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(volumeCmd, volumeListCmd, volumeRmCmd, volumeInspectCmd)
+	rootCmd.AddCommand(volumeCmd, volumeListCmd, volumeRmCmd, volumeInspectCmd, volumePruneCmd)
 	volumeCmd.AddCommand(volumeListCmd, volumeRmCmd, volumePruneCmd, volumeCreateCmd, volumeInspectCmd)
 
 	volumePruneCmd.Flags().BoolVarP(&volumes.RemoveBlackListed, "blacklist", "B", false, "remove volume even if blacklisted")
