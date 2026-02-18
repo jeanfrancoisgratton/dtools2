@@ -8,6 +8,7 @@ require (
 	github.com/jeanfrancoisgratton/customError/v3 v3.0.0
 	github.com/jeanfrancoisgratton/helperFunctions/v4 v4.1.1
 	github.com/jedib0t/go-pretty/v6 v6.7.8
+	github.com/moby/buildkit v0.27.1
 	github.com/moby/term v0.5.2
 	github.com/spf13/cobra v1.10.2
 	github.com/ulikunitz/xz v0.5.15
@@ -27,13 +28,11 @@ require (
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jwalton/gchalk v1.3.0 // indirect
 	github.com/jwalton/go-supportscolor v1.2.0 // indirect
 	github.com/mattn/go-runewidth v0.0.20 // indirect
-	github.com/moby/buildkit v0.27.1 // indirect
 	github.com/morikuni/aec v1.1.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
