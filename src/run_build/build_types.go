@@ -9,6 +9,8 @@ import (
 	"bufio"
 	"net"
 	"regexp"
+
+	"github.com/moby/buildkit/session"
 )
 
 // CLI-bound flags (wired in cmd/root.go).
@@ -87,4 +89,13 @@ const (
 type bufferedConn struct {
 	net.Conn
 	r *bufio.Reader
+}
+
+type buildkitSession struct {
+	ID        string
+	SharedKey string
+	sess      *session.Session
+
+	// ready reports the first dial attempt result (nil on success).
+	ready chan error
 }

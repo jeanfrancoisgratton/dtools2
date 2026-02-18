@@ -29,15 +29,6 @@ import (
 
 func (c *bufferedConn) Read(p []byte) (int, error) { return c.r.Read(p) }
 
-type buildkitSession struct {
-	ID        string
-	SharedKey string
-	sess      *session.Session
-
-	// ready reports the first dial attempt result (nil on success).
-	ready chan error
-}
-
 func newBuildkitSession(ctx context.Context, client *rest.Client) (*buildkitSession, error) {
 	sharedKey, err := randomHex(32)
 	if err != nil {

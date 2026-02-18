@@ -14,3 +14,4 @@
 - [x] `load` / `save` / ~~`import` / `export`~~ / `commit` commands
 - [x] add an http timeout, useful for long push/pull actions
 - [x] add filter support to `lsc`, `lsv`, `lsn` and `lsi` commands
+- [ ] replace all RunE params with Run in src/cmd/run_build_commands.go
