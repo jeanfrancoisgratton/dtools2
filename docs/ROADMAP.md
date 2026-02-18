@@ -3,7 +3,7 @@
 ## Current version
 ```bash
 # dtools -V
-dtools version 2.30.00 (2026.01.11)
+dtools version 2.51.00 (2026.02.18), Go version = go1.26.0
 ```
 
 | Task                                            | Slated for  | Actual release | Comments                                                   |

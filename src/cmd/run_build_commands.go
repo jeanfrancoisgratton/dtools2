@@ -14,9 +14,10 @@ import (
 )
 
 var runCmd = &cobra.Command{
-	Use:     "run_build [flags] IMAGE [COMMAND] [ARG...]",
+	Use:     "run [flags] IMAGE [COMMAND] [ARG...]",
+	Aliases: []string{"run_build"},
 	Short:   "Run a command in a new container",
-	Example: "dtools run_build -it --rm alpine:latest /bin/sh",
+	Example: "dtools run -it --rm alpine:latest /bin/sh",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
@@ -83,6 +84,7 @@ func init() {
 	runCmd.Flags().StringVar(&run_build.RunNetwork, "network", "", "Connect a container to a network")
 	runCmd.Flags().StringVar(&run_build.RunEntrypoint, "entrypoint", "", "Overwrite the default ENTRYPOINT of the image")
 	runCmd.Flags().StringVarP(&run_build.RunHostname, "hostname", "", "", "Container host name")
+
 	buildCmd.Flags().StringVarP(&run_build.Dockerfile, "file", "f", "Dockerfile", "Name of the Dockerfile (relative to PATH)")
 	buildCmd.Flags().StringArrayVarP(&run_build.Tags, "tag", "t", nil, "Name and optional tag in the 'name:tag' format")
 	buildCmd.Flags().StringArrayVar(&run_build.BuildArgs, "build-arg", nil, "Set build-time variables")
@@ -90,6 +92,8 @@ func init() {
 	buildCmd.Flags().BoolVar(&run_build.Pull, "pull", false, "Always attempt to pull a newer version of the base images")
 	buildCmd.Flags().BoolVar(&run_build.RemoveIntermediate, "rm", true, "Remove intermediate containers after a successful build")
 	buildCmd.Flags().BoolVar(&run_build.ForceRemoveIntermediate, "force-rm", false, "Always remove intermediate containers, even upon failure")
+	buildCmd.Flags().BoolVar(&run_build.Compress, "compress", false, "Compress the build context sent to the daemon")
+	buildCmd.Flags().BoolVar(&run_build.Load, "load", false, "No-op compatibility flag (image is always loaded into the local daemon)")
 	buildCmd.Flags().StringVar(&run_build.Target, "target", "", "Set the target build stage to build")
 	buildCmd.Flags().StringVar(&run_build.Platform, "platform", "", "Set platform if supported by the daemon")
 	buildCmd.Flags().StringVar(&run_build.Progress, "progress", "auto", "Set type of progress output (auto|plain|tty)")

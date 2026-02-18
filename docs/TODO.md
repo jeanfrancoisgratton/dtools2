@@ -13,4 +13,4 @@
 - [x] add a `dtools cp` copy command
 - [x] `load` / `save` / ~~`import` / `export`~~ / `commit` commands
 - [x] add an http timeout, useful for long push/pull actions
-- [ ] add filter support to `lsc`, `lsv`, `lsn` and `lsi` commands
+- [x] add filter support to `lsc`, `lsv`, `lsn` and `lsi` commands

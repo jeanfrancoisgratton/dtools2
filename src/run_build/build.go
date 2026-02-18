@@ -73,6 +73,12 @@ func BuildImage(client *rest.Client, contextDir string) error {
 		q.Set("forcerm", "true")
 	}
 
+	if Compress {
+		// Docker Engine supports compress=1 to gzip the build context stream.
+		// Podman compat API may ignore it; safe to send.
+		q.Set("compress", "1")
+	}
+
 	if Target != "" {
 		q.Set("target", Target)
 	}
