@@ -6,11 +6,12 @@
 package run_build
 
 import (
+	"bufio"
 	"context"
-	//"dtools2/build"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -74,8 +75,7 @@ func BuildImage(client *rest.Client, contextDir string) error {
 	}
 
 	if Compress {
-		// Docker Engine supports compress=1 to gzip the build context stream.
-		// Podman compat API may ignore it; safe to send.
+		// Matches docker CLI behaviour: client gzips the context *and* sets this.
 		q.Set("compress", "1")
 	}
 
@@ -99,7 +99,14 @@ func BuildImage(client *rest.Client, contextDir string) error {
 		q.Set("buildargs", string(b))
 	}
 
-	body, err := makeContextTarStream(ctx, contextDir, dfRel)
+	useBuildKit, buildKitForced := decideBuildKit(ctx, client, progressMode)
+	if useBuildKit {
+		q.Set("version", "2")
+	} else {
+		q.Set("version", "1")
+	}
+
+	body, err := makeContextTarStream(ctx, contextDir, dfRel, Compress)
 	if err != nil {
 		return err
 	}
@@ -113,31 +120,38 @@ func BuildImage(client *rest.Client, contextDir string) error {
 		headers.Set("X-Registry-Config", h)
 	}
 
+	// BuildKit session (required by modern Docker for buildkit backend).
+	var bks *buildkitSession
+	if useBuildKit {
+		bs, err := newBuildkitSession(ctx, client)
+		if err != nil {
+			if buildKitForced {
+				return err
+			}
+			// Auto mode: fall back to legacy builder.
+			q.Set("version", "1")
+			useBuildKit = false
+		} else {
+			bks = bs
+			headers.Set(dockerSessionHeaderID, bks.ID)
+			headers.Set(dockerSessionHeaderSharedKey, bks.SharedKey)
+			headers.Set(dockerSessionHeaderName, "dtools2")
+			defer bks.Close()
+		}
+	}
+
 	resp, err := client.Do(ctx, http.MethodPost, "/build", q, body, headers)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 
-	// Stream build output (Docker JSON message stream).
 	termFd, autoIsTerm := term.GetFdInfo(os.Stdout)
 	isTerm := autoIsTerm
 
-	// `--progress=tty` is meaningful for BuildKit-style output.
-	// If the daemon doesn't recommend BuildKit, we ignore the request and fall
-	// back to the default (auto). If stdout isn't a TTY, we fall back to plain.
-	if progressMode == "tty" {
-		if !autoIsTerm {
-			progressMode = "plain"
-		} else {
-			ok, derr := DaemonRecommendsBuildKit(ctx, client)
-			if derr != nil {
-				// If we can't detect, don't fail the build; just fall back.
-				progressMode = "auto"
-			} else if !ok {
-				progressMode = "auto"
-			}
-		}
+	// If stdout isn't a TTY, tty mode degrades to plain.
+	if progressMode == "tty" && !autoIsTerm {
+		progressMode = "plain"
 	}
 
 	if progressMode == "plain" {
@@ -147,17 +161,69 @@ func BuildImage(client *rest.Client, contextDir string) error {
 		isTerm = true
 	}
 
-	if derr := jsonmessage.DisplayJSONMessagesStream(resp.Body, os.Stdout, termFd, isTerm, nil); derr != nil {
-		// Fallback: if daemon doesn't speak exact docker JSONMessage stream.
-		// Still expose status code below.
-		_, _ = ioCopyAll(os.Stdout, resp.Body)
+	// Podman sometimes returns plain text instead of docker's JSONMessage stream.
+	br := bufio.NewReader(resp.Body)
+	if streamLooksLikeJSON(br) {
+		if derr := jsonmessage.DisplayJSONMessagesStream(br, os.Stdout, termFd, isTerm, nil); derr != nil {
+			return derr
+		}
+	} else {
+		_, cErr := io.Copy(os.Stdout, br)
+		if cErr != nil {
+			return cErr
+		}
 	}
 
+	// If the daemon used the JSON message stream, failures are reported in-stream.
 	if resp.StatusCode >= 400 {
 		return fmt.Errorf("build failed: %s", resp.Status)
 	}
 
 	return nil
+}
+
+func decideBuildKit(ctx context.Context, client *rest.Client, progressMode string) (useBuildKit bool, forced bool) {
+	// Force-on: DOCKER_BUILDKIT=1
+	// Force-off: DOCKER_BUILDKIT=0
+	if v, ok := os.LookupEnv("DOCKER_BUILDKIT"); ok {
+		forced = true
+		v = strings.TrimSpace(v)
+		if v == "0" {
+			return false, true
+		}
+		// Any other value behaves like on (don't silently fall back).
+		return true, true
+	}
+
+	// `--progress=tty` implies BuildKit-style output (docker buildx-like).
+	if progressMode == "tty" {
+		return true, true
+	}
+
+	ok, err := DaemonRecommendsBuildKit(ctx, client)
+	if err != nil {
+		// If we can't detect, try BuildKit first (and fall back automatically).
+		return true, false
+	}
+	return ok, false
+}
+
+func streamLooksLikeJSON(br *bufio.Reader) bool {
+	peek, err := br.Peek(512)
+	if err != nil && len(peek) == 0 {
+		return false
+	}
+	for _, b := range peek {
+		switch b {
+		case ' ', '\t', '\r', '\n':
+			continue
+		case '{':
+			return true
+		default:
+			return false
+		}
+	}
+	return false
 }
 
 func dockerfileRelative(contextDir string) (string, error) {
@@ -272,23 +338,4 @@ func buildRegistryConfigHeader() (string, error) {
 
 	// Docker expects URL-safe base64 for these auth headers.
 	return base64.URLEncoding.EncodeToString(b), nil
-}
-
-// local helper to avoid importing io in multiple files
-func ioCopyAll(dst *os.File, src interface{ Read([]byte) (int, error) }) (int64, error) {
-	buf := make([]byte, 32*1024)
-	var n int64
-	for {
-		r, err := src.Read(buf)
-		if r > 0 {
-			w, werr := dst.Write(buf[:r])
-			n += int64(w)
-			if werr != nil {
-				return n, werr
-			}
-		}
-		if err != nil {
-			return n, err
-		}
-	}
 }

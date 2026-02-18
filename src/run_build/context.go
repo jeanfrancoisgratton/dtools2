@@ -7,6 +7,7 @@ package run_build
 
 import (
 	"archive/tar"
+	"compress/gzip"
 	"context"
 	"fmt"
 	"io"
@@ -16,7 +17,7 @@ import (
 	"time"
 )
 
-func makeContextTarStream(ctx context.Context, contextDir, dockerfileRel string) (io.ReadCloser, error) {
+func makeContextTarStream(ctx context.Context, contextDir, dockerfileRel string, compress bool) (io.ReadCloser, error) {
 	contextDir = filepath.Clean(contextDir)
 
 	st, err := os.Stat(contextDir)
@@ -35,11 +36,38 @@ func makeContextTarStream(ctx context.Context, contextDir, dockerfileRel string)
 	pr, pw := io.Pipe()
 
 	go func() {
-		tw := tar.NewWriter(pw)
-		defer func() {
-			_ = tw.Close()
+		var (
+			gz *gzip.Writer
+			tw *tar.Writer
+		)
+
+		closeOK := func() {
+			if tw != nil {
+				_ = tw.Close()
+			}
+			if gz != nil {
+				_ = gz.Close()
+			}
 			_ = pw.Close()
-		}()
+		}
+
+		closeErr := func(e error) {
+			if tw != nil {
+				_ = tw.Close()
+			}
+			if gz != nil {
+				_ = gz.Close()
+			}
+			_ = pw.CloseWithError(e)
+		}
+
+		var w io.Writer = pw
+		if compress {
+			gz = gzip.NewWriter(pw)
+			w = gz
+		}
+
+		tw = tar.NewWriter(w)
 
 		walkErr := filepath.WalkDir(contextDir, func(path string, d os.DirEntry, walkErr error) error {
 			if walkErr != nil {
@@ -117,9 +145,11 @@ func makeContextTarStream(ctx context.Context, contextDir, dockerfileRel string)
 		})
 
 		if walkErr != nil {
-			_ = pw.CloseWithError(walkErr)
+			closeErr(walkErr)
 			return
 		}
+
+		closeOK()
 	}()
 
 	return pr, nil

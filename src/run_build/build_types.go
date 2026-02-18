@@ -5,7 +5,11 @@
 
 package run_build
 
-import "regexp"
+import (
+	"bufio"
+	"net"
+	"regexp"
+)
 
 // CLI-bound flags (wired in cmd/root.go).
 //
@@ -70,4 +74,17 @@ type ignoreRule struct {
 type ignoreMatcher struct {
 	rules         []ignoreRule
 	dockerfileRel string
+}
+
+const (
+	dockerSessionHeaderID        = "X-Docker-Expose-Session-Uuid"
+	dockerSessionHeaderName      = "X-Docker-Expose-Session-Name"
+	dockerSessionHeaderSharedKey = "X-Docker-Expose-Session-Sharedkey"
+)
+
+// bufferedConn preserves any bytes that may have been read by the hijack
+// header parser, so the HTTP/2 preface from the daemon isn't lost.
+type bufferedConn struct {
+	net.Conn
+	r *bufio.Reader
 }

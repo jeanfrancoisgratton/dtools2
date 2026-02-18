@@ -53,17 +53,16 @@ var buildCmd = &cobra.Command{
 	Short:   "Build an image from a Dockerfile",
 	Example: "dtools build -t myimg:latest -f Dockerfile .",
 	Args:    cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		if restClient == nil {
-			fmt.Println("REST client not initialized")
-			return
+			return fmt.Errorf("REST client not initialized")
 		}
 		rest.Context = cmd.Context()
 
 		if err := run_build.BuildImage(restClient, args[0]); err != nil {
-			fmt.Println(err)
-			return
+			return err
 		}
+		return nil
 	},
 }
 
