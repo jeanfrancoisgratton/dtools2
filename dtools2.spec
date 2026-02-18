@@ -63,6 +63,17 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Wed Feb 18 2026 Binary package builder <builder@famillegratton.net> 2.51.00-0
+- Fixed build and run, version bump, builddeps update (jean-
+  francois@famillegratton.net)
+- added command to volume subcommand (jean-francois@famillegratton.net)
+- various version fixes (jean-francois@famillegratton.net)
+- jetbrains renaming went overboard, correcting... (jean-
+  francois@famillegratton.net)
+- refactor : merged build and run subpackages (jean-
+  francois@famillegratton.net)
+- doc update (jean-francois@famillegratton.net)
+
 * Fri Feb 13 2026 Binary package builder <builder@famillegratton.net> 2.50.00-0
 - fixed perms on shell script (builder@famillegratton.net)
 - Automatic commit of package [dtools] release [2.50.00-0].
