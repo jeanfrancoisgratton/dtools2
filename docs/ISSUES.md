@@ -7,10 +7,13 @@
 - [x] blacklisted image should assume the latest tag when none is provided
 - [x] `rmi` is not honouring the -f flag on images with containers
 - [x] revisit `rm` for running containers
-- [ ] restart -k does not restart all containers <-- _not reproduced yet_
+- [ ] restart -k does not restart all containers <-- **NEEDS TESTING**
 - [ ] blacklist rm image not removing image from JSON if the `latest` tag is assumed
 - [x] `dtools clean` might not be working every time (why ?)
-- [ ] `dtools prune` sometimes reports success when nothing was done
+- [ ] `dtools prune` sometimes reports success when nothing was done <-- **NEEDS TESTING**
 - [x] long image pulls or pushes might time out.. Need to add an http timeout value
-- [ ] `dtools kill` returns an http 409 when killing a container
-- [ ] `dtools vol create` returns success even if volume already exists
+- [ ] `dtools kill` returns an http 409 when killing a container <-- **NEEDS TESTING**
+- [ ] ~~`dtools vol create` returns success even if volume already exists~~ (see note below)
+
+
+`dtools vol create` will always return an http 200 code (created), the volume already existing or not.<br>It's not a dtools code issue, it's an API issue

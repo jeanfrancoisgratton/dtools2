@@ -35,12 +35,19 @@ func CreateVolume(client *rest.Client, volumeName string) *ce.CustomError {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusCreated {
+	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusNotModified {
 		return &ce.CustomError{Title: "HTTP request returned an error", Message: resp.Status}
 	}
 
 	if !rest.QuietOutput {
-		fmt.Println(hftx.GreenGoSign("Volume " + hftx.Green(volumeName) + " created"))
+		switch resp.StatusCode {
+		case http.StatusCreated:
+			fmt.Println(hftx.GreenGoSign("Volume " + hftx.Green(volumeName) + " created"))
+		case http.StatusNotModified:
+			fmt.Println(hftx.WarningSign("Volume " + hftx.Yellow(volumeName) + " already exists"))
+		default:
+			fmt.Println(hftx.InfoSign("Volume " + hftx.Yellow(volumeName) + " is there, but we do not know how it got there !"))
+		}
 	}
 	return nil
 }
