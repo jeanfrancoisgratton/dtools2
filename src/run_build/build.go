@@ -114,6 +114,11 @@ func BuildImage(client *rest.Client, contextDir string) error {
 
 	headers := http.Header{}
 	headers.Set("Content-Type", "application/x-tar")
+	if Compress {
+		// Many daemons infer gzip from /build?compress=1, but advertising it makes
+		// behaviour consistent across Docker and Podman.
+		headers.Set("Content-Encoding", "gzip")
+	}
 
 	// If ~/.docker/config.json has auths, pass them in X-Registry-Config for private base images.
 	if h, err := buildRegistryConfigHeader(); err == nil && h != "" {
@@ -195,9 +200,16 @@ func decideBuildKit(ctx context.Context, client *rest.Client, progressMode strin
 		return true, true
 	}
 
-	// `--progress=tty` implies BuildKit-style output (docker buildx-like).
+	// `--progress=tty` is a UI preference. Prefer BuildKit if the daemon
+	// recommends it, but do not force it (fallback to v1 if session setup
+	// fails).
 	if progressMode == "tty" {
-		return true, true
+		ok, err := DaemonRecommendsBuildKit(ctx, client)
+		if err != nil {
+			// Unknown: try BuildKit first, allow fallback.
+			return true, false
+		}
+		return ok, false
 	}
 
 	ok, err := DaemonRecommendsBuildKit(ctx, client)
