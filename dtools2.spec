@@ -63,6 +63,17 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Tue Mar 03 2026 Binary package builder <builder@famillegratton.net> 2.52.00-0
+- Closing dev on dtools2 for now (jean-francois@famillegratton.net)
+- 'fixed' dtools vol create issue. unfixable right now (jean-
+  francois@famillegratton.net)
+- another buildkit fix (jean-francois@famillegratton.net)
+- interim submit (jean-francois@famillegratton.net)
+- builddeps update (webhook test) (jean-francois@famillegratton.net)
+- version bump (jean-francois@famillegratton.net)
+- more interim stuff (jean-francois@famillegratton.net)
+- interim commit (jean-francois@famillegratton.net)
+
 * Wed Feb 18 2026 Binary package builder <builder@famillegratton.net> 2.51.00-0
 - Fixed build and run, version bump, builddeps update (jean-
   francois@famillegratton.net)
