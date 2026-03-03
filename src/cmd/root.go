@@ -4,14 +4,15 @@
 package cmd
 
 import (
-	"dtools2/extras"
-	"dtools2/rest"
-	"dtools2/system"
 	"fmt"
 	"os"
 	"runtime"
 	"strings"
 	"time"
+
+	"dtools2/extras"
+	"dtools2/rest"
+	"dtools2/system"
 
 	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 	"github.com/spf13/cobra"
@@ -21,7 +22,7 @@ var rootCmd = &cobra.Command{
 	Use:          "dtools",
 	SilenceUsage: true,
 	Short:        "Docker / Podman client",
-	Version:      "test-build regression (" + time.Now().Format("2006.01.02") + "), Go version = " + runtime.Version(),
+	Version:      "2.52.00 (" + time.Now().Format("2006.01.02") + "), Go version = " + runtime.Version(),
 	Long: `dtools is a lightweight Docker/Podman client that talks directly
 to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {

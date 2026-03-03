@@ -1,5 +1,6 @@
 | Release | Date       | Comments                                                                                                                                                                                          |
 |---------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.52.00 | 2026.03.03 | Temp closure of development of dtools, with `dtools build` still not working                                                                                                                      |
 | 2.51.00 | 2026.02.14 | Bugfixes : fixed `dtools run` and `dtools build`                                                                                                                                                  |
 | 2.50.00 | 2026.02.01 | Bugfixes/enhancements to:<br> - added an `inspect` feature on containers (more objects to come)<br>- http timeouts on long http transactions<br>- http 409 on dtools kill<br>- updated to GO 1.26 |  
 | 2.40.01 | 2025.01.30 | Completed the `commit`, `load`, and `save` commands.<br>Removed duplicate code.                                                                                                                   |
