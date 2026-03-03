@@ -3,6 +3,9 @@
 A drop-in client replacement for the official docker and podman clients
 ___
 
+__IMPORTANT NOTE__ : `dtools build` currently does not work, each correction brings more regressions than corrections. The issue is with compatibility between the API endpoints when using docker with buildKit, docker without buildKit, or podman
+
+
 # Overview
 This tool intends to be a mostly-full replacement of the official docker and podman clients. Mostly-full means that all of the basic features (image/container/volume/network management) will be implemented, but some others might not be.
 
