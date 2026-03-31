@@ -6,13 +6,10 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
 	"dtools2/rest"
 	"dtools2/run_build"
-
-	hftx "github.com/jeanfrancoisgratton/helperFunctions/v5/terminalfx"
+	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -58,18 +55,18 @@ var buildCmd = &cobra.Command{
 	Example: "dtools build -t myimg:latest -f Dockerfile .",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(hftx.ErrorSign("COMMAND NOT YET IMPLEMENTED"))
-		os.Exit(2)
-		//if restClient == nil {
-		//	fmt.Println("REST client not initialized")
-		//	os.Exit(1)
-		//}
-		//rest.Context = cmd.Context()
-		//
-		//if err := run_build.BuildImage(restClient, args[0]); err != nil {
-		//	fmt.Println(err.Error())
-		//	os.Exit(1)
-		//}
+		//fmt.Println(hftx.ErrorSign("COMMAND NOT YET IMPLEMENTED"))
+		//os.Exit(2)
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			os.Exit(1)
+		}
+		rest.Context = cmd.Context()
+
+		if err := run_build.BuildImage(restClient, args[0]); err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
 	},
 }
 
