@@ -63,6 +63,11 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Tue Mar 31 2026 Binary package builder <builder@famillegratton.net> 2.60.00-0
+- updated helperFunctions to v5 (jean-francois@famillegratton.net)
+- added flags to dtools run (jean-francois@famillegratton.net)
+- Important CAVEAT doc update (jean-francois@famillegratton.net)
+
 * Tue Mar 03 2026 Binary package builder <builder@famillegratton.net> 2.52.00-0
 - Closing dev on dtools2 for now (jean-francois@famillegratton.net)
 - 'fixed' dtools vol create issue. unfixable right now (jean-
