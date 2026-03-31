@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PKGDIR="dtools-2.52.00-0_amd64"
+PKGDIR="dtools-2.60.00-0_amd64"
 
 mkdir -p ${PKGDIR}/opt/bin ${PKGDIR}/DEBIAN
 mkdir -p ${PKGDIR}/opt/bin ${PKGDIR}/DEBIAN

@@ -11,6 +11,7 @@ import (
 
 	"dtools2/rest"
 	"dtools2/run_build"
+
 	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
 
 	"github.com/spf13/cobra"
@@ -89,6 +90,7 @@ func init() {
 	runCmd.Flags().StringVar(&run_build.RunNetwork, "network", "", "Connect a container to a network")
 	runCmd.Flags().StringVar(&run_build.RunEntrypoint, "entrypoint", "", "Overwrite the default ENTRYPOINT of the image")
 	runCmd.Flags().StringVarP(&run_build.RunHostname, "hostname", "", "", "Container host name")
+	runCmd.Flags().StringArrayVar(&run_build.RunUlimits, "ulimit", []string{}, "Ulimit settings (e.g. nofile=1024:2048)")
 
 	buildCmd.Flags().StringVarP(&run_build.Dockerfile, "file", "f", "Dockerfile", "Name of the Dockerfile (relative to PATH)")
 	buildCmd.Flags().StringArrayVarP(&run_build.Tags, "tag", "t", nil, "Name and optional tag in the 'name:tag' format")

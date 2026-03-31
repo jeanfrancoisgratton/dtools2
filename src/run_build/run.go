@@ -168,6 +168,7 @@ func RunContainer(client *rest.Client, image string, cmd []string) (exitCode int
 }
 
 func createContainerWithAutoPull(client *rest.Client, image string, cmd []string) (string, *ce.CustomError) {
+
 	id, missing, cerr := createContainer(client, image, cmd)
 	if cerr == nil {
 		return id, nil
@@ -189,6 +190,8 @@ func createContainerWithAutoPull(client *rest.Client, image string, cmd []string
 
 // createContainer returns (id, imageMissing, customError).
 func createContainer(client *rest.Client, image string, cmd []string) (string, bool, *ce.CustomError) {
+	var e1 *ce.CustomError
+
 	req := ContainerCreateRequest{
 		Image: image,
 		Cmd:   nil,
@@ -221,6 +224,11 @@ func createContainer(client *rest.Client, image string, cmd []string) (string, b
 	if RunNetwork != "" {
 		hc.NetworkMode = RunNetwork
 	}
+
+	if hc, e1 = getRunFlagValues(); e1 != nil {
+		return "", false, e1
+	}
+
 	req.HostConfig = hc
 
 	if cerr := applyVolumes(&req, RunVolume); cerr != nil {
