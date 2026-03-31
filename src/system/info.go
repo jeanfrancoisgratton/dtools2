@@ -19,8 +19,8 @@ import (
 	"text/tabwriter"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
-	hfjson "github.com/jeanfrancoisgratton/helperFunctions/v4/prettyjson"
-	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
+	hfjson "github.com/jeanfrancoisgratton/helperFunctions/v5/prettyjson"
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v5/terminalfx"
 )
 
 // Info fetches the daemon's /info payload and renders an output that mirrors the

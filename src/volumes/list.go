@@ -20,7 +20,7 @@ import (
 	"strings"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
-	hfjson "github.com/jeanfrancoisgratton/helperFunctions/v4/prettyjson"
+	hfjson "github.com/jeanfrancoisgratton/helperFunctions/v5/prettyjson"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 )

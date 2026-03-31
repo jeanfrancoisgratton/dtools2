@@ -14,7 +14,7 @@ import (
 	"strconv"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
-	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v5/terminalfx"
 )
 
 func RemoveVolumes(client *rest.Client, volList []string) *ce.CustomError {

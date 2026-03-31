@@ -12,8 +12,8 @@ import (
 	"fmt"
 	"os"
 
-	hf "github.com/jeanfrancoisgratton/helperFunctions/v4"
-	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
+	hf "github.com/jeanfrancoisgratton/helperFunctions/v5"
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v5/terminalfx"
 	"github.com/spf13/cobra"
 )
 

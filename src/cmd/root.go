@@ -14,7 +14,7 @@ import (
 	"dtools2/rest"
 	"dtools2/system"
 
-	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v5/terminalfx"
 	"github.com/spf13/cobra"
 )
 

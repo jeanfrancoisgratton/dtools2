@@ -16,7 +16,7 @@ import (
 	"strings"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
-	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v5/terminalfx"
 )
 
 func CopyFile(client *rest.Client, source, destination string) *ce.CustomError {

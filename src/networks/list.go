@@ -14,8 +14,8 @@ import (
 	"os"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
-	hfjson "github.com/jeanfrancoisgratton/helperFunctions/v4/prettyjson"
-	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
+	hfjson "github.com/jeanfrancoisgratton/helperFunctions/v5/prettyjson"
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v5/terminalfx"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 )
