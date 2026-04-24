@@ -22,7 +22,7 @@ var rootCmd = &cobra.Command{
 	Use:          "dtools",
 	SilenceUsage: true,
 	Short:        "Docker / Podman client",
-	Version:      "2.60.00 (" + time.Now().Format("2006.01.02") + "), Go version = " + runtime.Version(),
+	Version:      "2.61.00 (2026.04.25), Go version  : " + strings.TrimPrefix(runtime.Version(), "go"),
 	Long: `dtools is a lightweight Docker/Podman client that talks directly
 to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -108,7 +108,7 @@ func init() {
 	rootCmd.DisableAutoGenTag = true
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 
-	rootCmd.AddCommand(copyCmd, completionCmd)
+	rootCmd.AddCommand(copyCmd, completionCmd, blListCmd)
 
 	// Override Cobra's default version shorthand (-v) to free it for future use.
 	// Cobra will not register its own version flag if it already exists.
