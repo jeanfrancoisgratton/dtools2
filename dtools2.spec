@@ -63,6 +63,19 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Fri May 01 2026 Binary package builder <builder@famillegratton.net> 2.70.00-0
+- deps update (jean-francois@famillegratton.net)
+- Another batch of Arch fixes (builder@famillegratton.net)
+- Fixed the build script's permission denied (jean-francois@famillegratton.net)
+- Perm fixes (builder@famillegratton.net)
+- blacklist list (lsb) now a root command (jean-francois@famillegratton.net)
+- changed lsc behaviour (jean-francois@famillegratton.net)
+- Version update, added archlinux packaging support (jean-
+  francois@famillegratton.net)
+- blacklist commands now ranked as 1st citizen commands (jean-
+  francois@famillegratton.net)
+- re-implement build (jean-francois@famillegratton.net)
+
 * Tue Mar 31 2026 Binary package builder <builder@famillegratton.net> 2.60.00-0
 - updated helperFunctions to v5 (jean-francois@famillegratton.net)
 - added flags to dtools run (jean-francois@famillegratton.net)
