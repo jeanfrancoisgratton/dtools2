@@ -7,13 +7,14 @@
 package containers
 
 import (
-	"dtools2/extras"
-	"dtools2/rest"
 	"encoding/json"
 	"net/http"
 	"net/url"
 	"os"
 	"time"
+
+	"dtools2/extras"
+	"dtools2/rest"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
 	hfjson "github.com/jeanfrancoisgratton/helperFunctions/v5/prettyjson"
@@ -101,40 +102,32 @@ func ListContainers(client *rest.Client, outputDisplay bool) ([]ContainerSummary
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
 
-	stateRow := 0
+	//stateRow := 0
 	if !ExtendedContainerInfo {
-		stateRow = 3
-		t.AppendHeader(table.Row{"Image", "Name", "Created", "State", "Status", "Ports"})
+		//stateRow = 4
+		t.AppendHeader(table.Row{"Container ID", "Image", "Name", "Created", "State", "Status", "Command"})
 	} else {
-		stateRow = 4
-		t.AppendHeader(table.Row{"Container ID", "Image", "Name", "Created", "State", "Status", "Ports", "Command"})
+		//stateRow = 3
+		t.AppendHeader(table.Row{"Image", "Name", "Created", "State", "Status", "Ports", "Mounts", "Command"})
 	}
 
 	// Option B: when there are no containers, append a single empty row to keep
 	// the table borders and layout intact.
 	if len(containers) == 0 {
 		if !ExtendedContainerInfo {
-			// 7 columns: Image, Name, Created, State, Status, Ports, Mounts
-			t.AppendRow(table.Row{"", "", "", "", "", ""})
+			// 7 columns: ContainerID, Image, Name, Created, State, Status, Command
+			t.AppendRow(table.Row{"", "", "", "", "", "", ""})
 		} else {
-			// 8 columns: Container ID, Image, Name, Created, State, Status, Ports, Command
+			// 7 columns: Image, Name, Created, State, Status, Ports, Mounts, Command
 			t.AppendRow(table.Row{"", "", "", "", "", "", "", ""})
 		}
 	} else {
 		for _, container := range containers {
 			containerImage := getImageTag(container.Image)
 			prettyPorts := prettifyPortsList(container.Ports, "\n")
+			prettyMounts := prettifyMounts(container.Mounts, "\n")
 
 			if !ExtendedContainerInfo {
-				t.AppendRow([]interface{}{
-					containerImage,
-					container.Names[0][1:],
-					time.Unix(container.Created, 0).Format("2006.01.02 15:04:05"),
-					container.State,
-					container.Status,
-					prettyPorts, // note: Ports/Mounts not used yet in non-extended view
-				})
-			} else {
 				t.AppendRow([]interface{}{
 					container.ID[:10],
 					containerImage,
@@ -142,7 +135,17 @@ func ListContainers(client *rest.Client, outputDisplay bool) ([]ContainerSummary
 					time.Unix(container.Created, 0).Format("2006.01.02 15:04:05"),
 					container.State,
 					container.Status,
+					container.Command,
+				})
+			} else {
+				t.AppendRow([]interface{}{
+					containerImage,
+					container.Names[0][1:],
+					time.Unix(container.Created, 0).Format("2006.01.02 15:04:05"),
+					container.State,
+					container.Status,
 					prettyPorts,
+					prettyMounts,
 					container.Command,
 				})
 			}
@@ -152,23 +155,24 @@ func ListContainers(client *rest.Client, outputDisplay bool) ([]ContainerSummary
 	t.SortBy([]table.SortBy{
 		{Name: "Name", Mode: table.Asc},
 	})
-	t.SetStyle(table.StyleBold)
+	//t.SetStyle(table.StyleColoredBlueWhiteOnBlack)
+	t.SetStyle(table.StyleColoredYellowWhiteOnBlack)
 
 	t.Style().Format.Header = text.FormatDefault
-	t.SetRowPainter(func(row table.Row) text.Colors {
-		switch row[stateRow] {
-		case "running":
-			//return text.Colors{text.BgBlack, text.FgHiGreen}
-			return text.Colors{text.FgHiGreen}
-		case "crashed":
-			return text.Colors{text.BgBlack, text.FgHiRed}
-		case "blocked":
-		case "suspended":
-		case "paused":
-			return text.Colors{text.FgHiYellow}
-		}
-		return nil
-	})
+	//t.SetRowPainter(func(row table.Row) text.Colors {
+	//	switch row[stateRow] {
+	//	case "running":
+	//		//return text.Colors{text.BgBlack, text.FgHiGreen}
+	//		return text.Colors{text.FgHiGreen}
+	//	case "crashed":
+	//		return text.Colors{text.BgBlack, text.FgHiRed}
+	//	case "blocked":
+	//	case "suspended":
+	//	case "paused":
+	//		return text.Colors{text.FgHiYellow}
+	//	}
+	//	return nil
+	//})
 
 	t.Render()
 	return containers, nil
