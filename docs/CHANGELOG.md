@@ -1,5 +1,6 @@
 | Release | Date       | Comments                                                                                                                                                                                          |
 |---------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.70.00 | 2026.05.01 | Blacklist subcommands behaviour changes, modified output to `lsc`                                                                                                                                 |
 | 2.60.00 | 2026.03.31 | Added extra capabilities (flags) to `dtools run`<br>GO version bump -> 1.26.1<br>Upgraded to helperFunctions/v5                                                                                   |
 | 2.52.00 | 2026.03.03 | Temp closure of development of dtools, with `dtools build` still not working                                                                                                                      |
 | 2.51.00 | 2026.02.14 | Bugfixes : fixed `dtools run` and `dtools build`                                                                                                                                                  |
