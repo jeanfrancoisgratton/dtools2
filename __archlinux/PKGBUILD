@@ -36,14 +36,12 @@ build() {
   export GOPATH="${srcdir}/gopath"
   export GOMODCACHE="${GOPATH}/pkg/mod"
 
-  go mod download
-
-  go build -trimpath -mod=readonly -ldflags="-s -w -buildid=" -o "${_binaryname}" .
+  go build -trimpath -mod=readonly -modcacherw -ldflags="-s -w -buildid=" -o "${_binaryname}" .
 }
 
 check() {
   cd "${srcdir}/${_builddir}"
-  go test ./...
+  go test -modcacherw ./...
 }
 
 package() {
