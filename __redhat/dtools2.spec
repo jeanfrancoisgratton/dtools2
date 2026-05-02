@@ -1,20 +1,10 @@
-%ifarch aarch64
-%global _arch aarch64
-%global BuildArchitectures aarch64
-%endif
-
-%ifarch x86_64
-%global _arch x86_64
-%global BuildArchitectures x86_64
-%endif
-
 %define debug_package   %{nil}
 %define _build_id_links none
 %define _name dtools
 %define _prefix /opt
 %define _version 2.70.00
 %define _rel 0
-#%define _arch x86_64
+%define _arch x86_64
 %define _binaryname dtools
 
 Name:       dtools
@@ -39,8 +29,9 @@ docker/podman client
 %autosetup
 
 %build
-cd %{_sourcedir}/%{_name}-%{_version}/src
-PATH=$PATH:/opt/go/bin CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -buildid=" -o %{_sourcedir}/%{_binaryname} .
+cd src
+go mod download
+PATH=$PATH:/opt/go/bin CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -buildid=" -o %{_builddir}/%{_binaryname} .
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -49,7 +40,7 @@ rm -rf $RPM_BUILD_ROOT
 exit 0
 
 %install
-install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryname}
+install -Dpm 0755 %{_builddir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryname}
 
 %post
 
