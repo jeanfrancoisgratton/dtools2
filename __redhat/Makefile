@@ -14,7 +14,7 @@ tarball:
 	git -C $(REPOROOT) archive --prefix=$(NAME)-$(VERSION)/ HEAD \
 	  | gzip > $(SOURCES)/$(NAME)-$(VERSION).tar.gz
 
-rpm: tarball
+rpm: tarball changelog
 	rpmbuild -bb $(SPEC)
 	find $(RPMS) -name '*.rpm' -exec cp {} $(DEST)/ \;
 
@@ -22,5 +22,8 @@ clean:
 	rm -f $(SOURCES)/$(NAME)-$(VERSION).tar.gz
 	rm -rf $(HOME)/rpmbuild/BUILD/$(NAME)-$(VERSION)
 
-upload:
+upload: rpm
 	nxtools upload -r ${NEXUSREPO} ${DEST}/${NAME}-${VERSION}-${RELEASE}.x86_64.rpm
+
+changelog:
+	$(REPOROOT)/__redhat/update-changelog.sh
