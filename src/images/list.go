@@ -7,13 +7,14 @@
 package images
 
 import (
-	"dtools2/extras"
-	"dtools2/rest"
 	"encoding/json"
 	"net/http"
 	"net/url"
 	"os"
 	"time"
+
+	"dtools2/extras"
+	"dtools2/rest"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
 	hfjson "github.com/jeanfrancoisgratton/helperFunctions/v5/prettyjson"
@@ -149,6 +150,7 @@ func ImagesList(client *rest.Client, displayOutput bool) ([]ImageSummary, *ce.Cu
 
 	t.SortBy([]table.SortBy{
 		{Name: "Repository/image name", Mode: table.Asc},
+		{Name: "Image tag", Mode: table.Asc},
 	})
 	t.SetStyle(table.StyleColoredBlackOnBlueWhite)
 	t.Style().Format.Header = text.FormatDefault
