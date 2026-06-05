@@ -12,7 +12,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v5/terminalfx"
 )
 
 // FormatInspectSection is a reusable helper to print a section header

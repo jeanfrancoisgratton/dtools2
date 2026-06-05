@@ -14,7 +14,7 @@ import (
 	"strings"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
-	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v5/terminalfx"
 )
 
 // Starts one or many containers
@@ -23,6 +23,30 @@ func StartContainers(client *rest.Client, containers []string) *ce.CustomError {
 	var cerr *ce.CustomError
 	var cs []ContainerSummary
 	OnlyRunningContainers = false
+
+	if len(containers) == 0 {
+		return nil
+	}
+
+	// Accept both names and IDs (full or short). This is important for `dtools run`,
+	// which naturally deals with container IDs.
+	nameReq := make([]string, 0, len(containers))
+	for _, c := range containers {
+		c = strings.TrimSpace(c)
+		if c == "" {
+			continue
+		}
+		if looksLikeContainerID(c) {
+			if cerr = start(client, c, ""); cerr != nil {
+				return cerr
+			}
+			continue
+		}
+		nameReq = append(nameReq, c)
+	}
+	if len(nameReq) == 0 {
+		return nil
+	}
 
 	// TODO: this might not be optimal, listing all containers if len(containers) == 1..
 	// TODO: needs optimizing at some point
@@ -34,13 +58,27 @@ func StartContainers(client *rest.Client, containers []string) *ce.CustomError {
 		if strings.ToLower(container.State) == "running" {
 			continue
 		}
-		if slices.Contains(containers, container.Names[0][1:]) {
+		if slices.Contains(nameReq, container.Names[0][1:]) {
 			if cerr = start(client, container.ID, ""); cerr != nil {
 				return cerr
 			}
 		}
 	}
 	return nil
+}
+
+func looksLikeContainerID(s string) bool {
+	// Docker/Podman container IDs are hex (usually 64 chars), but short IDs are commonly used.
+	if len(s) < 6 {
+		return false
+	}
+	for _, r := range s {
+		if (r >= '0' && r <= '9') || (r >= 'a' && r <= 'f') || (r >= 'A' && r <= 'F') {
+			continue
+		}
+		return false
+	}
+	return true
 }
 
 // The actual mechanics of starting the container
@@ -67,7 +105,8 @@ func start(client *rest.Client, id string, containerName string) *ce.CustomError
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusOK {
+	// Docker returns 304 when the container is already started. Podman compat may do the same.
+	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNotModified {
 		return &ce.CustomError{Title: "http request returned an error", Message: "POST" + path + " returned " + resp.Status}
 	}
 	if !rest.QuietOutput {

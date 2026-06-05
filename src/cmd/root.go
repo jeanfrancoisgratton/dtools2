@@ -4,16 +4,17 @@
 package cmd
 
 import (
-	"dtools2/extras"
-	"dtools2/rest"
-	"dtools2/system"
 	"fmt"
 	"os"
 	"runtime"
 	"strings"
 	"time"
 
-	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
+	"dtools2/extras"
+	"dtools2/rest"
+	"dtools2/system"
+
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v5/terminalfx"
 	"github.com/spf13/cobra"
 )
 
@@ -21,7 +22,7 @@ var rootCmd = &cobra.Command{
 	Use:          "dtools",
 	SilenceUsage: true,
 	Short:        "Docker / Podman client",
-	Version:      "2.50.00 (2026.02.01), Go version = " + runtime.Version(),
+	Version:      "2.70.00 (2026.05.01), Go version : v" + strings.TrimPrefix(runtime.Version(), "go"),
 	Long: `dtools is a lightweight Docker/Podman client that talks directly
 to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -107,7 +108,7 @@ func init() {
 	rootCmd.DisableAutoGenTag = true
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 
-	rootCmd.AddCommand(copyCmd, completionCmd)
+	rootCmd.AddCommand(copyCmd, completionCmd, blListCmd)
 
 	// Override Cobra's default version shorthand (-v) to free it for future use.
 	// Cobra will not register its own version flag if it already exists.
@@ -117,7 +118,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&extras.Debug, "debug", "D", false, "Enable debug output on stderr")
 	rootCmd.PersistentFlags().BoolVar(&extras.OutputJSON, "json", false, "Output JSON instead of formatted tables")
 	rootCmd.PersistentFlags().BoolVarP(&rest.QuietOutput, "quiet", "q", false, "Quiet output")
-	rootCmd.PersistentFlags().StringVarP(&rest.ConnectURI, "host", "H", "", "Docker daemon host (e.g. unix:///var/run/docker.sock, tcp://host:2376)")
+	rootCmd.PersistentFlags().StringVarP(&rest.ConnectURI, "host", "H", "", "Docker daemon host (e.g. unix:///var/run_build/docker.sock, tcp://host:2376)")
 	rootCmd.PersistentFlags().StringVarP(&APIVersion, "api-version", "A", "", "Docker API version (e.g. 1.43); if empty, auto-negotiate with the daemon")
 	rootCmd.PersistentFlags().BoolVarP(&UseTLS, "tls", "T", false, "Use TLS when connecting to the daemon (for tcp:// hosts)")
 	rootCmd.PersistentFlags().IntVar(&rest.FastFailTimeoutSeconds, "fast-fail", rest.FastFailTimeoutSeconds, "HTTP fast-fail timeout in seconds (dial/TLS handshake/headers)")

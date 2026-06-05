@@ -6,13 +6,14 @@
 package cmd
 
 import (
-	"dtools2/blacklist"
 	"fmt"
 	"slices"
 	"strings"
 
+	"dtools2/blacklist"
+
 	ce "github.com/jeanfrancoisgratton/customError/v3"
-	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v5/terminalfx"
 	"github.com/spf13/cobra"
 )
 
@@ -83,7 +84,7 @@ var blRemoveCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(blCmd)
+	rootCmd.AddCommand(blCmd, blListCmd)
 	blCmd.AddCommand(blListCmd, blAddCmd, blRemoveCmd)
 
 	blListCmd.Flags().BoolVarP(&blacklist.AllBlackLists, "all", "a", false, "List all resources")

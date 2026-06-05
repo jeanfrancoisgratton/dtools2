@@ -1,20 +1,10 @@
-%ifarch aarch64
-%global _arch aarch64
-%global BuildArchitectures aarch64
-%endif
-
-%ifarch x86_64
-%global _arch x86_64
-%global BuildArchitectures x86_64
-%endif
-
 %define debug_package   %{nil}
 %define _build_id_links none
 %define _name dtools
 %define _prefix /opt
-%define _version 2.50.00
+%define _version 2.70.00
 %define _rel 0
-#%define _arch x86_64
+%define _arch x86_64
 %define _binaryname dtools
 
 Name:       dtools
@@ -39,8 +29,9 @@ docker/podman client
 %autosetup
 
 %build
-cd %{_sourcedir}/%{_name}-%{_version}/src
-PATH=$PATH:/opt/go/bin CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -buildid=" -o %{_sourcedir}/%{_binaryname} .
+cd src
+go mod download
+PATH=$PATH:/opt/go/bin CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -buildid=" -o %{_builddir}/%{_binaryname} .
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -49,7 +40,7 @@ rm -rf $RPM_BUILD_ROOT
 exit 0
 
 %install
-install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryname}
+install -Dpm 0755 %{_builddir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryname}
 
 %post
 
@@ -63,6 +54,46 @@ install -Dpm 0755 %{_sourcedir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryn
 
 
 %changelog
+* Fri May 01 2026 Binary package builder <builder@famillegratton.net> 2.70.00-0
+- deps update (jean-francois@famillegratton.net)
+- Another batch of Arch fixes (builder@famillegratton.net)
+- Fixed the build script's permission denied (jean-francois@famillegratton.net)
+- Perm fixes (builder@famillegratton.net)
+- blacklist list (lsb) now a root command (jean-francois@famillegratton.net)
+- changed lsc behaviour (jean-francois@famillegratton.net)
+- Version update, added archlinux packaging support (jean-
+  francois@famillegratton.net)
+- blacklist commands now ranked as 1st citizen commands (jean-
+  francois@famillegratton.net)
+- re-implement build (jean-francois@famillegratton.net)
+
+* Tue Mar 31 2026 Binary package builder <builder@famillegratton.net> 2.60.00-0
+- updated helperFunctions to v5 (jean-francois@famillegratton.net)
+- added flags to dtools run (jean-francois@famillegratton.net)
+- Important CAVEAT doc update (jean-francois@famillegratton.net)
+
+* Tue Mar 03 2026 Binary package builder <builder@famillegratton.net> 2.52.00-0
+- Closing dev on dtools2 for now (jean-francois@famillegratton.net)
+- 'fixed' dtools vol create issue. unfixable right now (jean-
+  francois@famillegratton.net)
+- another buildkit fix (jean-francois@famillegratton.net)
+- interim submit (jean-francois@famillegratton.net)
+- builddeps update (webhook test) (jean-francois@famillegratton.net)
+- version bump (jean-francois@famillegratton.net)
+- more interim stuff (jean-francois@famillegratton.net)
+- interim commit (jean-francois@famillegratton.net)
+
+* Wed Feb 18 2026 Binary package builder <builder@famillegratton.net> 2.51.00-0
+- Fixed build and run, version bump, builddeps update (jean-
+  francois@famillegratton.net)
+- added command to volume subcommand (jean-francois@famillegratton.net)
+- various version fixes (jean-francois@famillegratton.net)
+- jetbrains renaming went overboard, correcting... (jean-
+  francois@famillegratton.net)
+- refactor : merged build and run subpackages (jean-
+  francois@famillegratton.net)
+- doc update (jean-francois@famillegratton.net)
+
 * Fri Feb 13 2026 Binary package builder <builder@famillegratton.net> 2.50.00-0
 - fixed perms on shell script (builder@famillegratton.net)
 - Automatic commit of package [dtools] release [2.50.00-0].

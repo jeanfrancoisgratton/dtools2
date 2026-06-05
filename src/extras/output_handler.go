@@ -33,7 +33,6 @@ func MarshalJSON(payload any) ([]byte, *ce.CustomError) {
 }
 
 // PrintJSONBytes prints JSON bytes to stdout. This expects valid JSON.
-// (If you want jq-like coloring, swap this implementation to call your hfjson.Print().)
 func PrintJSONBytes(jsonBytes []byte) *ce.CustomError {
 	if _, err := os.Stdout.Write(jsonBytes); err != nil {
 		return &ce.CustomError{Title: "Unable to write JSON output", Message: err.Error()}

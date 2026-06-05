@@ -1,9 +1,9 @@
 // dtools2
 // Written by J.F. Gratton <jean-francois@famillegratton.net>
 // Original timestamp: 2026/01/03 22:00
-// Original filename: src/extras/run.go
+// Original filename: src/extras/run_build.go
 
-package run
+package run_build
 
 import (
 	"bytes"
@@ -29,7 +29,7 @@ import (
 	xterm "golang.org/x/term"
 )
 
-// RunContainer emulates `docker run` (subset).
+// RunContainer emulates `docker run_build` (subset).
 //
 // Behaviour covered:
 //   - create + start
@@ -168,6 +168,7 @@ func RunContainer(client *rest.Client, image string, cmd []string) (exitCode int
 }
 
 func createContainerWithAutoPull(client *rest.Client, image string, cmd []string) (string, *ce.CustomError) {
+
 	id, missing, cerr := createContainer(client, image, cmd)
 	if cerr == nil {
 		return id, nil
@@ -189,6 +190,8 @@ func createContainerWithAutoPull(client *rest.Client, image string, cmd []string
 
 // createContainer returns (id, imageMissing, customError).
 func createContainer(client *rest.Client, image string, cmd []string) (string, bool, *ce.CustomError) {
+	var e1 *ce.CustomError
+
 	req := ContainerCreateRequest{
 		Image: image,
 		Cmd:   nil,
@@ -221,6 +224,11 @@ func createContainer(client *rest.Client, image string, cmd []string) (string, b
 	if RunNetwork != "" {
 		hc.NetworkMode = RunNetwork
 	}
+
+	if hc, e1 = getRunFlagValues(); e1 != nil {
+		return "", false, e1
+	}
+
 	req.HostConfig = hc
 
 	if cerr := applyVolumes(&req, RunVolume); cerr != nil {
@@ -310,7 +318,7 @@ func AttachContainer(client *rest.Client, id string) (*rest.HijackedConn, *ce.Cu
 		q.Set("stdin", "1")
 	}
 
-	// No logs replay; `docker run` does not include previous logs.
+	// No logs replay; `docker run_build` does not include previous logs.
 	q.Set("logs", "0")
 
 	headers := http.Header{}

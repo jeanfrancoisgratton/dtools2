@@ -3,9 +3,15 @@
 // Original timestamp: 2026/01/04 00:00
 // Original filename: src/build/buildFlags.go
 
-package build
+package run_build
 
-import "regexp"
+import (
+	"bufio"
+	"net"
+	"regexp"
+
+	"github.com/moby/buildkit/session"
+)
 
 // CLI-bound flags (wired in cmd/root.go).
 //
@@ -30,6 +36,15 @@ var RemoveIntermediate bool = true
 
 // ForceRemoveIntermediate always removes intermediate containers, even on failure. Wired to: --force-rm
 var ForceRemoveIntermediate bool
+
+// Compress enables compression of the build context sent to the daemon. Wired to: --compress
+// This maps to the Docker Engine /build?compress=1 query parameter.
+var Compress bool
+
+// Load is a compatibility flag for buildx-style workflows. Wired to: --load
+// With the classic daemon /build endpoint, the resulting image is always loaded into the daemon's image store.
+// This flag is therefore a no-op, but accepted for script compatibility.
+var Load bool
 
 // Target is an optional multi-stage target. Wired to: --target
 var Target string
@@ -61,4 +76,26 @@ type ignoreRule struct {
 type ignoreMatcher struct {
 	rules         []ignoreRule
 	dockerfileRel string
+}
+
+const (
+	dockerSessionHeaderID        = "X-Docker-Expose-Session-Uuid"
+	dockerSessionHeaderName      = "X-Docker-Expose-Session-Name"
+	dockerSessionHeaderSharedKey = "X-Docker-Expose-Session-Sharedkey"
+)
+
+// bufferedConn preserves any bytes that may have been read by the hijack
+// header parser, so the HTTP/2 preface from the daemon isn't lost.
+type bufferedConn struct {
+	net.Conn
+	r *bufio.Reader
+}
+
+type buildkitSession struct {
+	ID        string
+	SharedKey string
+	sess      *session.Session
+
+	// ready reports the first dial attempt result (nil on success).
+	ready chan error
 }

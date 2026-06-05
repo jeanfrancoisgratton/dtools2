@@ -10,7 +10,7 @@ import (
 	"math"
 	"strings"
 
-	hftx "github.com/jeanfrancoisgratton/helperFunctions/v4/terminalfx"
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v5/terminalfx"
 )
 
 // Standardizes the image:tag format, adding :latest when the tag is missing.
