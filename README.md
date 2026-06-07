@@ -359,7 +359,8 @@ dtools run -d --name myapi -p 8080:8080 myrepo/myapi:latest
 ---
 
 ### build
-
+**WARNING**  **WARNING**  **WARNING**<br>
+This command seems to be broken right now !<br><br>Some issue between BuildKit, Podman's API, whatnot...<br><br><br>
 Build an image from a Dockerfile.
 
 ```
