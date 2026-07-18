@@ -99,7 +99,9 @@ func dockerignorePatternToRegex(pat string) (*regexp.Regexp, bool) {
 	}
 
 	// Basename-only pattern (no slash) matches anywhere.
-	basenameOnly := !strings.Contains(pat, "/")
+	// Anchored patterns are always rooted at the context dir, so they are never
+	// treated as basename-only even when they have a single path component.
+	basenameOnly := !anchored && !strings.Contains(pat, "/")
 
 	glob := globToRegex(pat)
 
