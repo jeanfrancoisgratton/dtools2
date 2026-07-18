@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-SPEC="$(dirname "$0")/nxtools.spec"
+SPEC="$(dirname "$0")/stubber.spec"
 DATE=$(date +"%a %b %d %Y")
 VERSION=$(rpmspec -q --qf '%{version}\n' "$SPEC" | head -1)
 REL=$(rpmspec -q --qf '%{release}\n' "$SPEC" | head -1)
