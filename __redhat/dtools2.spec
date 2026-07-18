@@ -68,6 +68,23 @@ fi
 
 
 %changelog
+* Fri Jul 17 2026 Binary package builder <builder@famillegratton.net> 2.7.1-1
+- renamed specfile in rpmbuild
+- alpine packaging rename
+- Changed package name (arch)
+- Merge remote-tracking branch 'refs/remotes/origin/develop' into develop
+- Added test suites
+- version bump and packaging scripts enhancements
+- Doc update for the build subcommand
+- Merge remote-tracking branch 'refs/remotes/origin/develop' into develop
+- Revamped documentation
+- Merge branch 'develop' of ssh://git.famillegratton.net:9722/devops/dtools2 into develop
+- refreshed rhel support
+- cosmetic output fix
+- removed tito
+- Fixed Makefile, added the Release variable
+- moved rpm build script and specfile into its owm context
+
 * Fri May 01 2026 Binary package builder <builder@famillegratton.net> 2.70.00-0
 - deps update (jean-francois@famillegratton.net)
 - Another batch of Arch fixes (builder@famillegratton.net)
