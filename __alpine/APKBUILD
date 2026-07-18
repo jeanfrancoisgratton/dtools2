@@ -1,6 +1,6 @@
 # Maintainer: J.F.Gratton <jean-francois@famillegratton.net>
 # Packager: Package builder <builder@famillegratton.net>
-pkgname=dtools
+pkgname=dtools2
 pkgver=2.7.1
 pkgrel=1
 pkgdir=/data/packages
@@ -10,7 +10,7 @@ url="https://git.famillegratton.net:3000/devops/dtools2.git"
 arch=x86_64
 license=GPL2
 depends=""
-install=""
+install="$pkgname.pre-deinstall $pkgname.post-install"
 makedepends="go"
 options="!check"
 #source="$pkgname-$pkgver-$pkgrel.tar.bz2::http://localhost/$pkgname-$pkgver-$pkgrel.tar.bz2"
