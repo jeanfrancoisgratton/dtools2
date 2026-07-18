@@ -5,7 +5,7 @@
 %define _bash_completionsdir /usr/share/bash-completion/completions
 %define _zsh_completionsdir  /usr/share/zsh/site-functions
 %define _version 2.7.1
-%define _rel 1
+%define _rel 2
 %define _arch x86_64
 %define _binaryname dtools
 
