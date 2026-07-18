@@ -68,6 +68,9 @@ fi
 
 
 %changelog
+* Sat Jul 18 2026 Binary package builder <builder@famillegratton.net> 2.7.1-2
+- Enforce package name to dtools, dtools2 except for Alpine
+
 * Fri Jul 17 2026 Binary package builder <builder@famillegratton.net> 2.7.1-1
 - renamed specfile in rpmbuild
 - alpine packaging rename
