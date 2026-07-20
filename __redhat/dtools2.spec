@@ -5,7 +5,7 @@
 %define _bash_completionsdir /usr/share/bash-completion/completions
 %define _zsh_completionsdir  /usr/share/zsh/site-functions
 %define _version 2.7.1
-%define _rel 2
+%define _rel 3
 %define _arch x86_64
 %define _binaryname dtools
 
@@ -32,7 +32,6 @@ docker/podman client
 cd src
 CGO_ENABLED=0 /opt/go/bin/go build -trimpath -ldflags="-s -w -buildid=" -o %{_builddir}/%{name}-%{version}/%{_binaryname} .
 
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -50,7 +49,7 @@ mkdir -p /etc/usr/share/bash-completion/completions
 # Zsh completion — only if zsh is present
 if command -v zsh > /dev/null 2>&1; then
     mkdir -p %{_zsh_completionsdir}/zsh/site-functions
-    /opt/bin/%{_binaryname} completion zsh > %{_zsh_completionsdir}/+%{_binaryname}
+    /opt/bin/%{_binaryname} completion zsh > %{_zsh_completionsdir}/%{_binaryname}
 fi
 
 %preun
