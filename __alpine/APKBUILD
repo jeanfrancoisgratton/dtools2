@@ -2,7 +2,7 @@
 # Packager: Package builder <builder@famillegratton.net>
 pkgname=dtools2
 pkgver=2.7.1
-pkgrel=2
+pkgrel=3
 pkgdir=/data/packages
 builddir="$startdir/src/BUILD"
 pkgdesc="docker/podman client"
