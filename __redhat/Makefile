@@ -1,4 +1,4 @@
-SPEC      := dtools2.spec
+SPEC      := dtools.spec
 NAME      := $(shell rpmspec -q --qf '%{name}\n'    $(SPEC) | head -1)
 VERSION   := $(shell rpmspec -q --qf '%{version}\n' $(SPEC) | head -1)
 RELEASE   := $(shell rpmspec -q --qf '%{release}\n' $(SPEC) | head -1)
@@ -48,8 +48,12 @@ upload:
 	/opt/bin/nxtools upload -r $(NEXUSREPO) $(DEST)/$(NAME)-$(VERSION)-$(RELEASE).x86_64.rpm
 
 commitcl:
-	git add ${SPEC}
-	git commit -m "chore: update changelog for $(VERSION)-$(RELEASE)"
+	@git add ${SPEC}
+	@if git diff --cached --quiet -- ${SPEC}; then \
+	  echo "NOTE: no staged changes to $(SPEC), skipping changelog commit."; \
+	else \
+	  git commit -m "chore: update changelog for $(VERSION)-$(RELEASE)"; \
+	fi
 
 clean:
 	rm -f  $(SOURCES)/$(NAME)-$(VERSION).tar.gz
