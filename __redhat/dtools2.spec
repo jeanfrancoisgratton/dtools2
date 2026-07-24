@@ -67,6 +67,19 @@ fi
 
 
 %changelog
+* Fri Jul 24 2026 Binary package builder <builder@famillegratton.net> 2.7.1-6
+- changed specfile name
+- Packaging enhancements, no new functionalities
+- Changed package destination for apkbuilder
+- chore: update changelog for 2.7.1-5
+- version bump to ensure all packages are consistent
+- chore: update changelog for 2.7.1-3
+- fixed typo in specfile, rpmbuild refresh
+- fixed possible issue in numbering
+- fixed postinstall apk script
+- chore: update changelog for 2.7.1-2
+- Enforce package name to dtools, dtools2 except for Alpine
+
 * Mon Jul 20 2026 Binary package builder <builder@famillegratton.net> 2.7.1-5
 - version bump to ensure all packages are consistent
 - chore: update changelog for 2.7.1-3
