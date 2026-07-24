@@ -32,7 +32,7 @@ DEB       := $(CURDIR)/$(STAGING).deb
 build:
 	rm -rf "$(STAGING)"
 	install -d "$(STAGING)/DEBIAN" "$(STAGING)/opt/bin"
-	cp control preinst prerm postinst postrm "$(STAGING)/DEBIAN/"
+	cp control postinst postrm "$(STAGING)/DEBIAN/"
 	cd $(SRCDIR) && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -buildid=" \
 	  -o "$(CURDIR)/$(STAGING)/opt/bin/$(BINARY)" .
 	sudo chown -R 0:0 "$(STAGING)/opt/bin/$(BINARY)"
