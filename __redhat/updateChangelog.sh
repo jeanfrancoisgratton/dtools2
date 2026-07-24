@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-SPEC="$(dirname "$0")/dtools.spec"
+SPEC="$(dirname "$0")/dtools2.spec"
 DATE=$(date +"%a %b %d %Y")
 VERSION=$(rpmspec -q --qf '%{version}\n' "$SPEC" | head -1)
 REL=$(rpmspec -q --qf '%{release}\n' "$SPEC" | head -1)
