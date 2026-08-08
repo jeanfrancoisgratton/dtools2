@@ -51,6 +51,25 @@ install -Dpm 0755 %{_builddir}/%{name}-%{version}/%{_binaryname} %{buildroot}%{_
 
 
 %changelog
+* Sat Aug 08 2026 Binary package builder <builder@famillegratton.net> 2.7.2-1
+- Merge branch 'develop'
+- lsb command now outputs in JSON, removed shell completion packaging scripts
+- removed non-existent files
+- chore: update changelog for 2.7.1-6
+- changed specfile name
+- Packaging enhancements, no new functionalities
+- Changed package destination for apkbuilder
+- chore: update changelog for 2.7.1-5
+- version bump to ensure all packages are consistent
+- chore: update changelog for 2.7.1-3
+- fixed typo in specfile, rpmbuild refresh
+- fixed possible issue in numbering
+- fixed postinstall apk script
+- chore: update changelog for 2.7.1-2
+- Enforce package name to dtools, dtools2 except for Alpine
+- Merge branch 'develop'
+- updated build deps
+
 * Fri Jul 24 2026 Binary package builder <builder@famillegratton.net> 2.7.1-6
 - changed specfile name
 - Packaging enhancements, no new functionalities
