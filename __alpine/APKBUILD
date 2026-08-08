@@ -1,8 +1,8 @@
 # Maintainer: J.F.Gratton <jean-francois@famillegratton.net>
 # Packager: Package builder <builder@famillegratton.net>
 pkgname=dtools2
-pkgver=2.7.1
-pkgrel=4
+pkgver=2.7.2
+pkgrel=1
 pkgdir=/data
 builddir="$startdir/src/BUILD"
 pkgdesc="docker/podman client"
