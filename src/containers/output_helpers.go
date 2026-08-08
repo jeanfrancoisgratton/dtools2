@@ -29,27 +29,25 @@ func getImageTag(name string) string {
 // Formats the ports list to make it more human-readable
 func prettifyPortsList(ports []PortsStruct, delimiter string) string {
 	seen := make(map[string]struct{})
-	var portsString, sourcePort string
+	var parts []string
 
-	for ndx, val := range ports {
+	for _, val := range ports {
 		key := fmt.Sprintf("%s-%d-%d", val.Type, val.PublicPort, val.PrivatePort)
 		if _, ok := seen[key]; ok {
 			continue
 		}
 		seen[key] = struct{}{}
 
-		if val.PublicPort == 0 {
-			sourcePort = ""
-		} else {
+		var sourcePort string
+		if val.PublicPort != 0 {
 			sourcePort = fmt.Sprintf("%d->", val.PublicPort)
 		}
-		if ndx < len(ports)-1 {
-			portsString += fmt.Sprintf("%s/%s%d%s", val.Type, sourcePort, val.PrivatePort, delimiter)
-		} else {
-			portsString += fmt.Sprintf("%s/%s%d", val.Type, sourcePort, val.PrivatePort)
-		}
+		parts = append(parts, fmt.Sprintf("%s/%s%d", val.Type, sourcePort, val.PrivatePort))
 	}
-	return portsString
+
+	// Join on the deduplicated entries so the delimiter never trails, even when
+	// the final port in the input was a duplicate.
+	return strings.Join(parts, delimiter)
 }
 
 // Same principle here as for prettifyPortsList

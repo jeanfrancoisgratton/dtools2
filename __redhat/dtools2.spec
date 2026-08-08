@@ -2,8 +2,8 @@
 %define _build_id_links none
 %define _name dtools
 %define _prefix /opt
-%define _version 2.70.00
-%define _rel 0
+%define _version 2.7.2
+%define _rel 1
 %define _arch x86_64
 %define _binaryname dtools
 
@@ -19,8 +19,6 @@ URL:        https://git.famillegratton.net:3000/devops/dtools2.git
 Source0:    %{name}-%{_version}.tar.gz
 #BuildArchitectures: x86_64
 BuildRequires: gcc
-#Requires: sudo
-#Obsoletes: vmman1 > 1.140
 
 %description
 docker/podman client
@@ -30,17 +28,16 @@ docker/podman client
 
 %build
 cd src
-go mod download
-PATH=$PATH:/opt/go/bin CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -buildid=" -o %{_builddir}/%{_binaryname} .
+CGO_ENABLED=0 /opt/go/bin/go build -trimpath -ldflags="-s -w -buildid=" -o %{_builddir}/%{name}-%{version}/%{_binaryname} .
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %pre
-exit 0
 
 %install
-install -Dpm 0755 %{_builddir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryname}
+rm -rf %{buildroot}
+install -Dpm 0755 %{_builddir}/%{name}-%{version}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryname}
 
 %post
 
@@ -54,6 +51,55 @@ install -Dpm 0755 %{_builddir}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryna
 
 
 %changelog
+* Fri Jul 24 2026 Binary package builder <builder@famillegratton.net> 2.7.1-6
+- changed specfile name
+- Packaging enhancements, no new functionalities
+- Changed package destination for apkbuilder
+- chore: update changelog for 2.7.1-5
+- version bump to ensure all packages are consistent
+- chore: update changelog for 2.7.1-3
+- fixed typo in specfile, rpmbuild refresh
+- fixed possible issue in numbering
+- fixed postinstall apk script
+- chore: update changelog for 2.7.1-2
+- Enforce package name to dtools, dtools2 except for Alpine
+
+* Mon Jul 20 2026 Binary package builder <builder@famillegratton.net> 2.7.1-5
+- version bump to ensure all packages are consistent
+- chore: update changelog for 2.7.1-3
+- fixed typo in specfile, rpmbuild refresh
+- fixed possible issue in numbering
+- fixed postinstall apk script
+- chore: update changelog for 2.7.1-2
+- Enforce package name to dtools, dtools2 except for Alpine
+
+* Mon Jul 20 2026 Binary package builder <builder@famillegratton.net> 2.7.1-3
+- fixed typo in specfile, rpmbuild refresh
+- fixed possible issue in numbering
+- fixed postinstall apk script
+- chore: update changelog for 2.7.1-2
+- Enforce package name to dtools, dtools2 except for Alpine
+
+* Sat Jul 18 2026 Binary package builder <builder@famillegratton.net> 2.7.1-2
+- Enforce package name to dtools, dtools2 except for Alpine
+
+* Fri Jul 17 2026 Binary package builder <builder@famillegratton.net> 2.7.1-1
+- renamed specfile in rpmbuild
+- alpine packaging rename
+- Changed package name (arch)
+- Merge remote-tracking branch 'refs/remotes/origin/develop' into develop
+- Added test suites
+- version bump and packaging scripts enhancements
+- Doc update for the build subcommand
+- Merge remote-tracking branch 'refs/remotes/origin/develop' into develop
+- Revamped documentation
+- Merge branch 'develop' of ssh://git.famillegratton.net:9722/devops/dtools2 into develop
+- refreshed rhel support
+- cosmetic output fix
+- removed tito
+- Fixed Makefile, added the Release variable
+- moved rpm build script and specfile into its owm context
+
 * Fri May 01 2026 Binary package builder <builder@famillegratton.net> 2.70.00-0
 - deps update (jean-francois@famillegratton.net)
 - Another batch of Arch fixes (builder@famillegratton.net)
