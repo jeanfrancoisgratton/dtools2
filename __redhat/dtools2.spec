@@ -51,6 +51,14 @@ install -Dpm 0755 %{_builddir}/%{name}-%{version}/%{_binaryname} %{buildroot}%{_
 
 
 %changelog
+* Mon Aug 10 2026 Binary package builder <builder@famillegratton.net> 2.8.0-1
+- Merge branch 'develop'
+- fixed build issues with buildkit
+- version bump
+- Fixed --rm and --network that were ignored
+- Merge branch 'develop'
+- DEBBUILDER: removed non-existing files from Makefile
+
 * Sat Aug 08 2026 Binary package builder <builder@famillegratton.net> 2.7.2-1
 - Merge branch 'develop'
 - lsb command now outputs in JSON, removed shell completion packaging scripts
