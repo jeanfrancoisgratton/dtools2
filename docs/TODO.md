@@ -16,4 +16,4 @@
 - [x] add filter support to `lsc`, `lsv`, `lsn` and `lsi` commands
 - [x] replace all RunE params with Run in src/cmd/run_build_commands.go
 - [ ] **CRITICAL** : fix build
-- [ ] `blacklist list` and `blacklist remove` do not follow the images/containers/volumes/networks pattern
+- [x] `blacklist list` and `blacklist remove` do not follow the images/containers/volumes/networks pattern
