@@ -73,6 +73,10 @@ var buildCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(runCmd, buildCmd)
 
+	// Match `docker run`: stop parsing dtools flags once the image is seen, so
+	// everything after it (e.g. `sh -c '...'`) is passed to the container verbatim.
+	runCmd.Flags().SetInterspersed(false)
+
 	runCmd.Flags().BoolVarP(&run_build.RunDetach, "detach", "d", false, "Run container in background and print container ID")
 	runCmd.Flags().BoolVarP(&run_build.RunInteractive, "interactive", "i", false, "Keep STDIN open even if not attached")
 	runCmd.Flags().BoolVarP(&run_build.RunTTY, "tty", "t", false, "Allocate a pseudo-TTY")

@@ -216,17 +216,18 @@ func createContainer(client *rest.Client, image string, cmd []string) (string, b
 		req.Entrypoint = []string{RunEntrypoint}
 	}
 
-	// HostConfig
-	hc := &HostConfig{}
+	// HostConfig: start from the resource-limit flags, then layer the
+	// simple flags on top. getRunFlagValues() returns a fresh HostConfig,
+	// so it must be called first or it would clobber the fields set here.
+	var hc *HostConfig
+	if hc, e1 = getRunFlagValues(); e1 != nil {
+		return "", false, e1
+	}
 	if RunRemove {
 		hc.AutoRemove = true
 	}
 	if RunNetwork != "" {
 		hc.NetworkMode = RunNetwork
-	}
-
-	if hc, e1 = getRunFlagValues(); e1 != nil {
-		return "", false, e1
 	}
 
 	req.HostConfig = hc
