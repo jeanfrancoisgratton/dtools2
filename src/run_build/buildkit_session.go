@@ -20,13 +20,16 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"strings"
 
 	"dtools2/rest"
 
+	"github.com/docker/cli/cli/config"
 	"github.com/moby/buildkit/session"
+	"github.com/moby/buildkit/session/auth/authprovider"
 )
 
 // When doing an h2c upgrade, HTTP/1.1 requires the HTTP2-Settings header.
@@ -46,6 +49,17 @@ func newBuildkitSession(ctx context.Context, client *rest.Client) (*buildkitSess
 	if err != nil {
 		return nil, fmt.Errorf("failed to init buildkit session: %w", err)
 	}
+
+	// Register the registry auth provider on the session. Unlike the classic
+	// builder (which reads the X-Registry-Config header), BuildKit obtains
+	// registry credentials over this session channel. Without it, pulling
+	// private base images during a BuildKit build fails to authenticate.
+	// Credentials are read from ~/.docker/config.json (honouring credential
+	// helpers / credsStore), the same source the Docker CLI uses.
+	dockerCfg := config.LoadDefaultConfigFile(io.Discard)
+	s.Allow(authprovider.NewDockerAuthProvider(authprovider.DockerAuthProviderConfig{
+		AuthConfigProvider: authprovider.LoadAuthConfig(dockerCfg),
+	}))
 
 	bs := &buildkitSession{
 		ID:        s.ID(),

@@ -23,7 +23,7 @@ var runCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		if restClient == nil {
 			fmt.Println("REST client not initialized")
-			return
+			os.Exit(125)
 		}
 		rest.Context = cmd.Context()
 
@@ -33,10 +33,11 @@ var runCmd = &cobra.Command{
 			command = args[1:]
 		}
 
-		_, id, cerr := run_build.RunContainer(restClient, image, command)
+		exitCode, id, cerr := run_build.RunContainer(restClient, image, command)
 		if cerr != nil {
 			fmt.Println(cerr)
-			return
+			// 125: dtools/daemon failed to run the container (docker convention).
+			os.Exit(125)
 		}
 
 		if run_build.RunDetach {
@@ -45,7 +46,9 @@ var runCmd = &cobra.Command{
 			}
 			return
 		}
-		return
+
+		// Attached mode: propagate the container process exit code, like `docker run`.
+		os.Exit(exitCode)
 	},
 }
 

@@ -21,6 +21,10 @@ import (
 	"dtools2/auth"
 	"dtools2/rest"
 
+	controlapi "github.com/moby/buildkit/api/services/control"
+	"github.com/moby/buildkit/client"
+	"github.com/moby/buildkit/util/progress/progressui"
+
 	"github.com/docker/docker/pkg/jsonmessage"
 	"github.com/moby/term"
 )
@@ -141,6 +145,11 @@ func BuildImage(client *rest.Client, contextDir string) error {
 			headers.Set(dockerSessionHeaderID, bks.ID)
 			headers.Set(dockerSessionHeaderSharedKey, bks.SharedKey)
 			headers.Set(dockerSessionHeaderName, "dtools2")
+			// The daemon correlates the build to the registered session via the
+			// "session" query parameter (as the official docker client does).
+			// Without it the BuildKit backend reports "no active sessions" the
+			// moment it needs the session (e.g. auth for a private base image).
+			q.Set("session", bks.ID)
 			defer bks.Close()
 		}
 	}
@@ -150,6 +159,22 @@ func BuildImage(client *rest.Client, contextDir string) error {
 		return err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		b, _ := io.ReadAll(io.LimitReader(resp.Body, 64*1024))
+		msg := strings.TrimSpace(string(b))
+		if msg == "" {
+			msg = resp.Status
+		}
+		return fmt.Errorf("build failed: %s", msg)
+	}
+
+	// BuildKit (version=2) reports progress as base64 protobuf trace events in
+	// the JSONMessage "aux" field, which the classic renderer silently drops.
+	// Route it through BuildKit's own progress display instead.
+	if useBuildKit {
+		return displayBuildKitStream(ctx, resp.Body, progressMode)
+	}
 
 	termFd, autoIsTerm := term.GetFdInfo(os.Stdout)
 	isTerm := autoIsTerm
@@ -179,12 +204,89 @@ func BuildImage(client *rest.Client, contextDir string) error {
 		}
 	}
 
-	// If the daemon used the JSON message stream, failures are reported in-stream.
-	if resp.StatusCode >= 400 {
-		return fmt.Errorf("build failed: %s", resp.Status)
+	return nil
+}
+
+// displayBuildKitStream renders a BuildKit /build?version=2 response using
+// BuildKit's progress UI. The daemon streams docker JSONMessages; the ones with
+// ID "moby.buildkit.trace" carry a base64-encoded controlapi.StatusResponse in
+// Aux, which we decode and forward to the display. Other message kinds (plain
+// "stream" text, in-band errors) are handled directly.
+func displayBuildKitStream(ctx context.Context, r io.Reader, progressMode string) error {
+	mode := progressui.AutoMode
+	switch progressMode {
+	case "plain":
+		mode = progressui.PlainMode
+	case "tty":
+		mode = progressui.TtyMode
 	}
 
-	return nil
+	// TtyMode requires the output to be a real console; if it isn't (piped
+	// output, CI logs), degrade to plain rather than failing. AutoMode already
+	// makes this decision internally.
+	if mode == progressui.TtyMode {
+		if _, isTerm := term.GetFdInfo(os.Stderr); !isTerm {
+			mode = progressui.PlainMode
+		}
+	}
+
+	// Progress is rendered to stderr, matching `docker buildx` behaviour.
+	display, err := progressui.NewDisplay(os.Stderr, mode)
+	if err != nil {
+		return err
+	}
+
+	ch := make(chan *client.SolveStatus)
+	displayDone := make(chan error, 1)
+	go func() {
+		_, derr := display.UpdateFrom(ctx, ch)
+		displayDone <- derr
+	}()
+
+	var buildErr error
+	dec := json.NewDecoder(r)
+	for {
+		var msg jsonmessage.JSONMessage
+		if derr := dec.Decode(&msg); derr != nil {
+			if derr == io.EOF {
+				break
+			}
+			buildErr = derr
+			break
+		}
+
+		if msg.Error != nil {
+			buildErr = fmt.Errorf("%s", msg.Error.Message)
+			continue
+		}
+
+		if msg.ID == "moby.buildkit.trace" && msg.Aux != nil {
+			var dt []byte
+			if uerr := json.Unmarshal(*msg.Aux, &dt); uerr != nil {
+				continue
+			}
+			var sr controlapi.StatusResponse
+			if uerr := sr.UnmarshalVT(dt); uerr != nil {
+				continue
+			}
+			select {
+			case ch <- client.NewSolveStatus(&sr):
+			case <-ctx.Done():
+			}
+			continue
+		}
+
+		// Non-trace messages (e.g. Podman-style plain "stream" text).
+		if msg.Stream != "" {
+			fmt.Fprint(os.Stderr, msg.Stream)
+		}
+	}
+
+	close(ch)
+	if derr := <-displayDone; derr != nil && buildErr == nil {
+		buildErr = derr
+	}
+	return buildErr
 }
 
 func decideBuildKit(ctx context.Context, client *rest.Client, progressMode string) (useBuildKit bool, forced bool) {
