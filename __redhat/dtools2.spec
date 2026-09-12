@@ -2,10 +2,8 @@
 %define _build_id_links none
 %define _name dtools
 %define _prefix /opt
-%define _bash_completionsdir /usr/share/bash-completion/completions
-%define _zsh_completionsdir  /usr/share/zsh/site-functions
-%define _version 2.7.1
-%define _rel 6
+%define _version 2.8.0
+%define _rel 2
 %define _arch x86_64
 %define _binaryname dtools
 
@@ -42,24 +40,10 @@ rm -rf %{buildroot}
 install -Dpm 0755 %{_builddir}/%{name}-%{version}/%{_binaryname} %{buildroot}%{_bindir}/%{_binaryname}
 
 %post
-# Bash completion — always install
-mkdir -p /etc/usr/share/bash-completion/completions
-/opt/bin/%{_binaryname} completion bash > %{_bash_completionsdir}/%{_binaryname}
-
-# Zsh completion — only if zsh is present
-if command -v zsh > /dev/null 2>&1; then
-    mkdir -p %{_zsh_completionsdir}/zsh/site-functions
-    /opt/bin/%{_binaryname} completion zsh > %{_zsh_completionsdir}/%{_binaryname}
-fi
 
 %preun
 
 %postun
-if [ $1 -eq 0 ]; then
-    # $1 == 0 means this is a full uninstall, not an upgrade
-    rm -f %{_bash_completionsdir}/%{_binaryname}
-    rm -f %{_zsh_completionsdir}/_%{_binaryname}
-fi
 
 %files
 %defattr(-,root,root,-)
@@ -67,6 +51,39 @@ fi
 
 
 %changelog
+* Sun Aug 16 2026 Binary package builder <builder@famillegratton.net> 2.8.0-2
+- removed file from gitignore
+- RPMBUILDER: record the RPM changelog on develop instead of main
+- Merge remote-tracking branch 'refs/remotes/origin/main'
+- Doc update
+
+* Mon Aug 10 2026 Binary package builder <builder@famillegratton.net> 2.8.0-1
+- Merge branch 'develop'
+- fixed build issues with buildkit
+- version bump
+- Fixed --rm and --network that were ignored
+- Merge branch 'develop'
+- DEBBUILDER: removed non-existing files from Makefile
+
+* Sat Aug 08 2026 Binary package builder <builder@famillegratton.net> 2.7.2-1
+- Merge branch 'develop'
+- lsb command now outputs in JSON, removed shell completion packaging scripts
+- removed non-existent files
+- chore: update changelog for 2.7.1-6
+- changed specfile name
+- Packaging enhancements, no new functionalities
+- Changed package destination for apkbuilder
+- chore: update changelog for 2.7.1-5
+- version bump to ensure all packages are consistent
+- chore: update changelog for 2.7.1-3
+- fixed typo in specfile, rpmbuild refresh
+- fixed possible issue in numbering
+- fixed postinstall apk script
+- chore: update changelog for 2.7.1-2
+- Enforce package name to dtools, dtools2 except for Alpine
+- Merge branch 'develop'
+- updated build deps
+
 * Fri Jul 24 2026 Binary package builder <builder@famillegratton.net> 2.7.1-6
 - changed specfile name
 - Packaging enhancements, no new functionalities

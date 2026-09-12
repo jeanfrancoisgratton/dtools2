@@ -6,13 +6,12 @@
 package blacklist
 
 import (
-	"os"
+	"encoding/json"
 	"slices"
 	"strings"
 
 	ce "github.com/jeanfrancoisgratton/customError/v3"
-	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/jedib0t/go-pretty/v6/text"
+	hfjson "github.com/jeanfrancoisgratton/helperFunctions/v5/prettyjson"
 )
 
 // getSlice returns a pointer to the slice corresponding to the resource type.
@@ -34,24 +33,14 @@ func getSlice(rb *ResourceBlacklist, resourceType string) (*[]string, *ce.Custom
 	}
 }
 
-// outputBList simply displays the resource blacklist in a table
+// outputBList displays the resource blacklist as pretty-printed JSON.
 
 func outputBList(rbl map[string][]string) *ce.CustomError {
-
-	t := table.NewWriter()
-	t.SetOutputMirror(os.Stdout)
-	t.AppendHeader(table.Row{"Resource type", "Resource"})
-
-	for resourceType, resource := range rbl {
-		if len(resource) != 0 {
-			t.AppendRow(table.Row{resourceType, resource})
-		} else {
-			t.AppendRow([]interface{}{resourceType, ""})
-		}
+	b, err := json.MarshalIndent(rbl, "", "  ")
+	if err != nil {
+		return &ce.CustomError{Title: "Unable to marshal JSON", Message: err.Error()}
 	}
-	t.SetStyle(table.StyleBold)
-	t.Style().Format.Header = text.FormatDefault
-	t.Render()
+	hfjson.Print(b)
 	return nil
 }
 

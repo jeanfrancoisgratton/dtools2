@@ -2,7 +2,7 @@
   "softwarename": "dtools",
   "binaryname": "dtools",
   "goversion": "1.26.5",
-  "versionnumber": "2.7.1",
+  "versionnumber": "2.7.2",
   "releasenumber": "1",
   "description": "Docker/Podman client drop-in replacement",
   "maintainer": "J.F.Gratton <jean-francois@famillegratton.net>",

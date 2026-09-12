@@ -356,12 +356,23 @@ dtools run -d --name myapi -p 8080:8080 myrepo/myapi:latest
 | `--hostname NAME` | | `""` | Set the container hostname |
 | `--ulimit SPEC` | | | Ulimit setting, e.g. `nofile=1024:2048` (repeatable) |
 
+**Argument ordering.** As with `docker run`, flags must appear **before** the `IMAGE`. Everything after the image name is passed to the container verbatim, so a command may carry its own flags without conflicting with `dtools`:
+
+```sh
+dtools run --rm alpine:latest sh -c 'echo hi'   # -c goes to sh, not dtools
+```
+
+**Exit code.** In attached mode the container process's exit code is propagated to the caller (like `docker run`), so `dtools run` can be used directly in shell conditionals. If `dtools` or the daemon fails to run the container, the exit code is `125`.
+
+> **Planned for 2.9.0.** Additional resource/security flags — `--memory`, `--cpus`, `--cpu-shares`, `--restart`, `--privileged`, `--cap-add`, `--cap-drop`, `--read-only`, `--shm-size`, and `--pids-limit` — are expected to be fully wired up in a future release (likely dtools 2.9.0).
+
 ---
 
 ### build
-**WARNING**  **WARNING**  **WARNING**<br>
-This command seems to be broken right now !<br><br>Some issue between BuildKit, Podman's API, whatnot...<br><br><br>
+
 Build an image from a Dockerfile.
+
+The builder backend is auto-negotiated with the daemon: modern Docker Engines use **BuildKit** (with live progress output), while older daemons and **Podman** use the classic streaming builder. Force a backend with `DOCKER_BUILDKIT=1` / `DOCKER_BUILDKIT=0`. Registry credentials for private base images are read from `~/.docker/config.json` (honouring credential helpers) for both backends.
 
 ```
 dtools build [flags] PATH
