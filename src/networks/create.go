@@ -69,7 +69,7 @@ func AddNetwork(client *rest.Client, networkName string) *ce.CustomError {
 	}
 
 	if !rest.QuietOutput {
-		fmt.Println(hftx.GreenGoSign("Network " + networkName + " has been created"))
+		fmt.Println(hftx.GreenGoSign("Network " + hftx.Green(networkName) + " has been created"))
 	}
 
 	return nil
