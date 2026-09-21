@@ -2,7 +2,7 @@
   "softwarename": "dtools2",
   "binaryname": "dtools",
   "goversion": "1.27.1",
-  "versionnumber": "2.8.0",
+  "versionnumber": "3.0.0",
   "defaultreleasenumber": "1",
   "description": "Container and image management tool",
   "maintainer": "J.F.Gratton <jean-francois@famillegratton.net>",
