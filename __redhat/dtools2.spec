@@ -56,6 +56,9 @@ install -Dpm 0755 %{_builddir}/%{name}-%{version}/%{_binaryname} %{buildroot}%{_
 
 
 %changelog
+* Mon Sep 21 2026 Binary package builder <builder@famillegratton.net> 3.0.1-2
+- chore: version bump
+
 * Mon Sep 21 2026 Binary package builder <builder@famillegratton.net> 3.0.1-1
 - enhancement: selected backed-end plugin output is only shown when rest.QuietOutput == false
 - chore: update changelog for 3.0.0-1
