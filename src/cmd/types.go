@@ -5,7 +5,7 @@
 
 package cmd
 
-import "dtools2/rest"
+import "dtools2/backend"
 
 // Global flags used for option parsing by COBRA
 
@@ -17,8 +17,16 @@ var TLSCert string
 var TLSKey string
 var TLSSkipVerify bool
 
-// Resolved REST client, shared by subcommands.
-var restClient *rest.Client
+// Runtime selects which backend to talk to: "" (auto, docker/podman via
+// REST) or "containerd". docker/podman need no explicit selection since
+// they share the same REST dialect.
+var Runtime string
+var ContainerdSocket string
+var ContainerdNamespace string
+var AllNamespaces bool
+
+// Resolved backend, shared by subcommands.
+var activeBackend backend.Backend
 
 // Auth / login-related flags.
 

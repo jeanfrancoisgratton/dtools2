@@ -26,13 +26,18 @@ var volumeListCmd = &cobra.Command{
 	Use:   "lsv",
 	Short: "List volumes",
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
+			return
+		}
+		svc, ok := activeBackend.Volumes()
+		if !ok {
+			notSupportedByBackend("volume lsv")
 			return
 		}
 
 		rest.Context = cmd.Context()
-		if _, err := volumes.ListVolumes(restClient, true); err != nil {
+		if err := svc.List(true); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -47,13 +52,18 @@ var volumeRmCmd = &cobra.Command{
 		Blacklisted volumes will not be removed, unless the -B flag is passed.`,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
+			return
+		}
+		svc, ok := activeBackend.Volumes()
+		if !ok {
+			notSupportedByBackend("volume rmv")
 			return
 		}
 
 		rest.Context = cmd.Context()
-		if err := volumes.RemoveVolumes(restClient, args); err != nil {
+		if err := svc.Remove(args); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -67,13 +77,18 @@ var volumePruneCmd = &cobra.Command{
 	Long: `Prune volumes via the Docker/Podman API.
 		Blacklisted volumes will not be removed, unless the -B flag is passed.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
+			return
+		}
+		svc, ok := activeBackend.Volumes()
+		if !ok {
+			notSupportedByBackend("volume prune")
 			return
 		}
 
 		rest.Context = cmd.Context()
-		if err := volumes.PruneVolumes(restClient); err != nil {
+		if err := svc.Prune(); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -86,13 +101,18 @@ var volumeCreateCmd = &cobra.Command{
 	Short:   "Create volumes",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
+			return
+		}
+		svc, ok := activeBackend.Volumes()
+		if !ok {
+			notSupportedByBackend("volume create")
 			return
 		}
 
 		rest.Context = cmd.Context()
-		if err := volumes.CreateVolume(restClient, args[0]); err != nil {
+		if err := svc.Create(args[0]); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -106,13 +126,18 @@ var volumeInspectCmd = &cobra.Command{
 	Short:   "Display detailed information about a volume",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
+			return
+		}
+		svc, ok := activeBackend.Volumes()
+		if !ok {
+			notSupportedByBackend("volume inspect")
 			return
 		}
 
 		rest.Context = cmd.Context()
-		if _, err := volumes.InspectVolume(restClient, args[0]); err != nil {
+		if err := svc.Inspect(args[0]); err != nil {
 			fmt.Println(err)
 		}
 		return

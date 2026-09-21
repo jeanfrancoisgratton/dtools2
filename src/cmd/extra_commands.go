@@ -8,7 +8,6 @@ package cmd
 import (
 	"dtools2/extras"
 	"dtools2/rest"
-	"dtools2/system"
 	"fmt"
 	"os"
 	"strings"
@@ -24,8 +23,13 @@ var copyCmd = &cobra.Command{
 	Example: "dtools cp { container_name:path host_path | host_path container:path }",
 	Args:    cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
+			return
+		}
+		copier, ok := activeBackend.FileCopier()
+		if !ok {
+			notSupportedByBackend("cp")
 			return
 		}
 		nContainers := 0
@@ -42,7 +46,7 @@ var copyCmd = &cobra.Command{
 		}
 
 		rest.Context = cmd.Context()
-		if err := system.CopyFile(restClient, args[0], args[1]); err != nil {
+		if err := copier.Copy(args[0], args[1]); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -55,8 +59,13 @@ var execCmd = &cobra.Command{
 	Example: "dtools exec -it mycontainer /bin/sh",
 	Args:    cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
+			os.Exit(1)
+		}
+		runner, ok := activeBackend.Runner()
+		if !ok {
+			notSupportedByBackend("exec")
 			os.Exit(1)
 		}
 		rest.Context = cmd.Context()
@@ -64,7 +73,7 @@ var execCmd = &cobra.Command{
 		container := args[0]
 		command := args[1:]
 
-		exitCode, cerr := extras.Run(restClient, container, command)
+		exitCode, cerr := runner.Exec(container, command)
 		if cerr != nil {
 			fmt.Println(cerr)
 			os.Exit(1)
@@ -80,13 +89,18 @@ var logsCmd = &cobra.Command{
 	Example: "dtools logs -t -n 200 -f mycontainer",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
+			return
+		}
+		runner, ok := activeBackend.Runner()
+		if !ok {
+			notSupportedByBackend("logs")
 			return
 		}
 		rest.Context = cmd.Context()
 
-		if cerr := extras.Logs(restClient, args[0]); cerr != nil {
+		if cerr := runner.Logs(args[0]); cerr != nil {
 			fmt.Println(cerr)
 			return
 		}

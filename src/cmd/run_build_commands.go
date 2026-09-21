@@ -21,8 +21,13 @@ var runCmd = &cobra.Command{
 	Example: "dtools run -it --rm alpine:latest /bin/sh",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
+			os.Exit(125)
+		}
+		runner, ok := activeBackend.Runner()
+		if !ok {
+			notSupportedByBackend("run")
 			os.Exit(125)
 		}
 		rest.Context = cmd.Context()
@@ -33,7 +38,7 @@ var runCmd = &cobra.Command{
 			command = args[1:]
 		}
 
-		exitCode, id, cerr := run_build.RunContainer(restClient, image, command)
+		exitCode, id, cerr := runner.Run(image, command)
 		if cerr != nil {
 			fmt.Println(cerr)
 			// 125: dtools/daemon failed to run the container (docker convention).
@@ -60,13 +65,18 @@ var buildCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		//fmt.Println(hftx.ErrorSign("COMMAND NOT YET IMPLEMENTED"))
 		//os.Exit(2)
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
+			os.Exit(1)
+		}
+		builder, ok := activeBackend.Builder()
+		if !ok {
+			notSupportedByBackend("build")
 			os.Exit(1)
 		}
 		rest.Context = cmd.Context()
 
-		if err := run_build.BuildImage(restClient, args[0]); err != nil {
+		if err := builder.Build(args[0]); err != nil {
 			fmt.Println(err.Error())
 			os.Exit(1)
 		}

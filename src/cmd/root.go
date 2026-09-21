@@ -10,6 +10,9 @@ import (
 	"strings"
 	"time"
 
+	"dtools2/backend"
+	"dtools2/backend/containerdbackend"
+	"dtools2/backend/restbackend"
 	"dtools2/extras"
 	"dtools2/rest"
 
@@ -24,43 +27,90 @@ var rootCmd = &cobra.Command{
 	Long: `dtools is a lightweight Docker/Podman client that talks directly
 to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		if restClient != nil {
+		if activeBackend != nil {
 			return
 		}
 
-		cfg := rest.Config{
-			Host:               rest.ConnectURI,
-			APIVersion:         APIVersion,
-			UseTLS:             UseTLS,
-			CACertPath:         TLSCACert,
-			CertPath:           TLSCert,
-			KeyPath:            TLSKey,
-			InsecureSkipVerify: TLSSkipVerify,
-			FastFailTimeout:    time.Duration(rest.FastFailTimeoutSeconds) * time.Second,
-			SessionTimeout:     time.Duration(rest.SessionTimeoutMinutes) * time.Minute,
-		}
-
-		client, err := rest.NewClient(cfg)
-		if err != nil {
-			fmt.Println("Failed to initialize the REST client: ", err.Error())
+		switch Runtime {
+		case "", "docker", "podman", "containerd":
+			// valid
+		default:
+			fmt.Printf("Unknown --runtime %q: must be one of \"\" (auto), \"docker\", \"podman\", \"containerd\"\n", Runtime)
 			return
 		}
 
-		// If user did not force an API version, negotiate it with /version.
-		if APIVersion == "" {
-			v, err := rest.NegotiateAPIVersion(cmd.Context(), client)
+		if Runtime == "containerd" && cmd.Flags().Changed("host") {
+			fmt.Println("--host/-H is not supported with --runtime=containerd: containerd is local-only")
+			return
+		}
+
+		// Auto-detect only makes sense when the user hasn't pinned down where
+		// to connect: an explicit -H means "talk to this REST endpoint", and
+		// falling back to a local containerd if that's unreachable would
+		// silently switch to an unrelated daemon instead of surfacing the
+		// real connection error.
+		autoDetect := Runtime == "" && !cmd.Flags().Changed("host")
+
+		var (
+			b      backend.Backend
+			err    error
+			picked string
+		)
+
+		switch {
+		case Runtime == "containerd":
+			b, err = containerdbackend.New(cmd.Context(), ContainerdSocket, ContainerdNamespace, AllNamespaces)
+
+		case autoDetect:
+			cfg := restConfigFromFlags()
+			if !cmd.Flags().Changed("fast-fail") {
+				cfg.FastFailTimeout = autoDetectProbeTimeout
+			}
+			b, err = restbackend.New(cmd.Context(), cfg)
 			if err != nil {
-				fmt.Println("Failed to negotiate API version: ", err.Error())
-				return
+				restErr := err
+				var cdErr error
+				b, cdErr = containerdbackend.New(cmd.Context(), ContainerdSocket, ContainerdNamespace, AllNamespaces)
+				if cdErr != nil {
+					err = fmt.Errorf("no container runtime found:\n  docker/podman: %s\n  containerd: %s", restErr, cdErr)
+				} else {
+					err = nil
+					picked = " (docker/podman unreachable, fell back to containerd)"
+				}
 			}
-			client.SetAPIVersion(v)
-			if extras.Debug {
-				fmt.Printf("Negotiated API version: v%s\n", v)
-			}
+
+		default: // Runtime == "docker" or "podman"
+			b, err = restbackend.New(cmd.Context(), restConfigFromFlags())
 		}
-		restClient = client
+
+		if err != nil {
+			fmt.Println("Failed to initialize the backend: ", err.Error())
+			return
+		}
+		if autoDetect {
+			fmt.Fprintf(os.Stderr, "Using backend: %s%s\n", b.Name(), picked)
+		} else if extras.Debug {
+			fmt.Printf("Using backend: %s\n", b.Name())
+		}
+		activeBackend = b
 		return
 	},
+}
+
+const autoDetectProbeTimeout = 3 * time.Second
+
+func restConfigFromFlags() rest.Config {
+	return rest.Config{
+		Host:               rest.ConnectURI,
+		APIVersion:         APIVersion,
+		UseTLS:             UseTLS,
+		CACertPath:         TLSCACert,
+		CertPath:           TLSCert,
+		KeyPath:            TLSKey,
+		InsecureSkipVerify: TLSSkipVerify,
+		FastFailTimeout:    time.Duration(rest.FastFailTimeoutSeconds) * time.Second,
+		SessionTimeout:     time.Duration(rest.SessionTimeoutMinutes) * time.Minute,
+	}
 }
 
 var versionCmd = &cobra.Command{
@@ -84,18 +134,18 @@ func init() {
 
 	rootCmd.AddCommand(completionCmd, blListCmd, versionCmd)
 
-	// Override Cobra's default version shorthand (-v) to free it for future use.
-	// Cobra will not register its own version flag if it already exists.
-	rootCmd.Flags().BoolP("version", "V", false, "Show version and exit")
-
 	// Global flags.
 	rootCmd.PersistentFlags().BoolVarP(&extras.Debug, "debug", "D", false, "Enable debug output on stderr")
 	rootCmd.PersistentFlags().BoolVar(&extras.OutputJSON, "json", false, "Output JSON instead of formatted tables")
 	rootCmd.PersistentFlags().BoolVarP(&rest.QuietOutput, "quiet", "q", false, "Quiet output")
 	rootCmd.PersistentFlags().StringVarP(&rest.ConnectURI, "host", "H", "", "Docker daemon host (e.g. unix:///var/run_build/docker.sock, tcp://host:2376)")
-	rootCmd.PersistentFlags().StringVarP(&APIVersion, "api-version", "A", "", "Docker API version (e.g. 1.43); if empty, auto-negotiate with the daemon")
+	rootCmd.PersistentFlags().StringVarP(&APIVersion, "api-version", "V", "", "Docker API version (e.g. 1.43); if empty, auto-negotiate with the daemon")
 	rootCmd.PersistentFlags().BoolVarP(&UseTLS, "tls", "T", false, "Use TLS when connecting to the daemon (for tcp:// hosts)")
 	rootCmd.PersistentFlags().IntVar(&rest.FastFailTimeoutSeconds, "fast-fail", rest.FastFailTimeoutSeconds, "HTTP fast-fail timeout in seconds (dial/TLS handshake/headers)")
 	rootCmd.PersistentFlags().IntVar(&rest.SessionTimeoutMinutes, "session-timeout", rest.SessionTimeoutMinutes, "HTTP session timeout in minutes for finite long operations (pull/build/cp/save/load); 0 disables")
+	rootCmd.PersistentFlags().StringVar(&Runtime, "runtime", "", "Container runtime backend to use: \"\", \"docker\" or \"podman\" (REST API) or \"containerd\"")
+	rootCmd.PersistentFlags().StringVar(&ContainerdSocket, "containerd-socket", containerdbackend.DefaultSocket, "containerd gRPC socket path (only used with --runtime=containerd)")
+	rootCmd.PersistentFlags().StringVarP(&ContainerdNamespace, "namespace", "N", containerdbackend.DefaultNamespace, "containerd namespace to operate in (only used with --runtime=containerd)")
+	rootCmd.PersistentFlags().BoolVarP(&AllNamespaces, "all-namespaces", "A", false, "containerd: list across all namespaces instead of just --namespace (list operations only; lifecycle/prune stay scoped to --namespace)")
 
 }

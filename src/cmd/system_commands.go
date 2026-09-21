@@ -26,12 +26,12 @@ var systemRmCmd = &cobra.Command{
 	Use:   "rms",
 	Short: "Remove all exited or created (NOT running/paused) containers",
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
-		if errCode := system.RmContainers(restClient); errCode != nil {
+		if errCode := activeBackend.System().RmContainers(); errCode != nil {
 			fmt.Println(errCode)
 		}
 		return
@@ -43,12 +43,12 @@ var systemCleanCmd = &cobra.Command{
 	Use:   "clean [flags]",
 	Short: "Remove all unused images, volumes and networks",
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
-		if errCode := system.Clean(restClient); errCode != nil {
+		if errCode := activeBackend.System().Clean(); errCode != nil {
 			fmt.Println(errCode)
 		}
 		return
@@ -59,12 +59,12 @@ var sysInfoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "Show daemon system information (server section only)",
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
-		if errCode := system.Info(restClient); errCode != nil {
+		if errCode := activeBackend.System().Info(); errCode != nil {
 			fmt.Println(errCode)
 		}
 		return

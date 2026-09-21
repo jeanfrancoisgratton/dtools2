@@ -26,13 +26,18 @@ var networkListCmd = &cobra.Command{
 	Use:   "lsn",
 	Short: "List networks",
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
+			return
+		}
+		svc, ok := activeBackend.Networks()
+		if !ok {
+			notSupportedByBackend("network lsn")
 			return
 		}
 
 		rest.Context = cmd.Context()
-		if _, err := networks.NetworkList(restClient, true); err != nil {
+		if err := svc.List(true); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -48,13 +53,18 @@ var networkCreateCmd = &cobra.Command{
 	You should note that a single daemon cannot have more than a single host or null network`,
 	Example: "dtools net create NETWORK_NAME [flags]",
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
+			return
+		}
+		svc, ok := activeBackend.Networks()
+		if !ok {
+			notSupportedByBackend("network create")
 			return
 		}
 
 		rest.Context = cmd.Context()
-		if err := networks.AddNetwork(restClient, args[0]); err != nil {
+		if err := svc.Add(args[0]); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -67,13 +77,18 @@ var networkRmCmd = &cobra.Command{
 	Example: "dtools net rmn network_name1 [network_name2..network_nameN]",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
+			return
+		}
+		svc, ok := activeBackend.Networks()
+		if !ok {
+			notSupportedByBackend("network rmn")
 			return
 		}
 
 		rest.Context = cmd.Context()
-		if err := networks.RemoveNetwork(restClient, args); err != nil {
+		if err := svc.Remove(args); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -87,15 +102,18 @@ var networkAttachCmd = &cobra.Command{
 	Example: "dtools net connect NETWORK_NAME CONTAINER_NAME",
 	Args:    cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
+			return
+		}
+		svc, ok := activeBackend.Networks()
+		if !ok {
+			notSupportedByBackend("network connect")
 			return
 		}
 
 		rest.Context = cmd.Context()
-		//containerName := args[0]
-		//networkName := args[1]
-		if err := networks.AttachNetwork(restClient, args[0], args[1]); err != nil {
+		if err := svc.Attach(args[0], args[1]); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -109,15 +127,18 @@ var networkDetachCmd = &cobra.Command{
 	Example: "dtools net disconnect NETWORK_NAME CONTAINER_NAME",
 	Args:    cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
+			return
+		}
+		svc, ok := activeBackend.Networks()
+		if !ok {
+			notSupportedByBackend("network disconnect")
 			return
 		}
 
 		rest.Context = cmd.Context()
-		//containerName := args[0]
-		//networkName := args[1]
-		if err := networks.DetachNetwork(restClient, args[0], args[1]); err != nil {
+		if err := svc.Detach(args[0], args[1]); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -131,12 +152,18 @@ var networkInspectCmd = &cobra.Command{
 	Short:   "Display detailed information about a network",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
 			return
 		}
+		svc, ok := activeBackend.Networks()
+		if !ok {
+			notSupportedByBackend("network inspect")
+			return
+		}
+
 		rest.Context = cmd.Context()
-		if _, err := networks.InspectNetwork(restClient, args[0]); err != nil {
+		if err := svc.Inspect(args[0]); err != nil {
 			fmt.Println(err)
 		}
 		return

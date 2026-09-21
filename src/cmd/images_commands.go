@@ -30,14 +30,14 @@ var imagePullCmd = &cobra.Command{
 	Short: "Pull an image from a registry",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
 			return
 		}
 
 		imageRef := args[0]
 		rest.Context = cmd.Context()
-		if err := images.ImagePull(restClient, imageRef); err != nil {
+		if err := activeBackend.Images().Pull(imageRef); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -52,14 +52,14 @@ var imagePushCmd = &cobra.Command{
 	Short: "Push an image to a registry",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
 			return
 		}
 
 		imageRef := args[0]
 		rest.Context = cmd.Context()
-		if err := images.ImagePush(restClient, imageRef); err != nil {
+		if err := activeBackend.Images().Push(imageRef); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -70,13 +70,13 @@ var imageListCmd = &cobra.Command{
 	Use:   "lsi",
 	Short: "List images",
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
 			return
 		}
 
 		rest.Context = cmd.Context()
-		if _, err := images.ImagesList(restClient, true); err != nil {
+		if err := activeBackend.Images().List(true); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -88,13 +88,13 @@ var imageTagCmd = &cobra.Command{
 	Short: "Tag image",
 	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
 			return
 		}
 
 		rest.Context = cmd.Context()
-		if err := images.TagImage(restClient, args[0], args[1]); err != nil {
+		if err := activeBackend.Images().Tag(args[0], args[1]); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -107,13 +107,13 @@ var imageRemoveCmd = &cobra.Command{
 	Short:   "Remove image",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
 			return
 		}
 
 		rest.Context = cmd.Context()
-		if err := images.RemoveImage(restClient, args); err != nil {
+		if err := activeBackend.Images().Remove(args); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -126,13 +126,13 @@ var imageLoadCmd = &cobra.Command{
 	Long:  `Note: the tarball may be xz, gzip or bzip2 compressed`,
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
 			return
 		}
 
 		rest.Context = cmd.Context()
-		if err := images.ImageLoad(restClient, args[0]); err != nil {
+		if err := activeBackend.Images().Load(args[0]); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -146,8 +146,8 @@ var imageSaveCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(2),
 	Example: "dtools save images.tar.gz alpine:latest busybox:latest",
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
 			return
 		}
 
@@ -155,7 +155,7 @@ var imageSaveCmd = &cobra.Command{
 		imgs := args[1:]
 
 		rest.Context = cmd.Context()
-		if err := images.ImageSave(restClient, imgs, outFile); err != nil {
+		if err := activeBackend.Images().Save(imgs, outFile); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -168,8 +168,8 @@ var imageCommitCmd = &cobra.Command{
 	Args:    cobra.ExactArgs(2),
 	Example: "dtools commit -a \"J.F. Gratton\" -m \"snapshot\" -c 'CMD [\"/bin/sh\"]' myctr myrepo/myimg:debug",
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
 			return
 		}
 
@@ -177,7 +177,7 @@ var imageCommitCmd = &cobra.Command{
 		repoTag := args[1]
 
 		rest.Context = cmd.Context()
-		if err := images.ImageCommit(restClient, containerRef, repoTag, commitAuthor, commitMessage, commitChanges); err != nil {
+		if err := activeBackend.Images().Commit(containerRef, repoTag, commitAuthor, commitMessage, commitChanges); err != nil {
 			fmt.Println(err)
 		}
 		return
@@ -191,13 +191,13 @@ var imageInspectCmd = &cobra.Command{
 	Short:   "Display detailed information about an image",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
 			return
 		}
 
 		rest.Context = cmd.Context()
-		if _, err := images.InspectImage(restClient, args[0]); err != nil {
+		if err := activeBackend.Images().Inspect(args[0]); err != nil {
 			fmt.Println(err)
 		}
 		return
