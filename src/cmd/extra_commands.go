@@ -8,11 +8,46 @@ package cmd
 import (
 	"dtools2/extras"
 	"dtools2/rest"
+	"dtools2/system"
 	"fmt"
 	"os"
+	"strings"
 
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v5/terminalfx"
 	"github.com/spf13/cobra"
 )
+
+var copyCmd = &cobra.Command{
+	Use:     "cp",
+	Aliases: []string{"copy"},
+	Short:   "Copy a file to or from a container",
+	Example: "dtools cp { container_name:path host_path | host_path container:path }",
+	Args:    cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		if restClient == nil {
+			fmt.Println("REST client not initialized")
+			return
+		}
+		nContainers := 0
+		if strings.Contains(args[0], ":") {
+			nContainers++
+		}
+		if strings.Contains(args[1], ":") {
+			nContainers++
+		}
+
+		if nContainers == 0 || nContainers == 2 {
+			fmt.Println(hftx.ErrorSign("You must specify a container name:path in one of the arguments"))
+			return
+		}
+
+		rest.Context = cmd.Context()
+		if err := system.CopyFile(restClient, args[0], args[1]); err != nil {
+			fmt.Println(err)
+		}
+		return
+	},
+}
 
 var execCmd = &cobra.Command{
 	Use:     "exec [flags] CONTAINER COMMAND [ARG...]",
@@ -59,7 +94,7 @@ var logsCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(execCmd, logsCmd)
+	rootCmd.AddCommand(execCmd, logsCmd, copyCmd)
 
 	execCmd.Flags().BoolVarP(&extras.Interactive, "interactive", "i", false, "Keep STDIN open even if not attached")
 	execCmd.Flags().BoolVarP(&extras.AllocateTTY, "tty", "t", false, "Allocate a pseudo-TTY")

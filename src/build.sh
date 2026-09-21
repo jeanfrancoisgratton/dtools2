@@ -74,7 +74,16 @@ else
   BUILD_OUTPATH="$OUTPATH"
 fi
 
-CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -buildid=" -o "$BUILD_OUTPATH"   .
+# set -eu (above) fast-fails on either of these; go test exits 0 for packages
+# with no test files and only fails on an actual test failure.
+go vet ./...
+go test ./...
+
+SCRIPT_DIR="$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)"
+DTVERSION="$(sed -n 's/.*"versionnumber": *"\([^"]*\)".*/\1/p' "$SCRIPT_DIR/../dtools2.json")"
+BUILDDATE="$(date +%Y.%m.%d)"
+
+CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -buildid= -X dtools2/cmd.buildVersion=$DTVERSION -X dtools2/cmd.buildDate=$BUILDDATE" -o "$BUILD_OUTPATH"   .
 
 # Optional completion hook (only if your binary supports it)
  if [ "$COMPLETION" = "true" ]; then

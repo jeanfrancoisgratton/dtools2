@@ -12,7 +12,6 @@ import (
 
 	"dtools2/extras"
 	"dtools2/rest"
-	"dtools2/system"
 
 	hftx "github.com/jeanfrancoisgratton/helperFunctions/v5/terminalfx"
 	"github.com/spf13/cobra"
@@ -22,7 +21,6 @@ var rootCmd = &cobra.Command{
 	Use:          "dtools",
 	SilenceUsage: true,
 	Short:        "Docker / Podman client",
-	Version:      "2.8.0 (2026.08.10), Go version : v" + strings.TrimPrefix(runtime.Version(), "go"),
 	Long: `dtools is a lightweight Docker/Podman client that talks directly
 to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -65,35 +63,11 @@ to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 	},
 }
 
-var copyCmd = &cobra.Command{
-	Use:     "cp",
-	Aliases: []string{"copy"},
-	Short:   "Copy a file to or from a container",
-	Example: "dtools cp { container_name:path host_path | host_path container:path }",
-	Args:    cobra.ExactArgs(2),
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Shows the software version",
 	Run: func(cmd *cobra.Command, args []string) {
-		if restClient == nil {
-			fmt.Println("REST client not initialized")
-			return
-		}
-		nContainers := 0
-		if strings.Contains(args[0], ":") {
-			nContainers++
-		}
-		if strings.Contains(args[1], ":") {
-			nContainers++
-		}
-
-		if nContainers == 0 || nContainers == 2 {
-			fmt.Println(hftx.ErrorSign("You must specify a container name:path in one of the arguments"))
-			return
-		}
-
-		rest.Context = cmd.Context()
-		if err := system.CopyFile(restClient, args[0], args[1]); err != nil {
-			fmt.Println(err)
-		}
-		return
+		fmt.Println(hftx.White("dtools v" + buildVersion + " (" + buildDate + "), Go version = v" + strings.TrimPrefix(runtime.Version(), "go") + " (" + runtime.GOARCH + ")"))
 	},
 }
 
@@ -108,7 +82,7 @@ func init() {
 	rootCmd.DisableAutoGenTag = true
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 
-	rootCmd.AddCommand(copyCmd, completionCmd, blListCmd)
+	rootCmd.AddCommand(completionCmd, blListCmd, versionCmd)
 
 	// Override Cobra's default version shorthand (-v) to free it for future use.
 	// Cobra will not register its own version flag if it already exists.

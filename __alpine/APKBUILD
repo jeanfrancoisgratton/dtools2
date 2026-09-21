@@ -10,7 +10,7 @@ url="https://git.famillegratton.net:3000/devops/dtools2.git"
 arch=x86_64
 license=GPL2
 depends=""
-install="$pkgname.pre-deinstall $pkgname.post-install"
+#install="$pkgname.pre-deinstall $pkgname.post-install"
 makedepends="go"
 options="!check"
 #source="$pkgname-$pkgver-$pkgrel.tar.bz2::http://localhost/$pkgname-$pkgver-$pkgrel.tar.bz2"
@@ -24,8 +24,18 @@ prepare() {
 build() {
 	cd "$builddir"
 
+	go env | egrep 'GOFLAGS|CGO_ENABLED|GOOS|GOARCH' || true
+
+	# abuild runs build() with set -e, so both of these fast-fail the package
+	# build; go test exits 0 for packages with no test files and only fails
+	# on an actual test failure.
+	go vet ./...
+	go test ./...
+
+	builddate="$(date +%Y.%m.%d)"
+
 	# Static, non-PIE, internal linker
-	go build -trimpath -ldflags="-s -w -buildid= -linkmode=internal" -o "$binaryname" .
+	go build -trimpath -ldflags="-s -w -buildid= -linkmode=internal -X dtools2/cmd.buildVersion=$pkgver -X dtools2/cmd.buildDate=$builddate" -o "$binaryname" .
 }
 
 package() {

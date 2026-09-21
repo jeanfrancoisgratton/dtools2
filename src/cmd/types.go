@@ -8,6 +8,7 @@ package cmd
 import "dtools2/rest"
 
 // Global flags used for option parsing by COBRA
+
 var OutputJSON bool
 var APIVersion string
 var UseTLS bool
@@ -35,3 +36,12 @@ var imagePullRegistry string
 var commitAuthor string
 var commitMessage string
 var commitChanges []string
+
+// buildVersion and buildDate are set via -ldflags -X at package-build time.
+// Each __*/ builder reads its own already-authoritative version field
+// (APKBUILD's pkgver, PKGBUILD's pkgver, control's Version minus the Debian
+// revision, the spec's %{_version}); src/build.sh reads nxtools.json since it
+// isn't tied to any one distro's packaging file. The fallbacks below are what
+// you get from a plain `go build .` with no ldflags, e.g. local development.
+var buildVersion = "dev"
+var buildDate = "unknown"

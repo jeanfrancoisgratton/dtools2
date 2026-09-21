@@ -28,7 +28,12 @@ docker/podman client
 
 %build
 cd src
-CGO_ENABLED=0 /opt/go/bin/go build -trimpath -ldflags="-s -w -buildid=" -o %{_builddir}/%{name}-%{version}/%{_binaryname} .
+# rpmbuild runs %build under set -e, so both of these fast-fail the package
+# build; go test exits 0 for packages with no test files and only fails on
+# an actual test failure.
+CGO_ENABLED=0 /opt/go/bin/go vet ./...
+CGO_ENABLED=0 /opt/go/bin/go test ./...
+CGO_ENABLED=0 /opt/go/bin/go build -trimpath -ldflags="-s -w -buildid= -X dtools2/cmd.buildVersion=%{_version} -X dtools2/cmd.buildDate=%(date +%%Y.%%m.%%d)" -o %{_builddir}/%{name}-%{version}/%{_binaryname} .
 
 %clean
 rm -rf $RPM_BUILD_ROOT

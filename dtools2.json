@@ -1,0 +1,20 @@
+{
+  "softwarename": "dtools2",
+  "binaryname": "dtools",
+  "goversion": "1.27.1",
+  "versionnumber": "2.8.0",
+  "defaultreleasenumber": "1",
+  "description": "Container and image management tool",
+  "maintainer": "J.F.Gratton <jean-francois@famillegratton.net>",
+  "packager": "Package builder <builder@famillegratton.net>",
+  "section": "Container tool",
+  "dependencies": "",
+  "url": "https://git.famillegratton.net:3000/devops/dtools",
+  "stubs": {
+    "alpine": true,
+    "debian": true,
+    "redhat": true,
+    "archlinux": true,
+    "skeleton": true
+  }
+}
