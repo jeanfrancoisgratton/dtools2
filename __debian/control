@@ -1,5 +1,5 @@
 Package: dtools
-Version: 3.0.1-1
+Version: 3.0.2-1
 Architecture: amd64
 Maintainer: J.F.Gratton <jean-francois@famillegratton.net>
 Description: docker/podman client

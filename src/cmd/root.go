@@ -62,19 +62,26 @@ to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 			b, err = containerdbackend.New(cmd.Context(), ContainerdSocket, ContainerdNamespace, AllNamespaces)
 
 		case autoDetect:
-			cfg := restConfigFromFlags()
+			// Probe with a short, throwaway client first: FastFailTimeout also
+			// becomes the transport's ResponseHeaderTimeout for every request
+			// a client ever makes, not just this reachability check. Reusing
+			// the probe's client for the whole session would leave every
+			// later request (pull, delete, ...) with only a few seconds to
+			// receive response headers. So on a successful probe we build a
+			// fresh client with the normal (possibly user-configured) timeout
+			// instead of keeping the probe's client around.
+			probeCfg := restConfigFromFlags()
 			if !cmd.Flags().Changed("fast-fail") {
-				cfg.FastFailTimeout = autoDetectProbeTimeout
+				probeCfg.FastFailTimeout = autoDetectProbeTimeout
 			}
-			b, err = restbackend.New(cmd.Context(), cfg)
-			if err != nil {
-				restErr := err
+			if _, probeErr := restbackend.New(cmd.Context(), probeCfg); probeErr == nil {
+				b, err = restbackend.New(cmd.Context(), restConfigFromFlags())
+			} else {
 				var cdErr error
 				b, cdErr = containerdbackend.New(cmd.Context(), ContainerdSocket, ContainerdNamespace, AllNamespaces)
 				if cdErr != nil {
-					err = fmt.Errorf("no container runtime found:\n  docker/podman: %s\n  containerd: %s", restErr, cdErr)
+					err = fmt.Errorf("no container runtime found:\n  docker/podman: %s\n  containerd: %s", probeErr, cdErr)
 				} else {
-					err = nil
 					picked = " (docker/podman unreachable, fell back to containerd)"
 				}
 			}
