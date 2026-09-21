@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 
+	hftx "github.com/jeanfrancoisgratton/helperFunctions/v5/terminalfx"
 	"github.com/spf13/cobra"
 )
 
@@ -29,7 +30,7 @@ var backendActiveCmd = &cobra.Command{
 			fmt.Println("Backend not initialized")
 			return
 		}
-		fmt.Println(activeBackend.Name())
+		fmt.Printf("Current selected back-end plugin is: %s\n", hftx.Blue(activeBackend.Name()))
 	},
 }
 
