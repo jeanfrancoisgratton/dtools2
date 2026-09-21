@@ -3,7 +3,7 @@
 %define _name dtools
 %define _prefix /opt
 %define _version 3.0.1
-%define _rel 1
+%define _rel 2
 %define _arch x86_64
 %define _binaryname dtools
 

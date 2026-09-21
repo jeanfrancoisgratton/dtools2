@@ -3,7 +3,7 @@
   "binaryname": "dtools",
   "goversion": "1.27.1",
   "versionnumber": "3.0.1",
-  "defaultreleasenumber": "1",
+  "defaultreleasenumber": "2",
   "description": "Container and image management tool",
   "maintainer": "J.F.Gratton <jean-francois@famillegratton.net>",
   "packager": "Package builder <builder@famillegratton.net>",

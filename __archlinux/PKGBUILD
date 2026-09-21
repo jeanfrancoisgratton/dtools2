@@ -3,7 +3,7 @@
 
 pkgname=dtools
 pkgver=3.0.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Lightweight Docker/Podman client using the daemon REST API"
 arch=('x86_64')
 url="https://git.famillegratton.net:3000/devops/dtools2.git"
