@@ -2,7 +2,7 @@
 # Packager: Package builder <builder@famillegratton.net>
 
 pkgname=dtools
-pkgver=3.0.0
+pkgver=3.0.1
 pkgrel=1
 pkgdesc="Lightweight Docker/Podman client using the daemon REST API"
 arch=('x86_64')

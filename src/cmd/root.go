@@ -87,7 +87,7 @@ to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 			fmt.Println("Failed to initialize the backend: ", err.Error())
 			return
 		}
-		if autoDetect {
+		if autoDetect && !rest.QuietOutput {
 			fmt.Fprintf(os.Stderr, "Using backend: %s%s\n", b.Name(), picked)
 		} else if extras.Debug {
 			fmt.Printf("Using backend: %s\n", b.Name())
