@@ -56,6 +56,11 @@ install -Dpm 0755 %{_builddir}/%{name}-%{version}/%{_binaryname} %{buildroot}%{_
 
 
 %changelog
+* Mon Sep 21 2026 Binary package builder <builder@famillegratton.net> 3.1.1-1
+- enhancement: cosmetic tui change
+- Merge branch 'main' into develop
+- chore: update changelog for 3.1.0-1
+
 * Mon Sep 21 2026 Binary package builder <builder@famillegratton.net> 3.1.0-1
 - Merge branch 'develop'
 - backend selection output is now moved to backend active command
