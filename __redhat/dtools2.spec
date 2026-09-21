@@ -2,7 +2,7 @@
 %define _build_id_links none
 %define _name dtools
 %define _prefix /opt
-%define _version 3.0.2
+%define _version 3.1.0
 %define _rel 1
 %define _arch x86_64
 %define _binaryname dtools
@@ -56,6 +56,14 @@ install -Dpm 0755 %{_builddir}/%{name}-%{version}/%{_binaryname} %{buildroot}%{_
 
 
 %changelog
+* Mon Sep 21 2026 Binary package builder <builder@famillegratton.net> 3.0.2-1
+- Merge branch 'develop'
+- bug: backend detection probe and normal client now use different fast-fail http timeout values
+- chore: CHANGELOG update
+- chore: update changelog for 3.0.1-2
+- chore: version bump
+- chore: update changelog for 3.0.1-1
+
 * Mon Sep 21 2026 Binary package builder <builder@famillegratton.net> 3.0.1-2
 - chore: version bump
 

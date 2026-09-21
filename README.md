@@ -32,6 +32,7 @@ A lightweight Docker/Podman/containerd CLI client. Talks directly to the docker/
    - [env](#env)
    - [get](#get)
    - [system](#system)
+   - [backend](#backend)
    - [completion](#completion)
 7. [Output control](#output-control)
 8. [Blacklist feature](#blacklist-feature)
@@ -111,7 +112,9 @@ The blacklist is stored in `~/.config/JFG/dtools/blacklist.json`. See the [Black
 
 1. If `--runtime docker` or `--runtime podman` is given, the REST backend is used — no probing, no fallback.
 2. If `--runtime containerd` is given, the containerd backend is used directly. `-H`/`--host` is rejected in this mode (containerd is local-only).
-3. Otherwise (the default), `dtools` auto-detects: it tries the REST backend (docker/podman) first with a short connection timeout; if nothing answers, it falls back to the local containerd socket. Whichever backend is picked is reported on stderr (`Using backend: ...`), so the choice is never silent.
+3. Otherwise (the default), `dtools` auto-detects: it tries the REST backend (docker/podman) first with a short connection timeout; if nothing answers, it falls back to the local containerd socket.
+
+Resolving to docker/podman — whether via an explicit `--runtime` or via the expected auto-detect path — stays silent. A stderr notice (`Using backend: containerd (docker/podman unreachable, fell back to containerd)`) is only printed for the one case worth flagging: auto-detect falling back to containerd because nothing answered on docker/podman. To check which backend is active at any time — including for the silent, expected case — run `dtools backend active`.
 
 ```sh
 dtools --runtime containerd container lsc     # force containerd
@@ -689,6 +692,24 @@ dtools system SUBCOMMAND [flags]
 |---|---|---|---|
 | `--force` | `-f` | `false` | Force removal |
 | `--blacklist` | `-B` | `false` | Remove even if blacklisted |
+
+---
+
+### backend
+
+Inspect the container runtime backend `dtools` is using — see [Container runtimes](#container-runtimes) for how it's selected.
+
+```
+dtools backend SUBCOMMAND
+```
+
+| Subcommand | Description |
+|---|---|
+| `active` | Print the currently selected backend (`docker/podman` or `containerd`) |
+
+```sh
+dtools backend active
+```
 
 ---
 

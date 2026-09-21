@@ -94,10 +94,13 @@ to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 			fmt.Println("Failed to initialize the backend: ", err.Error())
 			return
 		}
-		if autoDetect && !rest.QuietOutput {
+		// Only announce the backend when something surprising happened
+		// (docker/podman was unreachable and we fell back to containerd).
+		// The expected case — explicit --runtime, or auto-detect resolving
+		// to docker/podman as usual — stays quiet; use `dtools backend
+		// active` to check which backend is in play on demand.
+		if picked != "" && !rest.QuietOutput {
 			fmt.Fprintf(os.Stderr, "Using backend: %s%s\n", b.Name(), picked)
-		} else if extras.Debug {
-			fmt.Printf("Using backend: %s\n", b.Name())
 		}
 		activeBackend = b
 		return
