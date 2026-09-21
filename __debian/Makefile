@@ -1,4 +1,4 @@
-# nxtools — Debian (.deb) packaging
+# dtools — Debian (.deb) packaging
 #
 # Recipes:
 #   make build     -> build the Go binary and assemble the .deb
@@ -37,14 +37,17 @@ DEB       := $(CURDIR)/$(STAGING).deb
 
 build:
 	rm -rf "$(STAGING)"
-	install -d "$(STAGING)/DEBIAN" "$(STAGING)/opt/bin"
+	install -d "$(STAGING)/DEBIAN" "$(STAGING)/opt/bin" "$(STAGING)/usr/share/doc/$(NAME)"
 	cp control postinst postrm "$(STAGING)/DEBIAN/"
+	# copyright is documentation, not a control file: policy puts it at
+	# /usr/share/doc/<package>/copyright, and it must be 0644 there.
+	install -m 0644 copyright "$(STAGING)/usr/share/doc/$(NAME)/copyright"
 	# Make aborts this recipe on the first failing line, so both of these
 	# fast-fail the package build; go test exits 0 for packages with no test
 	# files and only fails on an actual test failure.
-	cd $(SRCDIR) && /opt/go/bin/go vet ./...
-	cd $(SRCDIR) && /opt/go/bin/go test ./...
-	cd $(SRCDIR) && CGO_ENABLED=0 /opt/go/bin/go build -trimpath -ldflags="-s -w -buildid= -X dtools2/cmd.buildVersion=$(UPSTREAM_VERSION) -X dtools2/cmd.buildDate=$(BUILDDATE)" \
+	cd $(SRCDIR) && go vet ./...
+	cd $(SRCDIR) && go test ./...
+	cd $(SRCDIR) && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -buildid= -X dtools2/cmd.buildVersion=$(UPSTREAM_VERSION) -X dtools2/cmd.buildDate=$(BUILDDATE)" \
 	  -o "$(CURDIR)/$(STAGING)/opt/bin/$(BINARY)" .
 	sudo chown -R 0:0 "$(STAGING)/opt/bin/$(BINARY)"
 	dpkg-deb -b "$(STAGING)" "$(DEB)"

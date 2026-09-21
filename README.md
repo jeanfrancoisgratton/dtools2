@@ -2,7 +2,7 @@
 
 # dtools2
 
-A lightweight Docker/Podman CLI client that speaks directly to the daemon's REST API — no Docker CLI dependency, no wrapper scripts. Works over a local Unix socket or a remote TCP endpoint (plain or TLS).
+A lightweight Docker/Podman/containerd CLI client. Talks directly to the docker/podman daemon's REST API (no Docker CLI dependency, no wrapper scripts) over a local Unix socket or a remote TCP endpoint (plain or TLS), or to a local containerd daemon over its gRPC API.
 
 ---
 
@@ -15,8 +15,9 @@ A lightweight Docker/Podman CLI client that speaks directly to the daemon's REST
    - [TLS](#tls)
    - [Default registry](#default-registry)
    - [Blacklist file](#blacklist-file)
-4. [Global flags](#global-flags)
-5. [Commands](#commands)
+4. [Container runtimes](#container-runtimes)
+5. [Global flags](#global-flags)
+6. [Commands](#commands)
    - [container](#container)
    - [image](#image)
    - [volume](#volume)
@@ -32,20 +33,21 @@ A lightweight Docker/Podman CLI client that speaks directly to the daemon's REST
    - [get](#get)
    - [system](#system)
    - [completion](#completion)
-6. [Output control](#output-control)
-7. [Blacklist feature](#blacklist-feature)
-8. [License](#license)
+7. [Output control](#output-control)
+8. [Blacklist feature](#blacklist-feature)
+9. [License](#license)
 
 ---
 
 ## Overview
 
-`dtools` (binary name) is a single-binary replacement for the Docker CLI for day-to-day container management. It is written in Go and targets both Docker and Podman daemons through their shared REST API.
+`dtools` (binary name) is a single-binary replacement for the Docker CLI for day-to-day container management. It is written in Go and targets Docker and Podman daemons through their shared REST API, and containerd through its native gRPC API — see [Container runtimes](#container-runtimes) for what's supported on each.
 
 Key properties:
 
-- Talks to the daemon directly via HTTP over a Unix socket or TCP — no Docker SDK client library in the critical path.
-- API version is auto-negotiated with the daemon at startup; you can pin it with `--api-version`.
+- Talks to the docker/podman daemon directly via HTTP over a Unix socket or TCP — no Docker SDK client library in the critical path — or to containerd directly over its local gRPC socket.
+- The runtime backend is auto-detected by default: docker/podman is tried first, and dtools falls back to a local containerd only if no docker/podman daemon answers. Force a specific one with `--runtime`.
+- API version is auto-negotiated with the docker/podman daemon at startup; you can pin it with `--api-version`.
 - Credentials are stored in the standard `~/.docker/config.json` file, compatible with existing tooling.
 - A per-user configuration directory is created at `~/.config/JFG/dtools/` on first run.
 - A **blacklist** mechanism protects named resources from bulk removal operations.
@@ -79,6 +81,8 @@ By default `dtools` connects to `unix:///var/run/docker.sock`. Override with:
 
 Supported URI schemes: `unix://`, `tcp://`, `https://`.
 
+`--host` / `-H` only applies to the docker/podman backend — containerd is local-only and has no remote-host equivalent, so `-H` is rejected outright when `--runtime containerd` is set explicitly. See [Container runtimes](#container-runtimes).
+
 ### TLS
 
 When connecting over TCP with `--tls` / `-T`, the following flags apply:
@@ -101,21 +105,80 @@ The blacklist is stored in `~/.config/JFG/dtools/blacklist.json`. See the [Black
 
 ---
 
+## Container runtimes
+
+`dtools` talks to one of three backends: **docker**, **podman** (both via the shared REST API) or **containerd** (via its local gRPC API). Which one is used is resolved once per invocation, in this order:
+
+1. If `--runtime docker` or `--runtime podman` is given, the REST backend is used — no probing, no fallback.
+2. If `--runtime containerd` is given, the containerd backend is used directly. `-H`/`--host` is rejected in this mode (containerd is local-only).
+3. Otherwise (the default), `dtools` auto-detects: it tries the REST backend (docker/podman) first with a short connection timeout; if nothing answers, it falls back to the local containerd socket. Whichever backend is picked is reported on stderr (`Using backend: ...`), so the choice is never silent.
+
+```sh
+dtools --runtime containerd container lsc     # force containerd
+dtools --runtime docker container lsc         # force docker/podman, no fallback
+dtools container lsc                          # auto: docker/podman, else containerd
+```
+
+### containerd-specific flags
+
+| Flag | Short | Default | Description |
+|---|---|---|---|
+| `--containerd-socket` | | `/run/containerd/containerd.sock` | containerd gRPC socket path |
+| `--namespace` | `-N` | `default` | containerd namespace to operate in |
+| `--all-namespaces` | `-A` | `false` | List across every namespace instead of just `--namespace` (list commands only — see below) |
+
+containerd is namespaced, and a real-world install rarely uses the `default` namespace alone — for example, a Kubernetes node's kubelet manages every pod's containers and images through the CRI plugin under the `k8s.io` namespace, not `default`. Point `--namespace` at the right one, e.g.:
+
+```sh
+dtools --runtime containerd --namespace k8s.io container lsc
+dtools --runtime containerd -A image lsi          # every namespace, with a NAMESPACE column
+```
+
+`--all-namespaces` only changes **list** operations (`container lsc`, `image lsi`). Lifecycle and prune operations (`start`, `stop`, `rmc`, `system rms`, `system clean`, etc.) always stay scoped to the single `--namespace` value, even when `-A` is set — sweeping every namespace on the daemon from what's meant to be a targeted or cleanup command would be a surprising blast radius.
+
+### Capability matrix
+
+Not every command has a containerd equivalent. Commands not listed here (`container`, `image`, `system`) work the same way on all three backends.
+
+| Command | docker / podman | containerd |
+|---|---|---|
+| `network` | ✅ | ❌ not supported — containerd has no native network store (that's CNI's job) |
+| `volume` | ✅ | ❌ not supported — containerd has no native named-volume store |
+| `run` | ✅ | ❌ not supported — containers must already exist; containerd support is list/inspect/lifecycle only, not creation |
+| `build` | ✅ | ❌ not supported — containerd has no build primitive of its own |
+| `exec` | ✅ | ❌ not supported |
+| `logs` | ✅ | ❌ not supported |
+| `attach` | ✅ | ❌ not supported |
+| `cp` | ✅ | ❌ not supported — would need a different, snapshot-mount-based mechanism |
+| `image load` / `save` / `commit` | ✅ | ❌ not supported — docker archive format doesn't map to containerd's content store |
+| `container rename` | ✅ | ❌ not supported — a containerd container's ID is its immutable identity |
+
+Unsupported commands print `"<command>" is not supported by the "containerd" backend` instead of failing silently or half-working.
+
+> **Caution on Kubernetes nodes:** containers under `k8s.io` are managed by kubelet. Stopping, killing, or removing one directly through `dtools` fights the reconciler — kubelet will typically restart or recreate it per the pod's restart policy shortly after, the same way a manual `docker kill` would on a Kubernetes node running the Docker Engine. Treat `dtools` on a live K8s node as an inspection tool (list/inspect), not a substitute for `kubectl`.
+
+---
+
 ## Global flags
 
 These flags apply to every subcommand.
 
 | Flag | Short | Default | Description |
 |---|---|---|---|
-| `--host` | `-H` | `""` (uses `DOCKER_HOST` or the default socket) | Daemon endpoint (`unix://…`, `tcp://…`) |
-| `--api-version` | `-A` | `""` (auto-negotiate) | Docker API version to use (e.g. `1.43`) |
+| `--host` | `-H` | `""` (uses `DOCKER_HOST` or the default socket) | Daemon endpoint (`unix://…`, `tcp://…`); docker/podman only, see [Container runtimes](#container-runtimes) |
+| `--runtime` | | `""` (auto) | Backend to use: `""`, `docker`, `podman`, or `containerd` |
+| `--api-version` | `-V` | `""` (auto-negotiate) | Docker API version to use (e.g. `1.43`) |
+| `--containerd-socket` | | `/run/containerd/containerd.sock` | containerd gRPC socket path |
+| `--namespace` | `-N` | `default` | containerd namespace to operate in |
+| `--all-namespaces` | `-A` | `false` | containerd: list across every namespace (list commands only) |
 | `--tls` | `-T` | `false` | Enable TLS for TCP connections |
 | `--debug` | `-D` | `false` | Print debug output to stderr |
 | `--json` | | `false` | Output JSON instead of formatted tables |
 | `--quiet` | `-q` | `false` | Suppress informational output |
 | `--fast-fail` | | `30` | HTTP fast-fail timeout in seconds (dial/TLS handshake/headers) |
 | `--session-timeout` | | `30` | HTTP session timeout in minutes for long operations (pull/build/cp/save/load); `0` disables it |
-| `--version` | `-V` | | Print version and exit |
+
+To print the version, use the `dtools version` subcommand (there is no longer a bare `-V`/`--version` flag — `-V` is now `--api-version`).
 
 ---
 
@@ -126,6 +189,8 @@ All subcommands can be invoked directly at the root level **or** under their gro
 ---
 
 ### container
+
+> **containerd:** list/inspect/lifecycle (`lsc`, `inspect`, `start`, `stop`, `kill`, `pause`, `unpause`, `rmc`, etc.) are supported. `attach` and `rename` are not — see [Container runtimes](#container-runtimes).
 
 Manage containers.
 
@@ -185,6 +250,8 @@ dtools container SUBCOMMAND [flags]
 
 ### image
 
+> **containerd:** `lsi`, `pull`, `push`, `tag`, `rmi`, `inspect` are supported. `load`, `save`, and `commit` are not — see [Container runtimes](#container-runtimes).
+
 Manage images.
 
 ```
@@ -235,6 +302,8 @@ dtools image SUBCOMMAND [flags]
 
 ### volume
 
+> **containerd:** not supported — see [Container runtimes](#container-runtimes).
+
 Manage volumes. Group alias: `vol`.
 
 ```
@@ -279,6 +348,8 @@ dtools volume SUBCOMMAND [flags]
 ---
 
 ### network
+
+> **containerd:** not supported — see [Container runtimes](#container-runtimes).
 
 Manage networks. Group alias: `net`.
 
@@ -327,6 +398,8 @@ dtools network SUBCOMMAND [flags]
 
 ### run
 
+> **containerd:** not supported — see [Container runtimes](#container-runtimes).
+
 Run a command in a new container.
 
 ```
@@ -370,6 +443,8 @@ dtools run --rm alpine:latest sh -c 'echo hi'   # -c goes to sh, not dtools
 
 ### build
 
+> **containerd:** not supported — see [Container runtimes](#container-runtimes).
+
 Build an image from a Dockerfile.
 
 The builder backend is auto-negotiated with the daemon: modern Docker Engines use **BuildKit** (with live progress output), while older daemons and **Podman** use the classic streaming builder. Force a backend with `DOCKER_BUILDKIT=1` / `DOCKER_BUILDKIT=0`. Registry credentials for private base images are read from `~/.docker/config.json` (honouring credential helpers) for both backends.
@@ -402,6 +477,8 @@ dtools build -t myimg:latest -f Dockerfile.prod --no-cache .
 
 ### exec
 
+> **containerd:** not supported — see [Container runtimes](#container-runtimes).
+
 Run a command in a running container.
 
 ```
@@ -425,6 +502,8 @@ The process exit code is propagated to the caller.
 
 ### logs
 
+> **containerd:** not supported — see [Container runtimes](#container-runtimes).
+
 Fetch the logs of a container.
 
 ```
@@ -447,6 +526,8 @@ Alias: `log`.
 ---
 
 ### cp
+
+> **containerd:** not supported — see [Container runtimes](#container-runtimes).
 
 Copy a file between the host and a container. Use `container:path` notation for the container side.
 
