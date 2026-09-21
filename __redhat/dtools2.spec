@@ -56,6 +56,19 @@ install -Dpm 0755 %{_builddir}/%{name}-%{version}/%{_binaryname} %{buildroot}%{_
 
 
 %changelog
+* Mon Sep 21 2026 Binary package builder <builder@famillegratton.net> 3.0.0-1
+- chore: version bump
+- feature: added containerd support as second-class citizen, namespace support for K8S
+- enhancement: doc update, fixes to dynamic version numbering
+- enhancement: version numbering now dynamic, builddeps updates, go version bump
+- Merge remote-tracking branch 'refs/remotes/origin/develop' into develop
+- enhancement: cosmetic UI
+- chore: update changelog for 2.8.0-2
+- removed file from gitignore
+- RPMBUILDER: record the RPM changelog on develop instead of main
+- Merge remote-tracking branch 'refs/remotes/origin/main'
+- Doc update
+
 * Sun Aug 16 2026 Binary package builder <builder@famillegratton.net> 2.8.0-2
 - removed file from gitignore
 - RPMBUILDER: record the RPM changelog on develop instead of main
