@@ -56,6 +56,12 @@ install -Dpm 0755 %{_builddir}/%{name}-%{version}/%{_binaryname} %{buildroot}%{_
 
 
 %changelog
+* Sun Oct 11 2026 Binary package builder <builder@famillegratton.net> 3.1.1-2
+- chore: GO version upgrade, BUILDERS: target upload repo name change
+- ALPINEBUILDER: repo url fix
+- Chore: forgotten CHANGELOG file
+- chore: update changelog for 3.1.1-1
+
 * Mon Sep 21 2026 Binary package builder <builder@famillegratton.net> 3.1.1-1
 - enhancement: cosmetic tui change
 - Merge branch 'main' into develop
