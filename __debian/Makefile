@@ -28,7 +28,7 @@ BINARY    := $(NAME)
 UPSTREAM_VERSION := $(shell echo $(VERSION) | sed 's/-[^-]*$$//')
 BUILDDATE         := $(shell date +%Y.%m.%d)
 
-NEXUSREPO := aptLocal
+NEXUSREPO := debian
 SRCDIR    := ../src
 STAGING   := $(NAME)-$(VERSION)_$(ARCH)
 DEB       := $(CURDIR)/$(STAGING).deb
