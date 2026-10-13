@@ -38,12 +38,14 @@ PKG       := $(PKGDEST)/$(NAME)-$(VERSION)-$(PKGREL)-$(ARCH).$(PKGEXT)
 .PHONY: build release clean info
 
 build:
-	sudo rm -rf src pkg
+	chmod -R u+w src pkg 2>/dev/null || true
+	rm -rf src pkg
 	PKGDEST=$(PKGDEST) makepkg --force --syncdeps --noconfirm
 
 release: build
 	# --- refresh the Arch repo database with the freshly built package ---
-	sudo rm -rf $(STAGING); mkdir -p $(STAGING)
+	chmod -R u+w src pkg 2>/dev/null || true
+	rm -rf $(STAGING); mkdir -p $(STAGING)
 	cp $(PKG) $(STAGING)/
 	cd $(STAGING) && \
 	  $(NXTOOLS) download $(NEXUSURL)/$(REPONAME).db.tar.zst && \
@@ -57,11 +59,12 @@ release: build
 	cd $(STAGING) && for f in files files.tar.zst db db.tar.zst; do \
 	  $(NXTOOLS) upload $(NEXUSREPO) $(REPONAME).$$f; \
 	done
-	sudo rm -rf $(STAGING)
+	rm -rf $(STAGING)
 	${MAKE} clean
 
 clean:
-	sudo rm -rf src pkg
+	chmod -R u+w src pkg 2>/dev/null || true
+	rm -rf src pkg
 
 info:
 	@echo "NAME    = $(NAME)"
