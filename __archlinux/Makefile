@@ -1,4 +1,4 @@
-# dtools — Arch Linux (pacman) packaging
+# dtools2 — Arch Linux (pacman) packaging
 #
 # Recipes:
 #   make build     -> makepkg (build the package into PKGDEST)
@@ -38,12 +38,12 @@ PKG       := $(PKGDEST)/$(NAME)-$(VERSION)-$(PKGREL)-$(ARCH).$(PKGEXT)
 .PHONY: build release clean info
 
 build:
-	rm -rf src pkg
+	sudo rm -rf src pkg
 	PKGDEST=$(PKGDEST) makepkg --force --syncdeps --noconfirm
 
 release: build
 	# --- refresh the Arch repo database with the freshly built package ---
-	rm -rf $(STAGING); mkdir -p $(STAGING)
+	sudo rm -rf $(STAGING); mkdir -p $(STAGING)
 	cp $(PKG) $(STAGING)/
 	cd $(STAGING) && \
 	  $(NXTOOLS) download $(NEXUSURL)/$(REPONAME).db.tar.zst && \
@@ -57,11 +57,11 @@ release: build
 	cd $(STAGING) && for f in files files.tar.zst db db.tar.zst; do \
 	  $(NXTOOLS) upload $(NEXUSREPO) $(REPONAME).$$f; \
 	done
-	rm -rf $(STAGING)
+	sudo rm -rf $(STAGING)
 	${MAKE} clean
 
 clean:
-	rm -rf src pkg
+	sudo rm -rf src pkg
 
 info:
 	@echo "NAME    = $(NAME)"
