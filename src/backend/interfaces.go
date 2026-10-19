@@ -82,6 +82,8 @@ type VolumeService interface {
 	Prune() *ce.CustomError
 	Create(volumeName string) *ce.CustomError
 	Inspect(volumeName string) *ce.CustomError
+	Backup(volumeName, archivePath string) *ce.CustomError
+	Restore(volumeName, archivePath string) *ce.CustomError
 }
 
 type SystemService interface {

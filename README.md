@@ -320,6 +320,8 @@ dtools volume SUBCOMMAND [flags]
 | `rmv VOLUME…` | | Remove one or more volumes |
 | `prune` | | Remove unused volumes |
 | `inspect VOLUME` | `inspv` | Display detailed inspect output |
+| `backup VOLUME ARCHIVE` | | Back up a volume into a tarball |
+| `restore VOLUME ARCHIVE` | | Restore a volume from a tarball |
 
 #### `lsv` flags
 
@@ -347,6 +349,29 @@ dtools volume SUBCOMMAND [flags]
 |---|---|---|---|
 | `--all` | `-a` | `true` | Remove both anonymous and named volumes |
 | `--blacklist` | `-B` | `false` | Remove even if blacklisted |
+
+#### `backup` / `restore`
+
+```sh
+dtools volume backup pgdata pgdata.tar.gz
+dtools volume restore pgdata pgdata.tar.gz
+```
+
+The volume is attached to a temporary container (`alpine:latest` by default, pulled if missing) mounted at `/data`, and the archive is transferred through the daemon's container archive API. This works the same against a local or a remote daemon: the archive always lives on the machine running `dtools`.
+
+- **Compression** follows the archive name: `.tar` (raw), `.gz`/`.tgz` (gzip), `.xz`/`.txz` (xz). A name with none of these suffixes gets `.tar` appended.
+- **Archive layout:** entries are rooted at `data/` (e.g. `data/pg_data/...`); `restore` expects that same layout.
+- **Attached containers:** running containers using the volume are stopped for the duration of the operation, then restarted.
+- **Restore is destructive:** the volume is deleted and re-created, so its previous content is replaced, not merged. If the volume is still referenced by (stopped) containers, the daemon refuses its deletion and its content is wiped instead.
+- **Blacklisted volumes** are restored anyway, with a warning: a restore replaces the data rather than disposing of it.
+- **On failure:** `backup` removes the temporary container and any partial archive, then restarts the stopped containers. `restore` does the same if the failure happens before the volume is reset; past that point, the volume might be empty or partially restored, so the containers are deliberately **left stopped** and listed in a warning.
+
+| Flag | Short | Default | Description |
+|---|---|---|---|
+| `--image IMAGE` | `-i` | `alpine:latest` | Image used for the temporary container |
+| `--no-cleanup` | `-n` | `false` | Do not remove the temporary container afterwards |
+
+Timeouts are the global `--fast-fail` and `--session-timeout` flags; raise the latter for very large volumes.
 
 ---
 
@@ -749,6 +774,8 @@ The blacklist protects named resources (containers, images, volumes, networks) f
 Blacklisted resources are stored by name in `~/.config/JFG/dtools/blacklist.json`. The file is created automatically on first use.
 
 A blacklisted resource **will not** be removed by any bulk command unless the `--blacklist` / `-B` flag is explicitly passed. Targeted removal commands (`rmc`, `rmi`, `rmv`, `rmn`) also respect the blacklist by default.
+
+`volume restore` is the exception: it deletes and re-creates the volume only to obtain a clean target for the restored data, so a blacklisted volume is restored anyway, with a warning.
 
 ```sh
 # Protect a volume and a container

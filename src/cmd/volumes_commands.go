@@ -121,7 +121,7 @@ var volumeCreateCmd = &cobra.Command{
 
 var volumeInspectCmd = &cobra.Command{
 	Use:     "inspect VOLUME",
-	Aliases: []string{"inspv"},
+	Aliases: []string{"insv"},
 	Example: "dtools insv my-volume",
 	Short:   "Display detailed information about a volume",
 	Args:    cobra.ExactArgs(1),
@@ -144,9 +144,64 @@ var volumeInspectCmd = &cobra.Command{
 	},
 }
 
+var volumeBackupCmd = &cobra.Command{
+	Use:     "backup <volume> <archive.tar[.gz]>",
+	Example: "dtools volume backup my-volume my-volume.tar.gz",
+	Short:   "Backup a volume into a tarball",
+	Args:    cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
+			return
+		}
+		svc, ok := activeBackend.Volumes()
+		if !ok {
+			notSupportedByBackend("volume backup")
+			return
+		}
+
+		rest.Context = cmd.Context()
+		if err := svc.Backup(args[0], args[1]); err != nil {
+			fmt.Println(err)
+		}
+		return
+	},
+}
+
+var volumeRestoreCmd = &cobra.Command{
+	Use:     "restore <volume> <archive.tar[.{g|x}z]>",
+	Example: "dtools volume restore my-volume my-volume.tar.gz",
+	Short:   "Restore a volume from a tarball",
+	Long: `Restore a volume from a tarball.
+		The volume is destroyed and re-created before the restore.`,
+	Args: cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		if activeBackend == nil {
+			fmt.Println("Backend not initialized")
+			return
+		}
+		svc, ok := activeBackend.Volumes()
+		if !ok {
+			notSupportedByBackend("volume restore")
+			return
+		}
+
+		rest.Context = cmd.Context()
+		if err := svc.Restore(args[0], args[1]); err != nil {
+			fmt.Println(err)
+		}
+		return
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(volumeCmd, volumeListCmd, volumeRmCmd, volumeInspectCmd, volumePruneCmd)
-	volumeCmd.AddCommand(volumeListCmd, volumeRmCmd, volumePruneCmd, volumeCreateCmd, volumeInspectCmd)
+	volumeCmd.AddCommand(volumeListCmd, volumeRmCmd, volumePruneCmd, volumeCreateCmd, volumeInspectCmd, volumeBackupCmd, volumeRestoreCmd)
+
+	for _, c := range []*cobra.Command{volumeBackupCmd, volumeRestoreCmd} {
+		c.Flags().StringVarP(&volumes.BackupImage, "image", "i", volumes.BackupImage, "image used for the temp container")
+		c.Flags().BoolVarP(&volumes.NoCleanup, "no-cleanup", "n", false, "do not remove the temp container")
+	}
 
 	volumePruneCmd.Flags().BoolVarP(&volumes.RemoveBlackListed, "blacklist", "B", false, "remove volume even if blacklisted")
 	volumePruneCmd.Flags().BoolVarP(&volumes.RemoveNamedVolumes, "all", "a", true, "remove anonymous AND non-anonymous volumes")

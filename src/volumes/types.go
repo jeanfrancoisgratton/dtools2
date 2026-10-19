@@ -10,6 +10,10 @@ var ForceRemove = false
 var RemoveNamedVolumes = false
 var CreateVolDriver = "local"
 
+// Backup/restore flags
+var BackupImage = "alpine:latest" // image used for the temp container the volume gets attached to
+var NoCleanup = false             // do not remove the temp container after backup/restore
+
 type VolumeListResponse struct {
 	Volumes  []Volume `json:"Volumes"`
 	Warnings []string `json:"Warnings"`

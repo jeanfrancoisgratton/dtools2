@@ -33,3 +33,11 @@ func (s volumeService) Inspect(volumeName string) *ce.CustomError {
 	_, err := volumes.InspectVolume(s.client, volumeName)
 	return err
 }
+
+func (s volumeService) Backup(volumeName, archivePath string) *ce.CustomError {
+	return volumes.BackupVolume(s.client, volumeName, archivePath)
+}
+
+func (s volumeService) Restore(volumeName, archivePath string) *ce.CustomError {
+	return volumes.RestoreVolume(s.client, volumeName, archivePath)
+}
