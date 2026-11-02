@@ -44,10 +44,11 @@ func PruneVolumes(client *rest.Client) *ce.CustomError {
 	}
 	rq := rest.QuietOutput
 	rest.QuietOutput = true
-	if err = RemoveVolumes(client, candidates); err != nil {
+	err = RemoveVolumes(client, candidates)
+	rest.QuietOutput = rq
+	if err != nil {
 		return err
 	}
-	rest.QuietOutput = rq
 
 	if !rest.QuietOutput {
 		fmt.Println(hftx.EnabledSign("Volumes pruned"))

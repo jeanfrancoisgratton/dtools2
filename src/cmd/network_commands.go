@@ -10,7 +10,6 @@ import (
 	"dtools2/extras"
 	"dtools2/networks"
 	"dtools2/rest"
-	"fmt"
 
 	"github.com/spf13/cobra"
 )
@@ -27,7 +26,7 @@ var networkListCmd = &cobra.Command{
 	Short: "List networks",
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		svc, ok := activeBackend.Networks()
@@ -38,7 +37,7 @@ var networkListCmd = &cobra.Command{
 
 		rest.Context = cmd.Context()
 		if err := svc.List(true); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -54,7 +53,7 @@ var networkCreateCmd = &cobra.Command{
 	Example: "dtools net create NETWORK_NAME [flags]",
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		svc, ok := activeBackend.Networks()
@@ -65,7 +64,7 @@ var networkCreateCmd = &cobra.Command{
 
 		rest.Context = cmd.Context()
 		if err := svc.Add(args[0]); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -78,7 +77,7 @@ var networkRmCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		svc, ok := activeBackend.Networks()
@@ -89,7 +88,7 @@ var networkRmCmd = &cobra.Command{
 
 		rest.Context = cmd.Context()
 		if err := svc.Remove(args); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -103,7 +102,7 @@ var networkAttachCmd = &cobra.Command{
 	Args:    cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		svc, ok := activeBackend.Networks()
@@ -114,7 +113,7 @@ var networkAttachCmd = &cobra.Command{
 
 		rest.Context = cmd.Context()
 		if err := svc.Attach(args[0], args[1]); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -128,7 +127,7 @@ var networkDetachCmd = &cobra.Command{
 	Args:    cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		svc, ok := activeBackend.Networks()
@@ -139,7 +138,7 @@ var networkDetachCmd = &cobra.Command{
 
 		rest.Context = cmd.Context()
 		if err := svc.Detach(args[0], args[1]); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -148,12 +147,12 @@ var networkDetachCmd = &cobra.Command{
 var networkInspectCmd = &cobra.Command{
 	Use:     "inspect NETWORK",
 	Aliases: []string{"inspn"},
-	Example: "dtools insn my-network",
+	Example: "dtools inspn my-network",
 	Short:   "Display detailed information about a network",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		svc, ok := activeBackend.Networks()
@@ -164,14 +163,14 @@ var networkInspectCmd = &cobra.Command{
 
 		rest.Context = cmd.Context()
 		if err := svc.Inspect(args[0]); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(networkCmd, networkListCmd, networkRmCmd, networkInspectCmd)
+	rootCmd.AddCommand(networkCmd, networkListCmd, networkRmCmd, rootShortcut("inspn", networkInspectCmd))
 	networkCmd.AddCommand(networkListCmd, networkCreateCmd, networkRmCmd, networkAttachCmd, networkDetachCmd, networkInspectCmd)
 
 	networkDetachCmd.Flags().BoolVarP(&networks.ForceNetworkDetach, "force", "f", false, "force-detach the network from the container")

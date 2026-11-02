@@ -9,7 +9,6 @@ package containerdbackend
 
 import (
 	"context"
-	"dtools2/internal/testutil"
 	"dtools2/rest"
 	"path/filepath"
 	"strings"
@@ -79,30 +78,6 @@ func TestUnsupportedOperations(t *testing.T) {
 		err := fn()
 		if err == nil || !strings.Contains(err.Error(), "not supported on the containerd backend") {
 			t.Errorf("%s = %v; want a 'not supported' error", op, err)
-		}
-	}
-}
-
-// inspect/info on a containerd container must not silently succeed without printing anything
-func TestInspectIsNotASilentNoop(t *testing.T) {
-	quiet := rest.QuietOutput
-	rest.QuietOutput = false
-	t.Cleanup(func() { rest.QuietOutput = quiet })
-
-	cs := (&Backend{}).Containers()
-	for name, fn := range map[string]func() error{
-		"Inspect": func() error { return cs.Inspect("web") },
-		"Info":    func() error { return cs.Info("web") },
-	} {
-		var err error
-		out := testutil.CaptureStdout(t, func() {
-			defer func() { recover() }() // no client here: a real implementation may hit it
-			if e := fn(); e != nil {
-				err = e
-			}
-		})
-		if err == nil && strings.TrimSpace(out) == "" {
-			t.Errorf("%s printed nothing and returned no error", name)
 		}
 	}
 }

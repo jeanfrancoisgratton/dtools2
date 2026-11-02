@@ -35,9 +35,9 @@ func ImageLoad(client *rest.Client, tarball string) *ce.CustomError {
 	headers := http.Header{}
 	headers.Set("Content-Type", "application/x-tar")
 
-	resp, derr := client.Do(rest.Context, http.MethodGet, "/images/get", q, nil, nil)
+	resp, derr := client.Do(rest.Context, http.MethodPost, "/images/load", q, r, headers)
 	if derr != nil {
-		return &ce.CustomError{Title: "Error fetching images list", Message: derr.Error()}
+		return &ce.CustomError{Title: "Error uploading the image archive", Message: derr.Error()}
 	}
 	defer resp.Body.Close()
 

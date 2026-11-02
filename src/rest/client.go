@@ -15,8 +15,6 @@ import (
 	"os"
 	"strings"
 	"time"
-
-	hftx "github.com/jeanfrancoisgratton/helperFunctions/v5/terminalfx"
 )
 
 // NewClient builds a Client from Config.
@@ -36,9 +34,6 @@ func NewClient(cfg Config) (*Client, error) {
 	// Allow bare host[:port] (e.g. "vps:2475") and treat it as tcp://.
 	if !isUnix && !strings.Contains(host, "://") {
 		host = "tcp://" + host
-	}
-	if !QuietOutput && ConnectURI != "" {
-		fmt.Println(fmt.Sprintf("%s: %s\n", hftx.InfoSign("Connected to"), hftx.Blue(host)))
 	}
 
 	fastFail := cfg.FastFailTimeout

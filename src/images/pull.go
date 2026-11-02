@@ -12,6 +12,7 @@ package images
 import (
 	"dtools2/auth"
 	"dtools2/rest"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -61,11 +62,14 @@ func Pull(client *rest.Client, opts PullOptions, out io.Writer) error {
 	headers := http.Header{}
 
 	if opts.Registry != "" {
+		// No stored login: pull anonymously (public images), like docker does
 		h, err := auth.BuildRegistryAuthHeader(opts.Registry)
-		if err != nil {
+		switch {
+		case err == nil:
+			headers.Set("X-Registry-Auth", h)
+		case !errors.Is(err, auth.ErrNoCredentials):
 			return fmt.Errorf("building auth header for registry %q: %w", opts.Registry, err)
 		}
-		headers.Set("X-Registry-Auth", h)
 	}
 
 	resp, err := client.Do(rest.Context, http.MethodPost, "/images/create", q, nil, headers)

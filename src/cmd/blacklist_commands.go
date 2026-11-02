@@ -51,7 +51,7 @@ var blListCmd = &cobra.Command{
 			}
 		}
 		if err != nil {
-			fmt.Println(err.Error())
+			reportError(err)
 			return
 		}
 	},
@@ -64,7 +64,7 @@ var blAddCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := blacklist.AddResource(args[0], args[1:]); err != nil {
-			fmt.Println(err.Error())
+			reportError(err)
 			return
 		}
 	},
@@ -77,7 +77,7 @@ var blRemoveCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if _, err := blacklist.DeleteResource(args[0], args[1:]); err != nil {
-			fmt.Println(err.Error())
+			reportError(err)
 			return
 		}
 	},

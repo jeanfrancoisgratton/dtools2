@@ -241,6 +241,11 @@ func getPathValue(v reflect.Value, path []string) (reflect.Value, bool) {
 		switch cur.Kind() {
 		case reflect.Struct:
 			fv, ok := findStructFieldByNameOrJSON(cur, seg)
+			if !ok && strings.EqualFold(seg, "Name") {
+				// Containers only have "Names" (docker's --format {{.Name}} still works on them);
+				// valueToString then renders the first name without its leading slash
+				fv, ok = findStructFieldByNameOrJSON(cur, "Names")
+			}
 			if !ok {
 				return reflect.Value{}, false
 			}

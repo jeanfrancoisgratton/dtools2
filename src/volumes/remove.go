@@ -30,9 +30,9 @@ func RemoveVolumes(client *rest.Client, volList []string) *ce.CustomError {
 			if RemoveBlackListed {
 				if !rest.QuietOutput {
 					fmt.Println(hftx.InfoSign("Force removal flag is present, continuing"))
-					if err := removeVol(client, vol); err != nil {
-						return err
-					}
+				}
+				if err := removeVol(client, vol); err != nil {
+					return err
 				}
 			} else {
 				if !rest.QuietOutput {

@@ -27,7 +27,7 @@ var rootCmd = &cobra.Command{
 	Long: `dtools is a lightweight Docker/Podman client that talks directly
 to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		if activeBackend != nil {
+		if activeBackend != nil || !needsBackend(cmd) {
 			return
 		}
 
@@ -35,12 +35,12 @@ to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 		case "", "docker", "podman", "containerd":
 			// valid
 		default:
-			fmt.Printf("Unknown --runtime %q: must be one of \"\" (auto), \"docker\", \"podman\", \"containerd\"\n", Runtime)
+			reportError(fmt.Sprintf("Unknown --runtime %q: must be one of \"\" (auto), \"docker\", \"podman\", \"containerd\"", Runtime))
 			return
 		}
 
 		if Runtime == "containerd" && cmd.Flags().Changed("host") {
-			fmt.Println("--host/-H is not supported with --runtime=containerd: containerd is local-only")
+			reportError("--host/-H is not supported with --runtime=containerd: containerd is local-only")
 			return
 		}
 
@@ -91,8 +91,11 @@ to the daemon's REST API (local Unix socket or remote TCP, with optional TLS).`,
 		}
 
 		if err != nil {
-			fmt.Println("Failed to initialize the backend: ", err.Error())
+			reportError("Failed to initialize the backend: " + err.Error())
 			return
+		}
+		if rest.ConnectURI != "" && !rest.QuietOutput {
+			fmt.Printf("%s: %s\n\n", hftx.InfoSign("Connected to"), hftx.Blue(rest.ConnectURI))
 		}
 		// Only announce the backend when something surprising happened
 		// (docker/podman was unreachable and we fell back to containerd).
@@ -133,8 +136,62 @@ var versionCmd = &cobra.Command{
 
 func Execute() {
 	err := rootCmd.Execute()
-	if err != nil {
+	if err != nil || commandFailed {
 		os.Exit(1)
+	}
+}
+
+// commandFailed is set by reportError, so that a failed command makes dtools exit non-zero
+// (like docker), even though the commands themselves only print their errors
+var commandFailed bool
+
+// reportError prints a command's error and records the failure for the exit code
+func reportError(err any) {
+	fmt.Println(err)
+	commandFailed = true
+}
+
+// noBackendAnnotation marks commands (and their subcommands) that never talk to the daemon,
+// so that no backend is initialized (nor probed) for them
+const noBackendAnnotation = "dtools/noBackend"
+
+func needsBackend(cmd *cobra.Command) bool {
+	for c := cmd; c != nil; c = c.Parent() {
+		if _, ok := c.Annotations[noBackendAnnotation]; ok {
+			return false
+		}
+	}
+	return true
+}
+
+// rootShortcut returns a root-level copy of a group subcommand under another name, e.g.
+// `dtools inspv` for `dtools volume inspect`. Registering the subcommand itself at the root would
+// make several commands share one name there ("inspect" for containers, volumes, networks and
+// images), and cobra would pick one of them arbitrarily. Only for subcommands without local flags.
+func rootShortcut(name string, c *cobra.Command) *cobra.Command {
+	var aliases []string
+	for _, a := range c.Aliases {
+		if a != name {
+			aliases = append(aliases, a)
+		}
+	}
+	return &cobra.Command{
+		Use:     name + strings.TrimPrefix(c.Use, c.Name()),
+		Aliases: aliases,
+		Short:   c.Short,
+		Long:    c.Long,
+		Example: c.Example,
+		Args:    c.Args,
+		Run:     c.Run,
+	}
+}
+
+func markNoBackend(cmds ...*cobra.Command) {
+	for _, c := range cmds {
+		if c.Annotations == nil {
+			c.Annotations = map[string]string{}
+		}
+		c.Annotations[noBackendAnnotation] = "true"
 	}
 }
 
@@ -143,6 +200,10 @@ func init() {
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 
 	rootCmd.AddCommand(completionCmd, blListCmd, versionCmd)
+
+	// These only touch local files or a registry, never the daemon
+	markNoBackend(versionCmd, completionCmd, completionBashCmd, completionZshCmd, loginCmd,
+		blCmd, blListCmd, blAddCmd, blRemoveCmd, envCmd, envAddCmd, envRemoveCmd, getCmd, getCatalogCmd, getTagsCmd)
 
 	// Global flags.
 	rootCmd.PersistentFlags().BoolVarP(&extras.Debug, "debug", "D", false, "Enable debug output on stderr")

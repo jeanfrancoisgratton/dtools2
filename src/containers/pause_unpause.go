@@ -26,7 +26,7 @@ func PauseContainer(client *rest.Client, containers []string) *ce.CustomError {
 		if id, cerr = Name2ID(client, container); cerr != nil {
 			return cerr
 		}
-		path := "/containers/{" + id + "}/pause"
+		path := "/containers/" + id + "/pause"
 
 		resp, err := client.Do(rest.Context, http.MethodPost, path, q, nil, nil)
 		if err != nil {
@@ -54,7 +54,7 @@ func UnpauseContainer(client *rest.Client, containers []string) *ce.CustomError 
 		if id, cerr = Name2ID(client, container); cerr != nil {
 			return cerr
 		}
-		path := "/containers/{" + id + "}/unpause"
+		path := "/containers/" + id + "/unpause"
 
 		resp, err := client.Do(rest.Context, http.MethodPost, path, url.Values{}, nil, nil)
 		if err != nil {

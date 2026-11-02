@@ -22,7 +22,7 @@ var runCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			os.Exit(125)
 		}
 		runner, ok := activeBackend.Runner()
@@ -40,7 +40,7 @@ var runCmd = &cobra.Command{
 
 		exitCode, id, cerr := runner.Run(image, command)
 		if cerr != nil {
-			fmt.Println(cerr)
+			reportError(cerr)
 			// 125: dtools/daemon failed to run the container (docker convention).
 			os.Exit(125)
 		}
@@ -66,7 +66,7 @@ var buildCmd = &cobra.Command{
 		//fmt.Println(hftx.ErrorSign("COMMAND NOT YET IMPLEMENTED"))
 		//os.Exit(2)
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			os.Exit(1)
 		}
 		builder, ok := activeBackend.Builder()
@@ -77,7 +77,7 @@ var buildCmd = &cobra.Command{
 		rest.Context = cmd.Context()
 
 		if err := builder.Build(args[0]); err != nil {
-			fmt.Println(err.Error())
+			reportError(err)
 			os.Exit(1)
 		}
 	},

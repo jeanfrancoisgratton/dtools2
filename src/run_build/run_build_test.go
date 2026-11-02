@@ -86,6 +86,11 @@ func TestParsePublishSpecIPv6(t *testing.T) {
 	if err != nil || key != "80/tcp" || bind.HostIP != "::1" || bind.HostPort != "8080" {
 		t.Errorf("parsePublishSpec([::1]:8080:80) = %q, %+v, %v; want 80/tcp on ::1:8080", key, bind, err)
 	}
+	for _, bad := range []string{"[::1:8080:80", "[::1]:80"} {
+		if _, _, err := parsePublishSpec(bad); err == nil {
+			t.Errorf("parsePublishSpec(%q): want an error", bad)
+		}
+	}
 }
 
 func TestParseVolumeSpec(t *testing.T) {
@@ -177,13 +182,16 @@ func TestApplyHelpers(t *testing.T) {
 	if len(req.HostConfig.PortBindings["80/tcp"]) != 2 || len(req.ExposedPorts) != 2 {
 		t.Errorf("port bindings = %+v, exposed %v", req.HostConfig.PortBindings, req.ExposedPorts)
 	}
-	if err := applyVolumes(req, []string{"/anon", "v:/data"}); err != nil {
+	// -v goes to Binds (like the docker CLI), mode options kept verbatim, relative paths resolved
+	if err := applyVolumes(req, []string{"/anon", "v:/data", "/host:/ctr:z,ro", "./rel:/r"}); err != nil {
 		t.Fatal(err)
 	}
-	if _, ok := req.Volumes["/anon"]; !ok || len(req.HostConfig.Mounts) != 1 {
-		t.Errorf("volumes = %v, mounts = %+v", req.Volumes, req.HostConfig.Mounts)
+	cwd, _ := os.Getwd()
+	wantBinds := []string{"v:/data", "/host:/ctr:z,ro", filepath.Join(cwd, "rel") + ":/r"}
+	if _, ok := req.Volumes["/anon"]; !ok || !reflect.DeepEqual(req.HostConfig.Binds, wantBinds) || len(req.HostConfig.Mounts) != 0 {
+		t.Errorf("volumes = %v, binds = %v, mounts = %+v; want binds %v", req.Volumes, req.HostConfig.Binds, req.HostConfig.Mounts, wantBinds)
 	}
-	if err := applyMounts(req, []string{"type=tmpfs,dst=/run"}); err != nil || len(req.HostConfig.Mounts) != 2 {
+	if err := applyMounts(req, []string{"type=tmpfs,dst=/run"}); err != nil || len(req.HostConfig.Mounts) != 1 {
 		t.Errorf("mounts after applyMounts = %+v, %v", req.HostConfig.Mounts, err)
 	}
 	if err := applyPublish(req, []string{"bad:port"}); err == nil {
@@ -285,7 +293,7 @@ func TestCreateContainerPayload(t *testing.T) {
 		t.Errorf("IO/process fields = %+v", req)
 	}
 	hc := req.HostConfig
-	if !hc.AutoRemove || hc.NetworkMode != "appnet" || len(hc.PortBindings["80/tcp"]) != 1 || len(hc.Mounts) != 1 {
+	if !hc.AutoRemove || hc.NetworkMode != "appnet" || len(hc.PortBindings["80/tcp"]) != 1 || !reflect.DeepEqual(hc.Binds, []string{"pgdata:/data"}) {
 		t.Errorf("HostConfig = %+v", hc)
 	}
 

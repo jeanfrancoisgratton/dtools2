@@ -12,6 +12,7 @@ package auth
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -61,6 +62,39 @@ func LoadDockerConfig() (*DockerConfig, string, error) {
 	}
 
 	return cfg, path, nil
+}
+
+// ErrNoCredentials means config.json holds no login for a registry. Callers pulling public images
+// should then proceed anonymously, as docker does.
+var ErrNoCredentials = errors.New("no stored credentials")
+
+// UnmarshalJSON decodes "auths" and keeps every other top-level key untouched
+func (cfg *DockerConfig) UnmarshalJSON(data []byte) error {
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	cfg.Auths = nil
+	if a, ok := raw["auths"]; ok {
+		if err := json.Unmarshal(a, &cfg.Auths); err != nil {
+			return err
+		}
+		delete(raw, "auths")
+	}
+	cfg.extra = raw
+	return nil
+}
+
+// MarshalJSON writes "auths" back along with the preserved top-level keys
+func (cfg DockerConfig) MarshalJSON() ([]byte, error) {
+	out := make(map[string]any, len(cfg.extra)+1)
+	for k, v := range cfg.extra {
+		out[k] = v
+	}
+	if len(cfg.Auths) > 0 {
+		out["auths"] = cfg.Auths
+	}
+	return json.Marshal(out)
 }
 
 // SaveDockerConfig writes the config back, preserving directory structure.
@@ -150,7 +184,7 @@ func BuildRegistryAuthHeader(registry string) (string, error) {
 	}
 
 	if !found {
-		return "", fmt.Errorf("no auth entry for registry %q in config.json", registry)
+		return "", fmt.Errorf("%w: no auth entry for registry %q in config.json", ErrNoCredentials, registry)
 	}
 
 	// Derive username/password from either explicit fields or from Auth.
@@ -169,7 +203,7 @@ func BuildRegistryAuthHeader(registry string) (string, error) {
 	}
 
 	if username == "" && entry.IdentityToken == "" {
-		return "", fmt.Errorf("no usable credentials for registry %q in config.json", registry)
+		return "", fmt.Errorf("%w: no usable credentials for registry %q in config.json", ErrNoCredentials, registry)
 	}
 
 	// Docker expects base64(JSON) with username/password/serveraddress/identitytoken.

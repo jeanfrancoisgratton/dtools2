@@ -1,7 +1,7 @@
 # Maintainer: J.F.Gratton <jean-francois@famillegratton.net>
 # Packager: Package builder <builder@famillegratton.net>
 pkgname=dtools2
-pkgver=3.2.1
+pkgver=3.3.0
 pkgrel=1
 pkgdir=/data
 builddir="$startdir/src/BUILD"
@@ -30,7 +30,7 @@ build() {
 	# build; go test exits 0 for packages with no test files and only fails
 	# on an actual test failure.
 	go vet ./...
-	#go test ./...
+	go test ./...
 
 	builddate="$(date +%Y.%m.%d)"
 

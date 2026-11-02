@@ -30,9 +30,9 @@ func RemoveImage(client *rest.Client, imglist []string) *ce.CustomError {
 			if RemoveBlacklisted {
 				if !rest.QuietOutput {
 					fmt.Println(hftx.InfoSign("Force removal flag is present, continuing"))
-					if err := remove(client, img); err != nil {
-						return err
-					}
+				}
+				if err := remove(client, img); err != nil {
+					return err
 				}
 			} else {
 				if !rest.QuietOutput {

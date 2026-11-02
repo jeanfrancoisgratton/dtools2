@@ -8,7 +8,6 @@ package cmd
 import (
 	"dtools2/rest"
 	"dtools2/system"
-	"fmt"
 
 	"github.com/spf13/cobra"
 )
@@ -27,12 +26,12 @@ var systemRmCmd = &cobra.Command{
 	Short: "Remove all exited or created (NOT running/paused) containers",
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
 		if errCode := activeBackend.System().RmContainers(); errCode != nil {
-			fmt.Println(errCode)
+			reportError(errCode)
 		}
 		return
 	},
@@ -44,12 +43,12 @@ var systemCleanCmd = &cobra.Command{
 	Short: "Remove all unused images, volumes and networks",
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
 		if errCode := activeBackend.System().Clean(); errCode != nil {
-			fmt.Println(errCode)
+			reportError(errCode)
 		}
 		return
 	},
@@ -60,12 +59,12 @@ var sysInfoCmd = &cobra.Command{
 	Short: "Show daemon system information (server section only)",
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
 		if errCode := activeBackend.System().Info(); errCode != nil {
-			fmt.Println(errCode)
+			reportError(errCode)
 		}
 		return
 	},

@@ -8,7 +8,6 @@ package cmd
 import (
 	"dtools2/env"
 	"dtools2/system"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -29,7 +28,7 @@ var getCatalogCmd = &cobra.Command{
 		}
 
 		if err := system.GetCatalog(); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -44,7 +43,7 @@ var getTagsCmd = &cobra.Command{
 			env.RegConfigFile = filepath.Join(os.Getenv("HOME"), ".config", "JFG", "dtools", "defaultRegistry.json")
 		}
 		if err := system.GetTags(args[0]); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},

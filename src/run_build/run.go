@@ -16,6 +16,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -405,7 +406,12 @@ func applyVolumes(req *ContainerCreateRequest, vols []string) *ce.CustomError {
 			req.Volumes[anonTarget] = struct{}{}
 			continue
 		}
-		req.HostConfig.Mounts = append(req.HostConfig.Mounts, m)
+		// Rebuild the spec with the resolved source, keeping the original mode options verbatim
+		bind := m.Source + ":" + m.Target
+		if parts := strings.Split(strings.TrimSpace(v), ":"); len(parts) == 3 && parts[2] != "" {
+			bind += ":" + parts[2]
+		}
+		req.HostConfig.Binds = append(req.HostConfig.Binds, bind)
 	}
 	return nil
 }
@@ -615,9 +621,27 @@ func parseVolumeSpec(spec string) (mount Mount, anonymousTarget string, errCode 
 	mt := "volume"
 	if looksLikeHostPath(source) {
 		mt = "bind"
+		// The daemon only accepts absolute host paths; the docker CLI resolves them client-side
+		abs, aerr := absHostPath(source)
+		if aerr != nil {
+			return Mount{}, "", &ce.CustomError{Title: "Invalid volume", Message: fmt.Sprintf("cannot resolve host path in -v %q: %s", spec, aerr)}
+		}
+		source = abs
 	}
 
 	return Mount{Type: mt, Source: source, Target: target, ReadOnly: readOnly}, "", nil
+}
+
+// absHostPath expands a leading ~ and makes a host path absolute (relative to the cwd)
+func absHostPath(p string) (string, error) {
+	if p == "~" || strings.HasPrefix(p, "~/") {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return "", err
+		}
+		p = filepath.Join(home, strings.TrimPrefix(p, "~"))
+	}
+	return filepath.Abs(p)
 }
 
 func looksLikeHostPath(s string) bool {
@@ -642,8 +666,22 @@ func parsePublishSpec(spec string) (portKey string, bind PortBinding, errCode *c
 		return "", PortBinding{}, &ce.CustomError{Title: "Invalid publish", Message: "empty -p value"}
 	}
 
-	parts := strings.Split(spec, ":")
-	if len(parts) > 3 {
+	// A bracketed IPv6 host address ([::1]:8080:80) contains colons of its own: take it off first
+	ipv6Host := ""
+	remainder := spec
+	if strings.HasPrefix(spec, "[") {
+		end := strings.Index(spec, "]:")
+		if end == -1 {
+			return "", PortBinding{}, &ce.CustomError{Title: "Invalid publish", Message: fmt.Sprintf("invalid IPv6 host address in -p %q", spec)}
+		}
+		ipv6Host, remainder = spec[1:end], spec[end+2:]
+	}
+
+	parts := strings.Split(remainder, ":")
+	if ipv6Host != "" {
+		parts = append([]string{ipv6Host}, parts...)
+	}
+	if len(parts) > 3 || (ipv6Host != "" && len(parts) != 3) {
 		return "", PortBinding{}, &ce.CustomError{Title: "Invalid publish", Message: fmt.Sprintf("unsupported -p format: %q", spec)}
 	}
 
