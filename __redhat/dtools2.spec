@@ -56,6 +56,12 @@ install -Dpm 0755 %{_builddir}/%{name}-%{version}/%{_binaryname} %{buildroot}%{_
 
 
 %changelog
+* Mon Nov 02 2026 Binary package builder <builder@famillegratton.net> 3.3.0-1
+- bug: Removed the -race go test from builders
+- housekeeping: version bump for packaging
+- bug: fixes for the issues found by the unit tests, version 3.3.0
+- chore: update changelog for 3.2.1-1
+
 * Mon Nov 02 2026 Binary package builder <builder@famillegratton.net> 3.2.1-1
 - bug: temp-removed all tests
 - Merge remote-tracking branch 'refs/remotes/origin/develop' into develop
