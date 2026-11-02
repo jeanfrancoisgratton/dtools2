@@ -54,15 +54,32 @@ func StartContainers(client *rest.Client, containers []string) *ce.CustomError {
 	if cs, cerr = ListContainers(client, false); cerr != nil {
 		return cerr
 	}
+	found := make(map[string]bool, len(nameReq))
 	for _, container := range cs {
-		if strings.ToLower(container.State) == "running" {
+		name := container.Names[0][1:]
+		if !slices.Contains(nameReq, name) {
 			continue
 		}
-		if slices.Contains(nameReq, container.Names[0][1:]) {
-			if cerr = start(client, container.ID, ""); cerr != nil {
-				return cerr
+		found[name] = true
+		if strings.ToLower(container.State) == "running" {
+			if !rest.QuietOutput {
+				fmt.Println(hftx.WarningSign("Container " + name + " is already running, not started"))
 			}
+			continue
 		}
+		if cerr = start(client, container.ID, ""); cerr != nil {
+			return cerr
+		}
+	}
+
+	var notFound []string
+	for _, name := range nameReq {
+		if !found[name] {
+			notFound = append(notFound, name)
+		}
+	}
+	if len(notFound) > 0 {
+		return &ce.CustomError{Title: "No such container(s)", Message: strings.Join(notFound, ", ")}
 	}
 	return nil
 }
@@ -128,8 +145,11 @@ func StartAllContainers(client *rest.Client) *ce.CustomError {
 		return cerr
 	}
 
+	// Only pass the non-running containers: StartContainers warns about requested containers that are already running
 	for _, container := range cs {
-		containerList = append(containerList, container.Names[0][1:])
+		if strings.ToLower(container.State) != "running" {
+			containerList = append(containerList, container.Names[0][1:])
+		}
 	}
 
 	return StartContainers(client, containerList)
