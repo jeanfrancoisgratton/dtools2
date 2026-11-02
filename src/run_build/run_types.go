@@ -75,7 +75,9 @@ type ContainerCreateRequest struct {
 // HostConfig is a subset used by dtools2 for run_build.
 type HostConfig struct {
 	AutoRemove bool `json:"AutoRemove,omitempty"`
-	// Prefer Mounts to Binds so we can support both bind mounts and named volumes.
+	// -v specs go to Binds, like the docker CLI: the daemon then creates missing host directories
+	// and honours mode options (ro, z, Z...). --mount specs go to Mounts.
+	Binds          []string                 `json:"Binds,omitempty"`
 	Mounts         []Mount                  `json:"Mounts,omitempty"`
 	NetworkMode    string                   `json:"NetworkMode,omitempty"`
 	PortBindings   map[string][]PortBinding `json:"PortBindings,omitempty"`

@@ -13,7 +13,7 @@ import (
 // notSupportedByBackend reports that the current backend doesn't implement a
 // capability (containerd has no networks/volumes/run/build/cp of its own).
 func notSupportedByBackend(op string) {
-	fmt.Printf("%q is not supported by the %q backend\n", op, activeBackend.Name())
+	reportError(fmt.Sprintf("%q is not supported by the %q backend", op, activeBackend.Name()))
 }
 
 // backendCmd groups backend-related subcommands.
@@ -27,7 +27,7 @@ var backendActiveCmd = &cobra.Command{
 	Short: "Show the currently selected backend",
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		fmt.Printf("Current selected back-end plugin is: %s\n", hftx.Blue(activeBackend.Name()))

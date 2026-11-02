@@ -6,7 +6,6 @@
 package blacklist
 
 import (
-	"dtools2/extras"
 	"dtools2/rest"
 	"fmt"
 	"strings"
@@ -25,10 +24,7 @@ func (rb *ResourceBlacklist) Add(resourceType, name string) (bool, *ce.CustomErr
 	if name == "" {
 		return false, &ce.CustomError{Title: "resource name cannot be empty"}
 	}
-	if resourceType == "image" {
-		r, t := extras.SplitURI(name)
-		name = r + ":" + t
-	}
+	name = normalizeName(resourceType, name)
 	slice := *slicePtr
 
 	for _, existing := range slice {
@@ -86,10 +82,7 @@ func (rb *ResourceBlacklist) Remove(resourceType, name string) (bool, *ce.Custom
 		return false, &ce.CustomError{Title: "resource name cannot be empty"}
 	}
 
-	if resourceType == "image" {
-		r, t := extras.SplitURI(name)
-		name = r + ":" + t
-	}
+	name = normalizeName(resourceType, name)
 
 	slice := *slicePtr
 	out := slice[:0]

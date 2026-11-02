@@ -66,7 +66,7 @@ func (c *Client) getJSON(ctx context.Context, path string, q url.Values) ([]byte
 			if resp2.StatusCode == http.StatusOK {
 				return readAll(resp2.Body)
 			}
-			return nil, &ce.CustomError{Title: "Error in http response for path " + path, Message: "Returned status was " + resp.Status}
+			return nil, &ce.CustomError{Title: "Error in http response for path " + path, Message: "Returned status was " + resp2.Status}
 
 		} else if strings.HasPrefix(strings.ToLower(strings.TrimSpace(chal)), "basic") {
 			// Basic challenge: retry with Basic if we have creds
@@ -84,7 +84,7 @@ func (c *Client) getJSON(ctx context.Context, path string, q url.Values) ([]byte
 					if resp2.StatusCode == http.StatusOK {
 						return readAll(resp2.Body)
 					}
-					return nil, &ce.CustomError{Title: "Error in http response for path " + path, Message: "Returned status was " + resp.Status}
+					return nil, &ce.CustomError{Title: "Error in http response for path " + path, Message: "Returned status was " + resp2.Status}
 				}
 			}
 		}

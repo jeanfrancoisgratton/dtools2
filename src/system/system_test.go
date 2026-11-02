@@ -276,6 +276,28 @@ func TestExtractTarDirSymlinkEscape(t *testing.T) {
 	}
 }
 
+// A regular file entry named like an earlier symlink entry replaces the link, never writes through it
+func TestExtractTarDirFileOverSymlink(t *testing.T) {
+	base := t.TempDir()
+	victim := filepath.Join(base, "victim")
+	os.WriteFile(victim, []byte("original"), 0o644)
+
+	archive := makeTar(t,
+		tarEntry{name: "link", link: victim, typ: tar.TypeSymlink},
+		tarEntry{name: "link", body: "overwritten", typ: tar.TypeReg},
+	)
+	dest := filepath.Join(base, "dest")
+	if err := extractTarDir(bytes.NewReader(archive), dest); err != nil {
+		t.Fatalf("extractTarDir: %v", err)
+	}
+	if b, _ := os.ReadFile(victim); string(b) != "original" {
+		t.Errorf("file outside the destination was modified: %q", b)
+	}
+	if b, _ := os.ReadFile(filepath.Join(dest, "link")); string(b) != "overwritten" {
+		t.Errorf("dest/link = %q; want the regular file", b)
+	}
+}
+
 func TestExtractTarDirTraversal(t *testing.T) {
 	base := t.TempDir()
 	dest := filepath.Join(base, "dest")

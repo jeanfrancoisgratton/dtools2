@@ -160,6 +160,11 @@ func extractTarDir(r io.Reader, destinationDir string) error {
 		if !isSubPath(base, target) {
 			return errors.New("tar entry escapes destination directory")
 		}
+		// isSubPath is lexical only: a symlink extracted earlier from the same archive could
+		// still redirect this entry outside the destination
+		if err := ensureNoSymlinkInPath(base, target); err != nil {
+			return err
+		}
 
 		switch hdr.Typeflag {
 		case tar.TypeDir:
@@ -178,6 +183,12 @@ func extractTarDir(r io.Reader, destinationDir string) error {
 			mode := os.FileMode(hdr.Mode) & 0o777
 			if mode == 0 {
 				mode = 0o644
+			}
+			// Replace an existing symlink instead of writing through it
+			if fi, lerr := os.Lstat(target); lerr == nil && fi.Mode()&os.ModeSymlink != 0 {
+				if err := os.Remove(target); err != nil {
+					return err
+				}
 			}
 			f, err := os.OpenFile(target, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, mode)
 			if err != nil {
@@ -210,6 +221,9 @@ func extractTarDir(r io.Reader, destinationDir string) error {
 			linkTarget := filepath.Join(base, linkRel)
 			if !isSubPath(base, linkTarget) {
 				return errors.New("hardlink target escapes destination directory")
+			}
+			if err := ensureNoSymlinkInPath(base, linkTarget); err != nil {
+				return err
 			}
 			if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
 				return err
@@ -276,6 +290,34 @@ func sanitizeTarName(name string) string {
 		return ""
 	}
 	return filepath.FromSlash(n)
+}
+
+// ensureNoSymlinkInPath fails if any existing directory between base and target is a symlink,
+// so that nothing extracted under target can land outside base
+func ensureNoSymlinkInPath(base, target string) error {
+	rel, err := filepath.Rel(base, filepath.Dir(target))
+	if err != nil {
+		return err
+	}
+	if rel == "." {
+		return nil
+	}
+	cur := base
+	for _, part := range strings.Split(rel, string(os.PathSeparator)) {
+		cur = filepath.Join(cur, part)
+		fi, err := os.Lstat(cur)
+		if os.IsNotExist(err) {
+			// The rest of the path does not exist yet: MkdirAll will create real directories
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		if fi.Mode()&os.ModeSymlink != 0 {
+			return errors.New("tar entry " + target + " goes through a symlink; refusing to write outside the destination")
+		}
+	}
+	return nil
 }
 
 func isSubPath(base, target string) bool {

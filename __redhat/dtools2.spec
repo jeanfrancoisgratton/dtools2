@@ -2,7 +2,7 @@
 %define _build_id_links none
 %define _name dtools
 %define _prefix /opt
-%define _version 3.2.1
+%define _version 3.3.0
 %define _rel 1
 %define _arch x86_64
 %define _binaryname dtools
@@ -32,7 +32,7 @@ cd src
 # build; go test exits 0 for packages with no test files and only fails on
 # an actual test failure.
 CGO_ENABLED=0 /opt/go/bin/go vet ./...
-#CGO_ENABLED=0 /opt/go/bin/go test ./...
+CGO_ENABLED=0 /opt/go/bin/go test ./...
 CGO_ENABLED=0 /opt/go/bin/go build -trimpath -ldflags="-s -w -buildid= -X dtools2/cmd.buildVersion=%{_version} -X dtools2/cmd.buildDate=%(date +%%Y.%%m.%%d)" -o %{_builddir}/%{name}-%{version}/%{_binaryname} .
 
 %clean

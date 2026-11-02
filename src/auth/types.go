@@ -5,11 +5,18 @@
 
 package auth
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 // DockerConfig represents ~/.docker/config.json (simplified).
+// Only "auths" is modelled; every other key (credsStore, currentContext, proxies...) is kept
+// verbatim in extra, so that rewriting the file never drops the user's other settings.
 type DockerConfig struct {
 	Auths map[string]RegistryAuth `json:"auths,omitempty"`
+
+	extra map[string]json.RawMessage
 }
 
 // RegistryAuth is a single registry auth entry.

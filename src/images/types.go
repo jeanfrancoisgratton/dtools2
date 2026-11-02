@@ -18,14 +18,14 @@ type PullOptions struct {
 
 type ImageSummary struct {
 	ID          string            `json:"Id"`
-	ParentID    string            `json:"ParentId.omitempty"`
+	ParentID    string            `json:"ParentId,omitempty"`
 	RepoTags    []string          `json:"RepoTags"`
-	RepoDigests []string          `json:"RepoDigests.omitempty"`
+	RepoDigests []string          `json:"RepoDigests,omitempty"`
 	Created     int64             `json:"Created"`
 	Size        int64             `json:"Size"`
 	VirtualSize int64             `json:"VirtualSize"`
 	SharedSize  int64             `json:"SharedSize"`
-	Labels      map[string]string `json:"Labels.omitempty"`
+	Labels      map[string]string `json:"Labels,omitempty"`
 	Containers  int               `json:"Containers"`
 	RepoImgName string            `json:"RepoImgName"`
 	ImgTag      string            `json:"ImgTag"`

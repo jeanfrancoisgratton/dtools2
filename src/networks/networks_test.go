@@ -235,9 +235,10 @@ func TestRemoveNetworkErrors(t *testing.T) {
 		status int
 		want   string
 	}{
-		{http.StatusForbidden, "not allowed to be removed"},
+		// 403 covers both built-in networks and "network has active endpoints": the daemon's
+		// own message must be shown, not a guess
+		{http.StatusForbidden, "daemon says no"},
 		{http.StatusNotFound, "is not found"},
-		// e.g. "network has active endpoints"
 		{http.StatusConflict, "409"},
 		{http.StatusInternalServerError, "500"},
 	}

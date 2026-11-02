@@ -37,7 +37,7 @@ var envRemoveCmd = &cobra.Command{
 		}
 		re := env.RegistryEntry{}
 		if err := re.RemoveReg(); err != nil {
-			fmt.Println(err)
+			reportError(err)
 			return
 		}
 		if !rest.QuietOutput {
@@ -64,7 +64,7 @@ var envAddCmd = &cobra.Command{
 			Comments: env.RegEntryComment, Username: env.RegEntryUsername, EncodedPasswd: p}
 
 		if err := re.AddReg(); err != nil {
-			fmt.Println(err)
+			reportError(err)
 			return
 		}
 		if !rest.QuietOutput {

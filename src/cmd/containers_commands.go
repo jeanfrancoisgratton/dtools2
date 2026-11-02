@@ -7,8 +7,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"dtools2/containers"
 	"dtools2/extras"
 	"dtools2/rest"
@@ -29,13 +27,13 @@ var containerListCmd = &cobra.Command{
 	Short:   "List the containers",
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
 		errCode := activeBackend.Containers().List(true)
 		if errCode != nil {
-			fmt.Println(errCode)
+			reportError(errCode)
 		}
 		return
 	},
@@ -48,13 +46,13 @@ var containerInfoCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
 
 		if errCode := activeBackend.Containers().Info(args[0]); errCode != nil {
-			fmt.Println(errCode)
+			reportError(errCode)
 		}
 		return
 	},
@@ -67,12 +65,12 @@ var containerRemoveCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
 		if errCode := activeBackend.Containers().Remove(args); errCode != nil {
-			fmt.Println(errCode)
+			reportError(errCode)
 		}
 		return
 	},
@@ -85,12 +83,12 @@ var containerPauseCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
 		if errCode := activeBackend.Containers().Pause(args); errCode != nil {
-			fmt.Println(errCode)
+			reportError(errCode)
 		}
 		return
 	},
@@ -103,12 +101,12 @@ var containerUnpauseCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
 		if errCode := activeBackend.Containers().Unpause(args); errCode != nil {
-			fmt.Println(errCode)
+			reportError(errCode)
 		}
 		return
 	},
@@ -122,12 +120,12 @@ var containerStartCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
 		if errCode := activeBackend.Containers().Start(args); errCode != nil {
-			fmt.Println(errCode)
+			reportError(errCode)
 		}
 		return
 	},
@@ -139,12 +137,12 @@ var containerStartAllCmd = &cobra.Command{
 	Short:   "Start all non-running containers",
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
 		if errCode := activeBackend.Containers().StartAll(); errCode != nil {
-			fmt.Println(errCode)
+			reportError(errCode)
 		}
 		return
 	},
@@ -159,12 +157,12 @@ var containerStopCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
 		if errCode := activeBackend.Containers().Stop(args); errCode != nil {
-			fmt.Println(errCode)
+			reportError(errCode)
 		}
 		return
 	},
@@ -177,12 +175,12 @@ var containerStopAllCmd = &cobra.Command{
 	Long:    "Using a timeout of 0 (-t 0) will stop them concurrently, but conclusion is still dependent on the containers gracefully shut down",
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
 		if errCode := activeBackend.Containers().StopAll(); errCode != nil {
-			fmt.Println(errCode)
+			reportError(errCode)
 		}
 		return
 	},
@@ -195,12 +193,12 @@ var containerRenameCmd = &cobra.Command{
 	Args:    cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
 		if errCode := activeBackend.Containers().Rename(args[0], args[1]); errCode != nil {
-			fmt.Println(errCode)
+			reportError(errCode)
 		}
 		return
 	},
@@ -213,12 +211,12 @@ var containerKillCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
 		if errCode := activeBackend.Containers().Kill(args); errCode != nil {
-			fmt.Println(errCode)
+			reportError(errCode)
 		}
 		return
 	},
@@ -230,12 +228,12 @@ var containerKillAllCmd = &cobra.Command{
 	Short:   "Kill all running containers",
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
 		if errCode := activeBackend.Containers().KillAll(); errCode != nil {
-			fmt.Println(errCode)
+			reportError(errCode)
 		}
 		return
 	},
@@ -248,12 +246,12 @@ var containerRestartCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
 		if errCode := activeBackend.Containers().Restart(args); errCode != nil {
-			fmt.Println(errCode)
+			reportError(errCode)
 		}
 		return
 	},
@@ -265,12 +263,12 @@ var containerRestartAllCmd = &cobra.Command{
 	Short:   "Restart all running containers",
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
 		if errCode := activeBackend.Containers().RestartAll(); errCode != nil {
-			fmt.Println(errCode)
+			reportError(errCode)
 		}
 		return
 	},
@@ -283,7 +281,7 @@ var containerAttachCmd = &cobra.Command{
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
@@ -294,7 +292,7 @@ var containerAttachCmd = &cobra.Command{
 			return
 		}
 		if errCode := runner.Attach(args[0]); errCode != nil {
-			fmt.Println(errCode)
+			reportError(errCode)
 		}
 		return
 	},
@@ -303,18 +301,18 @@ var containerAttachCmd = &cobra.Command{
 var containerInspectCmd = &cobra.Command{
 	Use:     "inspect CONTAINER",
 	Aliases: []string{"inspc"},
-	Example: "dtools insc my-container",
+	Example: "dtools inspect my-container",
 	Short:   "Display detailed information about a container",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		rest.Context = cmd.Context()
 
 		if errCode := activeBackend.Containers().Inspect(args[0]); errCode != nil {
-			fmt.Println(errCode)
+			reportError(errCode)
 		}
 		return
 	},

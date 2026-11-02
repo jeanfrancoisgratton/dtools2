@@ -10,7 +10,6 @@ import (
 	"dtools2/extras"
 	"dtools2/images"
 	"dtools2/rest"
-	"fmt"
 
 	"github.com/spf13/cobra"
 )
@@ -31,14 +30,14 @@ var imagePullCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 
 		imageRef := args[0]
 		rest.Context = cmd.Context()
 		if err := activeBackend.Images().Pull(imageRef); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -53,14 +52,14 @@ var imagePushCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 
 		imageRef := args[0]
 		rest.Context = cmd.Context()
 		if err := activeBackend.Images().Push(imageRef); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -71,13 +70,13 @@ var imageListCmd = &cobra.Command{
 	Short: "List images",
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 
 		rest.Context = cmd.Context()
 		if err := activeBackend.Images().List(true); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -89,13 +88,13 @@ var imageTagCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 
 		rest.Context = cmd.Context()
 		if err := activeBackend.Images().Tag(args[0], args[1]); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -108,13 +107,13 @@ var imageRemoveCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 
 		rest.Context = cmd.Context()
 		if err := activeBackend.Images().Remove(args); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -127,13 +126,13 @@ var imageLoadCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 
 		rest.Context = cmd.Context()
 		if err := activeBackend.Images().Load(args[0]); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -147,7 +146,7 @@ var imageSaveCmd = &cobra.Command{
 	Example: "dtools save images.tar.gz alpine:latest busybox:latest",
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 
@@ -156,7 +155,7 @@ var imageSaveCmd = &cobra.Command{
 
 		rest.Context = cmd.Context()
 		if err := activeBackend.Images().Save(imgs, outFile); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -169,7 +168,7 @@ var imageCommitCmd = &cobra.Command{
 	Example: "dtools commit -a \"J.F. Gratton\" -m \"snapshot\" -c 'CMD [\"/bin/sh\"]' myctr myrepo/myimg:debug",
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 
@@ -178,7 +177,7 @@ var imageCommitCmd = &cobra.Command{
 
 		rest.Context = cmd.Context()
 		if err := activeBackend.Images().Commit(containerRef, repoTag, commitAuthor, commitMessage, commitChanges); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -187,25 +186,25 @@ var imageCommitCmd = &cobra.Command{
 var imageInspectCmd = &cobra.Command{
 	Use:     "inspect IMAGE",
 	Aliases: []string{"inspi"},
-	Example: "dtools insi alpine:latest",
+	Example: "dtools inspi alpine:latest",
 	Short:   "Display detailed information about an image",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 
 		rest.Context = cmd.Context()
 		if err := activeBackend.Images().Inspect(args[0]); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(imgCmd, imagePullCmd, imagePushCmd, imageListCmd, imageTagCmd, imageRemoveCmd, imageLoadCmd, imageSaveCmd, imageCommitCmd, imageInspectCmd)
+	rootCmd.AddCommand(imgCmd, imagePullCmd, imagePushCmd, imageListCmd, imageTagCmd, imageRemoveCmd, imageLoadCmd, imageSaveCmd, imageCommitCmd, rootShortcut("inspi", imageInspectCmd))
 	imgCmd.AddCommand(imagePullCmd, imagePushCmd, imageListCmd, imageTagCmd, imageRemoveCmd, imageLoadCmd, imageSaveCmd, imageCommitCmd, imageInspectCmd)
 
 	imagePullCmd.Flags().StringVarP(&imagePullRegistry, "registry", "r", "", "registry hostname to use for auth (e.g. registry.example.com:5000); empty for anonymous")

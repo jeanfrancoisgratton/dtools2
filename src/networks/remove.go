@@ -3,7 +3,9 @@ package networks
 import (
 	"dtools2/blacklist"
 	"dtools2/rest"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -25,9 +27,9 @@ func RemoveNetwork(client *rest.Client, netList []string) *ce.CustomError {
 			if RemoveBlacklisted {
 				if !rest.QuietOutput {
 					fmt.Println(hftx.InfoSign("Force removal flag is present, continuing"))
-					if err := removeNet(client, net); err != nil {
-						return err
-					}
+				}
+				if err := removeNet(client, net); err != nil {
+					return err
 				}
 			} else {
 				if !rest.QuietOutput {
@@ -60,18 +62,18 @@ func removeNet(client *rest.Client, networkName string) *ce.CustomError {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusNoContent {
-		title := "Unable to post DELETE"
-		msg := ""
-		switch resp.StatusCode {
-		case http.StatusForbidden:
-			msg = "The network " + networkName + " is not allowed to be removed (built-in)"
-		case http.StatusNotFound:
-			msg = "The network " + networkName + " is not found"
-		default:
-			title = "DELETE request http request failed with status code " + strconv.Itoa(resp.StatusCode)
-			msg = derr.Error()
+		if resp.StatusCode == http.StatusNotFound {
+			return &ce.CustomError{Title: "Unable to post DELETE", Message: "The network " + networkName + " is not found"}
 		}
-		return &ce.CustomError{Title: title, Message: msg}
+		// The daemon's message tells the cases apart: 403 is returned both for built-in networks
+		// and for networks that still have active endpoints (containers attached)
+		msg := resp.Status
+		bodyBytes, _ := io.ReadAll(io.LimitReader(resp.Body, 8192))
+		var der dockerErrorResponse
+		if json.Unmarshal(bodyBytes, &der) == nil && der.Message != "" {
+			msg = der.Message
+		}
+		return &ce.CustomError{Title: "Unable to remove network " + networkName + " (HTTP " + strconv.Itoa(resp.StatusCode) + ")", Message: msg}
 	}
 	if !rest.QuietOutput {
 		fmt.Println(hftx.InProgressSign("Network " + networkName + hftx.Red(" REMOVED")))

@@ -6,6 +6,7 @@
 package images
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -31,11 +32,14 @@ func ImagePush(client *rest.Client, ref string) *ce.CustomError {
 
 	headers := http.Header{}
 	if registry != "" {
+		// No stored login: let the registry decide (it will report "denied" if auth is required)
 		h, err := auth.BuildRegistryAuthHeader(registry)
-		if err != nil {
+		switch {
+		case err == nil:
+			headers.Set("X-Registry-Auth", h)
+		case !errors.Is(err, auth.ErrNoCredentials):
 			return &ce.CustomError{Title: "error building auth header", Message: err.Error()}
 		}
-		headers.Set("X-Registry-Auth", h)
 	}
 
 	q := url.Values{}

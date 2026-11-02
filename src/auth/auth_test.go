@@ -10,6 +10,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -169,8 +170,9 @@ func TestBuildRegistryAuthHeader(t *testing.T) {
 	if _, err := BuildRegistryAuthHeader("broken.example.com"); err == nil {
 		t.Error("an undecodable entry: want an error")
 	}
-	if _, err := BuildRegistryAuthHeader("unknown.example.com"); err == nil {
-		t.Error("no entry: want an error")
+	// "No login" must be distinguishable, so that pulls can fall back to anonymous
+	if _, err := BuildRegistryAuthHeader("unknown.example.com"); !errors.Is(err, ErrNoCredentials) {
+		t.Errorf("no entry = %v; want ErrNoCredentials", err)
 	}
 }
 

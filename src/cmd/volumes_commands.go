@@ -10,7 +10,6 @@ import (
 	"dtools2/extras"
 	"dtools2/rest"
 	"dtools2/volumes"
-	"fmt"
 
 	"github.com/spf13/cobra"
 )
@@ -27,7 +26,7 @@ var volumeListCmd = &cobra.Command{
 	Short: "List volumes",
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		svc, ok := activeBackend.Volumes()
@@ -38,7 +37,7 @@ var volumeListCmd = &cobra.Command{
 
 		rest.Context = cmd.Context()
 		if err := svc.List(true); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -53,7 +52,7 @@ var volumeRmCmd = &cobra.Command{
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		svc, ok := activeBackend.Volumes()
@@ -64,7 +63,7 @@ var volumeRmCmd = &cobra.Command{
 
 		rest.Context = cmd.Context()
 		if err := svc.Remove(args); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -78,7 +77,7 @@ var volumePruneCmd = &cobra.Command{
 		Blacklisted volumes will not be removed, unless the -B flag is passed.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		svc, ok := activeBackend.Volumes()
@@ -89,7 +88,7 @@ var volumePruneCmd = &cobra.Command{
 
 		rest.Context = cmd.Context()
 		if err := svc.Prune(); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -102,7 +101,7 @@ var volumeCreateCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		svc, ok := activeBackend.Volumes()
@@ -113,7 +112,7 @@ var volumeCreateCmd = &cobra.Command{
 
 		rest.Context = cmd.Context()
 		if err := svc.Create(args[0]); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -121,13 +120,13 @@ var volumeCreateCmd = &cobra.Command{
 
 var volumeInspectCmd = &cobra.Command{
 	Use:     "inspect VOLUME",
-	Aliases: []string{"insv"},
-	Example: "dtools insv my-volume",
+	Aliases: []string{"inspv", "insv"},
+	Example: "dtools inspv my-volume",
 	Short:   "Display detailed information about a volume",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		svc, ok := activeBackend.Volumes()
@@ -138,7 +137,7 @@ var volumeInspectCmd = &cobra.Command{
 
 		rest.Context = cmd.Context()
 		if err := svc.Inspect(args[0]); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -151,7 +150,7 @@ var volumeBackupCmd = &cobra.Command{
 	Args:    cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		svc, ok := activeBackend.Volumes()
@@ -162,7 +161,7 @@ var volumeBackupCmd = &cobra.Command{
 
 		rest.Context = cmd.Context()
 		if err := svc.Backup(args[0], args[1]); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -177,7 +176,7 @@ var volumeRestoreCmd = &cobra.Command{
 	Args: cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		svc, ok := activeBackend.Volumes()
@@ -188,14 +187,14 @@ var volumeRestoreCmd = &cobra.Command{
 
 		rest.Context = cmd.Context()
 		if err := svc.Restore(args[0], args[1]); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(volumeCmd, volumeListCmd, volumeRmCmd, volumeInspectCmd, volumePruneCmd)
+	rootCmd.AddCommand(volumeCmd, volumeListCmd, volumeRmCmd, volumePruneCmd, rootShortcut("inspv", volumeInspectCmd))
 	volumeCmd.AddCommand(volumeListCmd, volumeRmCmd, volumePruneCmd, volumeCreateCmd, volumeInspectCmd, volumeBackupCmd, volumeRestoreCmd)
 
 	for _, c := range []*cobra.Command{volumeBackupCmd, volumeRestoreCmd} {

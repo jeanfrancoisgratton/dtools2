@@ -24,7 +24,7 @@ var copyCmd = &cobra.Command{
 	Args:    cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		copier, ok := activeBackend.FileCopier()
@@ -47,7 +47,7 @@ var copyCmd = &cobra.Command{
 
 		rest.Context = cmd.Context()
 		if err := copier.Copy(args[0], args[1]); err != nil {
-			fmt.Println(err)
+			reportError(err)
 		}
 		return
 	},
@@ -60,7 +60,7 @@ var execCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			os.Exit(1)
 		}
 		runner, ok := activeBackend.Runner()
@@ -75,7 +75,7 @@ var execCmd = &cobra.Command{
 
 		exitCode, cerr := runner.Exec(container, command)
 		if cerr != nil {
-			fmt.Println(cerr)
+			reportError(cerr)
 			os.Exit(1)
 		}
 		os.Exit(exitCode)
@@ -90,7 +90,7 @@ var logsCmd = &cobra.Command{
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if activeBackend == nil {
-			fmt.Println("Backend not initialized")
+			reportError("Backend not initialized")
 			return
 		}
 		runner, ok := activeBackend.Runner()
@@ -101,7 +101,7 @@ var logsCmd = &cobra.Command{
 		rest.Context = cmd.Context()
 
 		if cerr := runner.Logs(args[0]); cerr != nil {
-			fmt.Println(cerr)
+			reportError(cerr)
 			return
 		}
 	},

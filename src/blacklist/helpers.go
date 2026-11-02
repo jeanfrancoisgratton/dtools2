@@ -6,6 +6,7 @@
 package blacklist
 
 import (
+	"dtools2/extras"
 	"encoding/json"
 	"slices"
 	"strings"
@@ -44,6 +45,22 @@ func outputBList(rbl map[string][]string) *ce.CustomError {
 	return nil
 }
 
+// normalizeName returns the form a resource name is stored and looked up under, so that adding,
+// removing and checking always agree: image references always carry a tag (nginx -> nginx:latest);
+// other names are kept as typed, as docker/podman names are case-sensitive
+func normalizeName(resourceType, name string) string {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return name
+	}
+	switch strings.ToLower(resourceType) {
+	case "image", "images":
+		r, t := extras.SplitURI(name)
+		return r + ":" + t
+	}
+	return name
+}
+
 // Some commands (container rm, image rm, etc.) might prevent resources to be removed
 // We check here for that
 
@@ -58,6 +75,5 @@ func IsResourceBlackListed(resourceType, resourceName string) (bool, *ce.CustomE
 		return false, err
 	}
 
-	resources := *slicePtr
-	return slices.Contains(resources, strings.ToLower(resourceName)), nil
+	return slices.Contains(*slicePtr, normalizeName(resourceType, resourceName)), nil
 }

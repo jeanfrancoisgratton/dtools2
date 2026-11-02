@@ -8,6 +8,7 @@ import (
 	"dtools2/internal/testutil"
 	"dtools2/rest"
 	"dtools2/volumes"
+	"errors"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -17,7 +18,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// execute runs dtools with args from a clean backend state and returns its stdout and error
+// execute runs dtools with args from a clean backend state and returns its stdout and error;
+// a command that reported a failure (what makes Execute() exit 1) yields errCommandFailed
 func execute(t *testing.T, args ...string) (string, error) {
 	t.Helper()
 	savedURI, savedRuntime, savedQuiet := rest.ConnectURI, Runtime, rest.QuietOutput
@@ -35,12 +37,17 @@ func execute(t *testing.T, args ...string) (string, error) {
 		resetHelp(rootCmd)
 		walk(rootCmd, nil, func(c *cobra.Command, _ []string) { resetHelp(c) })
 	})
-	activeBackend = nil
+	activeBackend, commandFailed = nil, false
 	rootCmd.SetArgs(args)
 	var err error
 	out := testutil.CaptureStdout(t, func() { err = rootCmd.Execute() })
+	if err == nil && commandFailed {
+		err = errCommandFailed
+	}
 	return out, err
 }
+
+var errCommandFailed = errors.New("command reported a failure")
 
 // walk calls fn for every command of the tree, with the args that reach it from the root
 func walk(c *cobra.Command, path []string, fn func(*cobra.Command, []string)) {
@@ -156,12 +163,17 @@ func TestVolumeBackupCommand(t *testing.T) {
 func TestFailingCommandReturnsError(t *testing.T) {
 	d := fakeDaemon(t)
 	d.Reply("GET /v1.50/containers/{id}/json", http.StatusNotFound, map[string]string{"message": "No such container: ghost"})
-	out, err := execute(t, "-H", d.URL(), "--runtime", "docker", "inspect", "ghost")
+	out, err := execute(t, "-H", d.URL(), "--runtime", "docker", "container", "inspect", "ghost")
 	if !strings.Contains(out, "404") {
 		t.Fatalf("output %q; want the inspect failure reported", out)
 	}
 	if err == nil {
-		t.Error("inspect of a missing container failed, but Execute() returned nil: dtools exits 0")
+		t.Error("inspect of a missing container failed, but dtools would exit 0")
+	}
+
+	d.Reply("GET /v1.50/containers/{id}/json", http.StatusOK, map[string]any{"Id": "abc", "Name": "/web"})
+	if out, err := execute(t, "-H", d.URL(), "--runtime", "docker", "-q", "container", "inspect", "web"); err != nil {
+		t.Errorf("a successful inspect must not be flagged as failed: %v (output %q)", err, out)
 	}
 }
 
@@ -174,5 +186,46 @@ func TestLocalCommandsDoNotProbeTheDaemon(t *testing.T) {
 		if n := len(d.Requests()) - before; n != 0 {
 			t.Errorf("dtools %s sent %d request(s) to the daemon; want none (output %q)", strings.Join(args, " "), n, out)
 		}
+	}
+}
+
+// Two different root commands sharing a name (or alias) make cobra pick one arbitrarily:
+// it sorts root commands with an unstable sort before matching
+func TestRootNamesAreUnique(t *testing.T) {
+	owner := map[string]*cobra.Command{}
+	for _, c := range rootCmd.Commands() {
+		for _, n := range append([]string{c.Name()}, c.Aliases...) {
+			if prev, ok := owner[n]; ok && prev != c {
+				t.Errorf("root-level name %q is used by both %q and %q", n, prev.Use, c.Use)
+			}
+			owner[n] = c
+		}
+	}
+}
+
+func TestInspectShortcuts(t *testing.T) {
+	cases := []struct {
+		args []string
+		want string
+	}{
+		{[]string{"inspect", "web"}, "GET /v1.50/containers/web/json"},
+		{[]string{"inspc", "web"}, "GET /v1.50/containers/web/json"},
+		{[]string{"inspv", "data"}, "GET /v1.50/volumes/data"},
+		{[]string{"insv", "data"}, "GET /v1.50/volumes/data"},
+		{[]string{"volume", "inspect", "data"}, "GET /v1.50/volumes/data"},
+		{[]string{"inspn", "appnet"}, "GET /v1.50/networks/appnet"},
+		{[]string{"network", "inspect", "appnet"}, "GET /v1.50/networks/appnet"},
+		{[]string{"inspi", "alpine:latest"}, "GET /v1.50/images/alpine:latest/json"},
+		{[]string{"image", "inspect", "alpine:latest"}, "GET /v1.50/images/alpine:latest/json"},
+	}
+	for _, c := range cases {
+		t.Run(strings.Join(c.args, " "), func(t *testing.T) {
+			d := fakeDaemon(t)
+			_, _ = execute(t, append([]string{"-H", d.URL(), "--runtime", "docker", "-q"}, c.args...)...)
+			seq := d.Sequence()
+			if len(seq) < 2 || seq[1] != c.want {
+				t.Errorf("requests = %v; want %q after the version negotiation", seq, c.want)
+			}
+		})
 	}
 }

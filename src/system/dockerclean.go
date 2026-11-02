@@ -7,6 +7,7 @@
 package system
 
 import (
+	"dtools2/blacklist"
 	"dtools2/extras"
 	"dtools2/images"
 	"dtools2/networks"
@@ -54,15 +55,21 @@ func Clean(client *rest.Client) *ce.CustomError {
 			}
 		}
 		// De-dupe IDs (for instance, when a image is used multiple times)
-		imgCandidates = extras.Unique(imgCandidates)
+		imgCandidates, err = removable("images", extras.Unique(imgCandidates))
+		if err != nil {
+			return err
+		}
 
 		q := rest.QuietOutput
 		rest.QuietOutput = true
-		if err := images.RemoveImage(client, imgCandidates); err != nil {
+		err = images.RemoveImage(client, imgCandidates)
+		rest.QuietOutput = q
+		if err != nil {
 			return err
 		}
-		fmt.Println(hftx.EnabledSign(fmt.Sprintf("Removed %d image(s)", len(imgCandidates))))
-		rest.QuietOutput = q
+		if !rest.QuietOutput {
+			fmt.Println(hftx.EnabledSign(fmt.Sprintf("Removed %d image(s)", len(imgCandidates))))
+		}
 	}
 
 	// Remove volumes
@@ -80,13 +87,40 @@ func Clean(client *rest.Client) *ce.CustomError {
 				netCandidates = append(netCandidates, n.Name)
 			}
 		}
-		q := rest.QuietOutput
-		rest.QuietOutput = true
-		if err := networks.RemoveNetwork(client, netCandidates); err != nil {
+		netCandidates, err = removable("networks", netCandidates)
+		if err != nil {
 			return err
 		}
-		fmt.Println(hftx.EnabledSign(fmt.Sprintf("Removed %d network(s)", len(netCandidates))))
+
+		q := rest.QuietOutput
+		rest.QuietOutput = true
+		err = networks.RemoveNetwork(client, netCandidates)
 		rest.QuietOutput = q
+		if err != nil {
+			return err
+		}
+		if !rest.QuietOutput {
+			fmt.Println(hftx.EnabledSign(fmt.Sprintf("Removed %d network(s)", len(netCandidates))))
+		}
 	}
 	return nil
+}
+
+// removable drops the blacklisted names (unless -B was given), so the reported count matches
+// what is actually removed
+func removable(resourceType string, names []string) ([]string, *ce.CustomError) {
+	if RemoveBlacklisted {
+		return names, nil
+	}
+	out := make([]string, 0, len(names))
+	for _, n := range names {
+		isBL, err := blacklist.IsResourceBlackListed(resourceType, n)
+		if err != nil {
+			return nil, err
+		}
+		if !isBL {
+			out = append(out, n)
+		}
+	}
+	return out, nil
 }

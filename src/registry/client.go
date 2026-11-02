@@ -92,13 +92,19 @@ func WithCredentials(username, password string) Option {
 	}
 }
 
+// WithDockerConfigDefault loads $DOCKER_CONFIG/config.json, or ~/.docker/config.json when unset
+// (same lookup as the docker CLI and the auth package)
 func WithDockerConfigDefault() Option {
 	return func(c *Client) error {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return nil
+		dir := os.Getenv("DOCKER_CONFIG")
+		if dir == "" {
+			home, err := os.UserHomeDir()
+			if err != nil {
+				return nil
+			}
+			dir = filepath.Join(home, ".docker")
 		}
-		return WithDockerConfig(filepath.Join(home, ".docker", "config.json"))(c)
+		return WithDockerConfig(filepath.Join(dir, "config.json"))(c)
 	}
 }
 
@@ -210,7 +216,7 @@ func (c *Client) fetchBearerToken(ctx context.Context, ch bearerChallenge) (toke
 	}
 
 	body, raerr := readAll(resp.Body)
-	if err != nil {
+	if raerr != nil {
 		return "", time.Time{}, raerr
 	}
 
