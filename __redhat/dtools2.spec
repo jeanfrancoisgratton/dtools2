@@ -56,6 +56,14 @@ install -Dpm 0755 %{_builddir}/%{name}-%{version}/%{_binaryname} %{buildroot}%{_
 
 
 %changelog
+* Mon Nov 02 2026 Binary package builder <builder@famillegratton.net> 3.2.1-1
+- bug: temp-removed all tests
+- Merge remote-tracking branch 'refs/remotes/origin/develop' into develop
+- enhancement: added unit tests
+- bug: restart -k never restarted killed containers, restartall restarted stopped ones
+- housekeeping: version bump
+- chore: update changelog for 3.2.0-1
+
 * Sun Oct 18 2026 Binary package builder <builder@famillegratton.net> 3.2.0-1
 - Folded dvol's functionalities into dtools
 - ARCHBUILDER: another cleanup fix
