@@ -1,0 +1,219 @@
+[2026-11-02T14:19:24.867Z] Push to refs/heads/main of dtools2
+[2026-11-02T14:19:26.281Z] [Pipeline] Start of Pipeline
+[2026-11-02T14:19:27.557Z] [Pipeline] node
+[2026-11-02T14:19:27.648Z] Running on Jenkins in /opt/jenkins/workspace/debian-build
+[2026-11-02T14:19:27.753Z] [Pipeline] {
+[2026-11-02T14:19:27.865Z] [Pipeline] withEnv
+[2026-11-02T14:19:27.891Z] [Pipeline] {
+[2026-11-02T14:19:28.014Z] [Pipeline] timeout
+[2026-11-02T14:19:28.015Z] Timeout set to expire in 1 hr 0 min
+[2026-11-02T14:19:28.027Z] [Pipeline] {
+[2026-11-02T14:19:28.106Z] [Pipeline] stage
+[2026-11-02T14:19:28.134Z] [Pipeline] { (Resolve target)
+[2026-11-02T14:19:28.294Z] [Pipeline] script
+[2026-11-02T14:19:28.332Z] [Pipeline] {
+[2026-11-02T14:19:28.736Z] [Pipeline] }
+[2026-11-02T14:19:28.842Z] [Pipeline] // script
+[2026-11-02T14:19:28.906Z] [Pipeline] }
+[2026-11-02T14:19:29.001Z] [Pipeline] // stage
+[2026-11-02T14:19:29.071Z] [Pipeline] stage
+[2026-11-02T14:19:29.083Z] [Pipeline] { (Check builder)
+[2026-11-02T14:19:29.264Z] [Pipeline] sh
+[2026-11-02T14:19:29.569Z] + set -eu
+[2026-11-02T14:19:29.569Z] + docker inspect -f '{{.State.Running}}' debbuilder
+[2026-11-02T14:19:29.820Z] + running=true
+[2026-11-02T14:19:29.820Z] + '[' true '!=' true ]
+[2026-11-02T14:19:29.868Z] [Pipeline] }
+[2026-11-02T14:19:29.955Z] [Pipeline] // stage
+[2026-11-02T14:19:30.069Z] [Pipeline] stage
+[2026-11-02T14:19:30.089Z] [Pipeline] { (Build package)
+[2026-11-02T14:19:30.232Z] [Pipeline] script
+[2026-11-02T14:19:30.281Z] [Pipeline] {
+[2026-11-02T14:19:30.376Z] [Pipeline] sh
+[2026-11-02T14:19:30.685Z] + set -eu
+[2026-11-02T14:19:30.685Z] + '[' -n ssh://git@git.famillegratton.net:9722/devops/dtools2.git ]
+[2026-11-02T14:19:30.685Z] + set -- -t dtools2 -b main -r ssh://git@git.famillegratton.net:9722/devops/dtools2.git
+[2026-11-02T14:19:30.685Z] + docker exec -u builder debbuilder /opt/sbin/buildpackage.sh -t dtools2 -b main -r ssh://git@git.famillegratton.net:9722/devops/dtools2.git
+[2026-11-02T14:19:31.267Z] 2026-11-02T09:19:31-0500 ==> project  : /projects/dtools2
+[2026-11-02T14:19:31.267Z] 2026-11-02T09:19:31-0500 ==> packaging: __debian
+[2026-11-02T14:19:31.267Z] 2026-11-02T09:19:31-0500 ==> branch   : main
+[2026-11-02T14:19:31.267Z] 2026-11-02T09:19:31-0500 ==> refreshing from origin
+[2026-11-02T14:19:31.519Z] Warning: Permanently added '[git.famillegratton.net]:9722' (RSA) to the list of known hosts.
+[2026-11-02T14:19:32.451Z] From ssh://git.famillegratton.net:9722/devops/dtools2
+[2026-11-02T14:19:32.451Z]    9de6722..06a295a  main       -> origin/main
+[2026-11-02T14:19:32.451Z]    9de6722..d93f41e  develop    -> origin/develop
+[2026-11-02T14:19:32.451Z]  * [new tag]         v3.2.0     -> v3.2.0
+[2026-11-02T14:19:32.707Z] Reset branch 'main'
+[2026-11-02T14:19:32.707Z] branch 'main' set up to track 'origin/main'.
+[2026-11-02T14:19:32.707Z] Your branch is up to date with 'origin/main'.
+[2026-11-02T14:19:32.707Z] 2026-11-02T09:19:32-0500 ==> at 06a295a
+[2026-11-02T14:19:32.707Z] 2026-11-02T09:19:32-0500 ==> make release starting
+[2026-11-02T14:19:32.707Z] make build
+[2026-11-02T14:19:32.707Z] make[1]: Entering directory '/projects/dtools2/__debian'
+[2026-11-02T14:19:32.707Z] rm -rf "dtools-3.2.1-1_amd64"
+[2026-11-02T14:19:32.707Z] install -d "dtools-3.2.1-1_amd64/DEBIAN" "dtools-3.2.1-1_amd64/opt/bin" "dtools-3.2.1-1_amd64/usr/share/doc/dtools"
+[2026-11-02T14:19:32.707Z] cp control postinst postrm "dtools-3.2.1-1_amd64/DEBIAN/"
+[2026-11-02T14:19:32.707Z] # copyright is documentation, not a control file: policy puts it at
+[2026-11-02T14:19:32.707Z] # /usr/share/doc/<package>/copyright, and it must be 0644 there.
+[2026-11-02T14:19:32.707Z] install -m 0644 copyright "dtools-3.2.1-1_amd64/usr/share/doc/dtools/copyright"
+[2026-11-02T14:19:32.707Z] # Make aborts this recipe on the first failing line, so both of these
+[2026-11-02T14:19:32.707Z] # fast-fail the package build; go test exits 0 for packages with no test
+[2026-11-02T14:19:32.707Z] # files and only fails on an actual test failure.
+[2026-11-02T14:19:32.707Z] cd ../src && go vet ./...
+[2026-11-02T14:19:34.072Z] go: downloading github.com/containerd/containerd/v2 v2.4.2
+[2026-11-02T14:19:37.320Z] go: downloading github.com/docker/cli v29.9.2+incompatible
+[2026-11-02T14:19:37.320Z] go: downloading github.com/moby/buildkit v0.34.1
+[2026-11-02T14:19:38.669Z] go: downloading google.golang.org/grpc v1.85.0
+[2026-11-02T14:19:40.539Z] go: downloading google.golang.org/genproto/googleapis/rpc v0.0.0-20261026165753-2ffab32bce7e
+[2026-11-02T14:19:41.902Z] go: downloading golang.org/x/net v0.62.0
+[2026-11-02T14:19:41.902Z] go: downloading github.com/tonistiigi/fsutil v0.0.0-20261027232937-ca65610c2295
+[2026-11-02T14:19:43.808Z] go: downloading github.com/moby/sys/mountinfo v0.7.3
+[2026-11-02T14:19:43.808Z] go: downloading github.com/klauspost/compress v1.20.3
+[2026-11-02T14:19:44.077Z] go: downloading github.com/moby/sys/user v0.5.0
+[2026-11-02T14:19:44.077Z] go: downloading go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.72.0
+[2026-11-02T14:19:44.345Z] go: downloading github.com/docker/docker-credential-helpers v0.9.12
+[2026-11-02T14:19:44.898Z] go: downloading github.com/grpc-ecosystem/grpc-gateway/v2 v2.33.0
+[2026-11-02T14:19:46.253Z] go: downloading google.golang.org/genproto/googleapis/api v0.0.0-20261026165753-2ffab32bce7e
+[2026-11-02T14:23:07.585Z] cd ../src && go test ./...
+[2026-11-02T14:23:46.183Z] ?   	dtools2	[no test files]
+[2026-11-02T14:23:47.537Z] --- FAIL: TestUpdateAuthPreservesOtherSettings (0.00s)
+[2026-11-02T14:23:47.537Z]     auth_test.go:120: config.json lost its "credsStore" setting after UpdateAuth: {
+[2026-11-02T14:23:47.537Z]           "auths": {
+[2026-11-02T14:23:47.537Z]             "reg:5000": {
+[2026-11-02T14:23:47.537Z]               "auth": "dXNlcjpwYXNz"
+[2026-11-02T14:23:47.537Z]             }
+[2026-11-02T14:23:47.537Z]           }
+[2026-11-02T14:23:47.537Z]         }
+[2026-11-02T14:23:47.537Z]     auth_test.go:120: config.json lost its "currentContext" setting after UpdateAuth: {
+[2026-11-02T14:23:47.537Z]           "auths": {
+[2026-11-02T14:23:47.537Z]             "reg:5000": {
+[2026-11-02T14:23:47.537Z]               "auth": "dXNlcjpwYXNz"
+[2026-11-02T14:23:47.537Z]             }
+[2026-11-02T14:23:47.537Z]           }
+[2026-11-02T14:23:47.537Z]         }
+[2026-11-02T14:23:47.537Z]     auth_test.go:120: config.json lost its "proxies" setting after UpdateAuth: {
+[2026-11-02T14:23:47.537Z]           "auths": {
+[2026-11-02T14:23:47.537Z]             "reg:5000": {
+[2026-11-02T14:23:47.537Z]               "auth": "dXNlcjpwYXNz"
+[2026-11-02T14:23:47.537Z]             }
+[2026-11-02T14:23:47.537Z]           }
+[2026-11-02T14:23:47.537Z]         }
+[2026-11-02T14:23:47.537Z] 2026/11/02 09:23:47 http: TLS handshake error from 127.0.0.1:58482: remote error: tls: bad certificate
+[2026-11-02T14:23:47.537Z] FAIL
+[2026-11-02T14:23:47.537Z] FAIL	dtools2/auth	0.272s
+[2026-11-02T14:23:47.537Z] ?   	dtools2/backend	[no test files]
+[2026-11-02T14:23:55.611Z] --- FAIL: TestInspectIsNotASilentNoop (0.01s)
+[2026-11-02T14:23:55.611Z]     containerdbackend_test.go:105: Inspect printed nothing and returned no error
+[2026-11-02T14:23:55.611Z]     containerdbackend_test.go:105: Info printed nothing and returned no error
+[2026-11-02T14:23:55.611Z] FAIL
+[2026-11-02T14:23:55.611Z] FAIL	dtools2/backend/containerdbackend	5.186s
+[2026-11-02T14:23:55.611Z] ok  	dtools2/backend/restbackend	0.617s
+[2026-11-02T14:23:55.611Z] --- FAIL: TestAddImageNormalizesTag (0.00s)
+[2026-11-02T14:23:55.611Z]     addRemove_test.go:111: Add("images", nginx) stored [nginx]; want [nginx:latest]
+[2026-11-02T14:23:55.611Z] --- FAIL: TestIsResourceBlackListedMixedCase (0.00s)
+[2026-11-02T14:23:55.611Z]     addRemove_test.go:174: volume MyData was blacklisted, but IsResourceBlackListed(volumes, MyData) is false
+[2026-11-02T14:23:55.611Z] --- FAIL: TestIsResourceBlackListedImageWithoutTag (0.00s)
+[2026-11-02T14:23:55.611Z]     addRemove_test.go:186: image nginx was blacklisted, but IsResourceBlackListed(images, nginx) is false
+[2026-11-02T14:23:55.611Z] FAIL
+[2026-11-02T14:23:55.611Z] FAIL	dtools2/blacklist	0.039s
+[2026-11-02T14:24:05.572Z] --- FAIL: TestFailingCommandReturnsError (0.01s)
+[2026-11-02T14:24:05.572Z]     cmd_test.go:164: inspect of a missing container failed, but Execute() returned nil: dtools exits 0
+[2026-11-02T14:24:05.572Z] --- FAIL: TestLocalCommandsDoNotProbeTheDaemon (0.01s)
+[2026-11-02T14:24:05.572Z]     cmd_test.go:175: dtools version sent 1 request(s) to the daemon; want none (output "ℹ️ \x1b[0mConnected to: \x1b[94mhttp://127.0.0.1:37397\x1b[m\n\n\x1b[97mdtools vdev (unknown), Go version = v1.27.3 (amd64)\x1b[m\n")
+[2026-11-02T14:24:05.572Z]     cmd_test.go:175: dtools blacklist lsb sent 1 request(s) to the daemon; want none (output "ℹ️ \x1b[0mConnected to: \x1b[94mhttp://127.0.0.1:37397\x1b[m\n\n⚠️ \x1b[0m resourceType is empty\n")
+[2026-11-02T14:24:05.572Z] FAIL
+[2026-11-02T14:24:05.572Z] FAIL	dtools2/cmd	0.439s
+[2026-11-02T14:24:05.572Z] --- FAIL: TestPauseUnpause (0.00s)
+[2026-11-02T14:24:05.580Z]     lifecycle_test.go:434: requests [GET /containers/json POST /containers/{aaa111}/pause GET /containers/json POST /containers/{aaa111}/unpause]: want POST /containers/aaa111/pause and /unpause
+[2026-11-02T14:24:05.580Z] FAIL
+[2026-11-02T14:24:05.580Z] FAIL	dtools2/containers	0.194s
+[2026-11-02T14:24:05.580Z] ok  	dtools2/env	0.138s
+[2026-11-02T14:24:06.142Z] --- FAIL: TestExtractFormatRows (0.00s)
+[2026-11-02T14:24:06.143Z]     extras_test.go:113: ContainerSummary names = [[] []]; want the first name without its slash
+[2026-11-02T14:24:06.143Z] from stderr
+[2026-11-02T14:24:06.143Z] FAIL
+[2026-11-02T14:24:06.143Z] FAIL	dtools2/extras	0.179s
+[2026-11-02T14:24:06.393Z] --- FAIL: TestPullAnonymousFromExplicitRegistry (0.00s)
+[2026-11-02T14:24:06.393Z]     images_test.go:158: anonymous PullRef from quay.io: building auth header for registry "quay.io": no auth entry for registry "quay.io" in config.json
+[2026-11-02T14:24:06.393Z] --- FAIL: TestRemoveImageBlacklistedWithFlag (0.02s)
+[2026-11-02T14:24:06.393Z]     images_test.go:237: quiet=true: -B should remove a blacklisted image
+[2026-11-02T14:24:06.393Z] --- FAIL: TestImageLoad (0.01s)
+[2026-11-02T14:24:06.393Z]     images_test.go:343: ImageLoad: image load failed: http response is 404 Not Found ({"message":"fake daemon: no route for GET /images/get"})
+[2026-11-02T14:24:06.393Z] FAIL
+[2026-11-02T14:24:06.393Z] FAIL	dtools2/images	0.499s
+[2026-11-02T14:24:06.393Z] ?   	dtools2/internal/testutil	[no test files]
+[2026-11-02T14:24:11.607Z] --- FAIL: TestRemoveNetworkBlacklistedWithFlag (0.04s)
+[2026-11-02T14:24:11.607Z]     networks_test.go:228: quiet=true: -B should remove a blacklisted network
+[2026-11-02T14:24:11.607Z] --- FAIL: TestRemoveNetworkErrors (0.45s)
+[2026-11-02T14:24:11.607Z]     --- FAIL: TestRemoveNetworkErrors/409 (0.03s)
+[2026-11-02T14:24:11.607Z]         networks_test.go:49: RemoveNetwork on HTTP 409 panicked: runtime error: invalid memory address or nil pointer dereference
+[2026-11-02T14:24:11.607Z]     --- FAIL: TestRemoveNetworkErrors/500 (0.39s)
+[2026-11-02T14:24:11.607Z]         networks_test.go:49: RemoveNetwork on HTTP 500 panicked: runtime error: invalid memory address or nil pointer dereference
+[2026-11-02T14:24:11.607Z] FAIL
+[2026-11-02T14:24:11.607Z] FAIL	dtools2/networks	0.722s
+[2026-11-02T14:24:15.741Z] 2026/11/02 09:24:15 http: TLS handshake error from 127.0.0.1:48818: remote error: tls: bad certificate
+[2026-11-02T14:24:15.741Z] --- FAIL: TestDockerConfigEnvHonored (0.00s)
+[2026-11-02T14:24:15.741Z]     client_test.go:266: no credentials loaded: $DOCKER_CONFIG/config.json was ignored
+[2026-11-02T14:24:15.741Z] FAIL
+[2026-11-02T14:24:15.741Z] FAIL	dtools2/registry	0.366s
+[2026-11-02T14:24:17.091Z] ok  	dtools2/rest	0.989s
+[2026-11-02T14:24:23.620Z] --- FAIL: TestParsePublishSpecIPv6 (0.00s)
+[2026-11-02T14:24:23.620Z]     run_build_test.go:87: parsePublishSpec([::1]:8080:80) = "", {HostIP: HostPort:}, Invalid publish: unsupported -p format: "[::1]:8080:80"
+[2026-11-02T14:24:23.620Z]         ; want 80/tcp on ::1:8080
+[2026-11-02T14:24:23.620Z] --- FAIL: TestParseVolumeSpecRelativePath (0.00s)
+[2026-11-02T14:24:23.620Z]     run_build_test.go:124: bind source = "./data"; want it resolved to an absolute path
+[2026-11-02T14:24:23.620Z] FAIL
+[2026-11-02T14:24:23.620Z] FAIL	dtools2/run_build	0.190s
+[2026-11-02T14:24:23.871Z] --- FAIL: TestExtractTarDirSymlinkEscape (0.00s)
+[2026-11-02T14:24:23.871Z]     system_test.go:275: extractTarDir wrote a file outside the destination through a symlink
+[2026-11-02T14:24:23.871Z] FAIL
+[2026-11-02T14:24:23.871Z] FAIL	dtools2/system	0.301s
+[2026-11-02T14:24:23.871Z] --- FAIL: TestRemoveVolumesBlacklistedWithFlag (0.00s)
+[2026-11-02T14:24:23.871Z]     volumes_test.go:199: quiet=true: -B should remove a blacklisted volume
+[2026-11-02T14:24:23.871Z] --- FAIL: TestPruneVolumesBlacklistedWithFlag (0.01s)
+[2026-11-02T14:24:23.871Z]     volumes_test.go:269: prune -B pruned "anon,named"; want anon,named,keep
+[2026-11-02T14:24:23.871Z] --- FAIL: TestPruneVolumesRestoresQuietOnError (0.01s)
+[2026-11-02T14:24:23.871Z]     volumes_test.go:286: PruneVolumes left quiet mode switched on after a failure
+[2026-11-02T14:24:23.871Z] FAIL
+[2026-11-02T14:24:23.871Z] FAIL	dtools2/volumes	0.452s
+[2026-11-02T14:24:23.871Z] FAIL
+[2026-11-02T14:24:24.422Z] make[1]: Leaving directory '/projects/dtools2/__debian'
+[2026-11-02T14:24:24.422Z] make[1]: *** [Makefile:49: build] Error 1
+[2026-11-02T14:24:24.422Z] make: *** [Makefile:63: release] Error 2
+[2026-11-02T14:24:24.422Z] 2026-11-02T09:24:24-0500 ==> make release FAILED (exit 2) after 292s
+[2026-11-02T14:24:24.523Z] [Pipeline] error
+[2026-11-02T14:24:24.700Z] [Pipeline] }
+[2026-11-02T14:24:25.064Z] [Pipeline] // script
+[2026-11-02T14:24:25.477Z] [Pipeline] }
+[2026-11-02T14:24:26.076Z] [Pipeline] // stage
+[2026-11-02T14:24:26.417Z] [Pipeline] stage
+[2026-11-02T14:24:26.423Z] [Pipeline] { (Declarative: Post Actions)
+[2026-11-02T14:24:26.797Z] [Pipeline] script
+[2026-11-02T14:24:26.885Z] [Pipeline] {
+[2026-11-02T14:24:27.106Z] [Pipeline] echo
+[2026-11-02T14:24:27.129Z] debian build of dtools2 failed.
+[2026-11-02T14:24:27.213Z] [Pipeline] withCredentials
+[2026-11-02T14:24:27.270Z] Masking supported pattern matches of $MM_URL
+[2026-11-02T14:24:27.424Z] [Pipeline] {
+[2026-11-02T14:24:27.683Z] [Pipeline] withEnv
+[2026-11-02T14:24:27.703Z] [Pipeline] {
+[2026-11-02T14:24:27.835Z] [Pipeline] sh
+[2026-11-02T14:24:28.117Z] + set -eu
+[2026-11-02T14:24:28.118Z] + curl -sS -f -m 10 -X POST -H 'Content-Type: application/json' --data '{"username":"Jenkins","icon_emoji":":rotating_light:","attachments":[{"color":"#d24b4b","text":":rotating_light: **debian** build of `dtools2` (main) failed -- [#180](https://jenkins.famillegratton.net:9988/job/debian-build/180/)"}]}' ****
+[2026-11-02T14:24:28.379Z] [Pipeline] }
+[2026-11-02T14:24:28.481Z] [Pipeline] // withEnv
+[2026-11-02T14:24:28.575Z] [Pipeline] }
+[2026-11-02T14:24:28.850Z] [Pipeline] // withCredentials
+[2026-11-02T14:24:28.918Z] [Pipeline] }
+[2026-11-02T14:24:29.132Z] [Pipeline] // script
+[2026-11-02T14:24:29.217Z] [Pipeline] }
+[2026-11-02T14:24:29.375Z] [Pipeline] // stage
+[2026-11-02T14:24:29.411Z] [Pipeline] }
+[2026-11-02T14:24:29.547Z] [Pipeline] // timeout
+[2026-11-02T14:24:29.726Z] [Pipeline] }
+[2026-11-02T14:24:29.907Z] [Pipeline] // withEnv
+[2026-11-02T14:24:29.972Z] [Pipeline] }
+[2026-11-02T14:24:30.136Z] [Pipeline] // node
+[2026-11-02T14:24:30.237Z] [Pipeline] End of Pipeline
+[2026-11-02T14:24:30.335Z] ERROR: /opt/sbin/buildpackage.sh exited 2
+[2026-11-02T14:24:30.401Z] Finished: FAILURE
