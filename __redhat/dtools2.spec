@@ -56,6 +56,13 @@ install -Dpm 0755 %{_builddir}/%{name}-%{version}/%{_binaryname} %{buildroot}%{_
 
 
 %changelog
+* Tue Nov 03 2026 Binary package builder <builder@famillegratton.net> 3.3.1-1
+- Merge branch 'feature/v3' into develop
+- enhancement: proper verb for the stop/kill actions
+- chore: updated gitignore
+- Merge branch 'main' into develop
+- chore: update changelog for 3.3.0-1
+
 * Mon Nov 02 2026 Binary package builder <builder@famillegratton.net> 3.3.0-1
 - bug: Removed the -race go test from builders
 - housekeeping: version bump for packaging
