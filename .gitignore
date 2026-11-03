@@ -18,3 +18,4 @@
 *.tar
 .DS*
 
+__staging/
