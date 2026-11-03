@@ -127,6 +127,7 @@ func stopContainersConcurrent(client *rest.Client, targets []ContainerSummary) *
 func stop(client *rest.Client, id string, containerName string, timeout int) *ce.CustomError {
 	var cerr *ce.CustomError
 	action := "/stop"
+	verb := " STOPPED"
 	if id == "" {
 		if id, cerr = Name2ID(client, containerName); cerr != nil {
 			return cerr
@@ -141,6 +142,7 @@ func stop(client *rest.Client, id string, containerName string, timeout int) *ce
 	// The KillSwitch is used mainly by the Kill / KillAll commands
 	if KillSwitch {
 		action = "/kill"
+		verb = " KILLED"
 	}
 	path := "/containers/" + id + action
 	q := url.Values{}
@@ -160,7 +162,7 @@ func stop(client *rest.Client, id string, containerName string, timeout int) *ce
 	}
 
 	if !rest.QuietOutput {
-		fmt.Println(hftx.InProgressSign("Container " + containerName + hftx.Red(" STOPPED")))
+		fmt.Println(hftx.InProgressSign("Container " + containerName + hftx.Red(verb)))
 	}
 
 	return nil
@@ -187,7 +189,7 @@ func StopAllContainers(client *rest.Client) *ce.CustomError {
 	}
 
 	if len(containerList) == 0 {
-		fmt.Println(hftx.NoteSign("Not a single container is running, STOPALL is thus un-needed"))
+		fmt.Println(hftx.NoteSign("Not a single container is running, STOPALL/KILLALL is thus un-needed"))
 		return nil
 	}
 	return StopContainers(client, containerList)
