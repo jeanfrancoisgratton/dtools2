@@ -73,3 +73,8 @@ func (s containerService) Restart(names []string) *ce.CustomError {
 func (s containerService) RestartAll() *ce.CustomError {
 	return containers.RestartAllContainers(s.client)
 }
+
+func (s containerService) Port(container, filter string) *ce.CustomError {
+	_, err := containers.PortContainer(s.client, container, filter)
+	return err
+}

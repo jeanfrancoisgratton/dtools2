@@ -370,3 +370,9 @@ func (s containerService) Remove(names []string) *ce.CustomError {
 func (s containerService) Rename(oldName, newName string) *ce.CustomError {
 	return &ce.CustomError{Title: "Not supported on containerd", Message: notSupported("container rename").Error()}
 }
+
+// Port is not supported: containerd has no port publishing of its own, that is
+// left to whatever CNI/networking layer sits on top of it.
+func (s containerService) Port(container, filter string) *ce.CustomError {
+	return &ce.CustomError{Title: "Not supported on containerd", Message: notSupported("container port").Error()}
+}

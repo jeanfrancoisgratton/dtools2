@@ -25,51 +25,9 @@ import (
 // If extras.OutputJSON is true, it outputs JSON to stdout.
 // Otherwise, it outputs formatted text.
 func InspectContainer(client *rest.Client, containerID string) (ContainerInspect, *ce.CustomError) {
-	ctx := rest.Context
-	if ctx == nil {
-		ctx = context.Background()
-	}
-
-	// Build the API path
-	path := fmt.Sprintf("/containers/%s/json", url.PathEscape(containerID))
-
-	// Add size parameter to get SizeRw and SizeRootFs
-	query := url.Values{}
-	query.Set("size", "true")
-
-	resp, err := client.Do(ctx, http.MethodGet, path, query, nil, nil)
-	if err != nil {
-		return ContainerInspect{}, &ce.CustomError{
-			Title:   "Failed to inspect container",
-			Message: err.Error(),
-		}
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return ContainerInspect{}, &ce.CustomError{
-			Title:   fmt.Sprintf("Container inspect failed (HTTP %d)", resp.StatusCode),
-			Message: string(body),
-		}
-	}
-
-	// Read response body
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return ContainerInspect{}, &ce.CustomError{
-			Title:   "Failed to read inspect response",
-			Message: err.Error(),
-		}
-	}
-
-	// Parse into ContainerInspect structure
-	var inspectData ContainerInspect
-	if err := json.Unmarshal(body, &inspectData); err != nil {
-		return ContainerInspect{}, &ce.CustomError{
-			Title:   "Failed to parse inspect response",
-			Message: err.Error(),
-		}
+	inspectData, body, cerr := inspectContainerData(client, containerID)
+	if cerr != nil {
+		return ContainerInspect{}, cerr
 	}
 
 	// Handle quiet output (return raw JSON)
@@ -94,6 +52,59 @@ func InspectContainer(client *rest.Client, containerID string) (ContainerInspect
 	printFormattedInspect(&inspectData)
 
 	return ContainerInspect{}, nil
+}
+
+// inspectContainerData fetches and parses GET /containers/{id}/json without displaying anything.
+// The raw response body is returned alongside the parsed structure.
+func inspectContainerData(client *rest.Client, containerID string) (ContainerInspect, []byte, *ce.CustomError) {
+	ctx := rest.Context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	// Build the API path
+	path := fmt.Sprintf("/containers/%s/json", url.PathEscape(containerID))
+
+	// Add size parameter to get SizeRw and SizeRootFs
+	query := url.Values{}
+	query.Set("size", "true")
+
+	resp, err := client.Do(ctx, http.MethodGet, path, query, nil, nil)
+	if err != nil {
+		return ContainerInspect{}, nil, &ce.CustomError{
+			Title:   "Failed to inspect container",
+			Message: err.Error(),
+		}
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return ContainerInspect{}, nil, &ce.CustomError{
+			Title:   fmt.Sprintf("Container inspect failed (HTTP %d)", resp.StatusCode),
+			Message: string(body),
+		}
+	}
+
+	// Read response body
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return ContainerInspect{}, nil, &ce.CustomError{
+			Title:   "Failed to read inspect response",
+			Message: err.Error(),
+		}
+	}
+
+	// Parse into ContainerInspect structure
+	var inspectData ContainerInspect
+	if err := json.Unmarshal(body, &inspectData); err != nil {
+		return ContainerInspect{}, nil, &ce.CustomError{
+			Title:   "Failed to parse inspect response",
+			Message: err.Error(),
+		}
+	}
+
+	return inspectData, body, nil
 }
 
 // printFormattedInspect displays container inspect data in a formatted text output

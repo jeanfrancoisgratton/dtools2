@@ -53,6 +53,8 @@ type ContainerService interface {
 	KillAll() *ce.CustomError
 	Restart(containers []string) *ce.CustomError
 	RestartAll() *ce.CustomError
+	// Port lists the published port mappings, optionally filtered on PRIVATE_PORT[/PROTO].
+	Port(container, filter string) *ce.CustomError
 }
 
 type ImageService interface {

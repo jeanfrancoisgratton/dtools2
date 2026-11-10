@@ -70,6 +70,7 @@ func TestUnsupportedOperations(t *testing.T) {
 	cs, is := b.Containers(), b.Images()
 	cases := map[string]func() error{
 		"container rename": func() error { return cs.Rename("a", "b") },
+		"container port":   func() error { return cs.Port("a", "") },
 		"image load":       func() error { return is.Load("x.tar") },
 		"image save":       func() error { return is.Save([]string{"a"}, "x.tar") },
 		"container commit": func() error { return is.Commit("c", "r:t", "", "", nil) },

@@ -39,8 +39,8 @@ func TestIsIgnoredWithMatcher(t *testing.T) {
 		{"*.log", false},
 		{"node_modules", false},
 		{"keep.log", true},
-		{"/build", false},       // single-component anchored pattern
-		{"/dist/cache", false},  // multi-component anchored pattern
+		{"/build", false},      // single-component anchored pattern
+		{"/dist/cache", false}, // multi-component anchored pattern
 	}
 
 	m := &ignoreMatcher{dockerfileRel: "Dockerfile"}

@@ -8,10 +8,10 @@ import "testing"
 
 func TestSplitContainerPath(t *testing.T) {
 	cases := []struct {
-		in        string
-		wantRef   string
-		wantPath  string
-		wantOK    bool
+		in       string
+		wantRef  string
+		wantPath string
+		wantOK   bool
 	}{
 		{"web:/etc/hosts", "web", "/etc/hosts", true},
 		{"abc123:/var/log", "abc123", "/var/log", true},

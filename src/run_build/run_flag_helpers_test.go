@@ -58,10 +58,10 @@ func TestParseUlimits(t *testing.T) {
 
 func TestParseUlimitsErrors(t *testing.T) {
 	cases := [][]string{
-		{"nofile"},          // missing '='
-		{"nofile=a"},        // non-numeric soft
-		{"nofile=1:2:3"},    // too many parts
-		{"nofile=1:bad"},    // non-numeric hard
+		{"nofile"},       // missing '='
+		{"nofile=a"},     // non-numeric soft
+		{"nofile=1:2:3"}, // too many parts
+		{"nofile=1:bad"}, // non-numeric hard
 	}
 	for _, c := range cases {
 		if _, err := parseUlimits(c); err == nil {

@@ -318,15 +318,38 @@ var containerInspectCmd = &cobra.Command{
 	},
 }
 
+var containerPortCmd = &cobra.Command{
+	Use:     "port CONTAINER [PRIVATE_PORT[/PROTO]]",
+	Example: "dtools port my-container [80/tcp]",
+	Short:   "List port mappings or a specific mapping for the container",
+	Args:    cobra.RangeArgs(1, 2),
+	Run: func(cmd *cobra.Command, args []string) {
+		if activeBackend == nil {
+			reportError("Backend not initialized")
+			return
+		}
+		rest.Context = cmd.Context()
+
+		filter := ""
+		if len(args) == 2 {
+			filter = args[1]
+		}
+		if errCode := activeBackend.Containers().Port(args[0], filter); errCode != nil {
+			reportError(errCode)
+		}
+		return
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(containerCmd, containerListCmd, containerInfoCmd, containerRemoveCmd, containerPauseCmd,
 		containerUnpauseCmd, containerStartCmd, containerStartAllCmd, containerStopCmd, containerStopAllCmd,
 		containerRenameCmd, containerKillCmd, containerKillAllCmd, containerRestartCmd,
-		containerRestartAllCmd, containerAttachCmd, containerInspectCmd)
+		containerRestartAllCmd, containerAttachCmd, containerInspectCmd, containerPortCmd)
 	containerCmd.AddCommand(containerListCmd, containerInfoCmd, containerRemoveCmd, containerPauseCmd,
 		containerUnpauseCmd, containerStartCmd, containerStartAllCmd, containerStopCmd, containerStopAllCmd,
 		containerRenameCmd, containerKillCmd, containerKillAllCmd, containerRestartCmd,
-		containerRestartAllCmd, containerAttachCmd, containerInspectCmd)
+		containerRestartAllCmd, containerAttachCmd, containerInspectCmd, containerPortCmd)
 
 	containerRestartCmd.Flags().BoolVarP(&containers.KillSwitch, "kill", "k", false, "force kill of container")
 	containerRestartAllCmd.Flags().BoolVarP(&containers.KillSwitch, "kill", "k", false, "force kill of container")
