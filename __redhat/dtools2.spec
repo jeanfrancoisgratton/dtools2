@@ -56,6 +56,11 @@ install -Dpm 0755 %{_builddir}/%{name}-%{version}/%{_binaryname} %{buildroot}%{_
 
 
 %changelog
+* Tue Nov 10 2026 Binary package builder <builder@famillegratton.net> 3.4.0-1
+- removed dontexec
+- feature: added dtool port
+- chore: update changelog for 3.3.1-1
+
 * Tue Nov 03 2026 Binary package builder <builder@famillegratton.net> 3.3.1-1
 - Merge branch 'feature/v3' into develop
 - enhancement: proper verb for the stop/kill actions
